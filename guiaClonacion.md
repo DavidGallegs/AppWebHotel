@@ -1,4 +1,6 @@
-# DESCARGAR ARQUITECTURA DE GITHUB
+# GUÍA REPOSITORIO
+
+## DESCARGAR ARQUITECTURA DE GITHUB
 
 Tenemos que estar dentro de WSL:Ubuntu
 
@@ -34,3 +36,31 @@ Tenemos que estar dentro de WSL:Ubuntu
 Para comprobar que esta todo hecho usamos los **`Comandos de frontend`** para ver index.astro.
 Nota: El comando: `docker compose -f docker-compose-dev.yml up -d --build`, solo es para la primera vez
 o actualizaciones. Sino usar el comando `docker compose -f docker-compose-dev.yml up -d`.
+
+## COMANDOS DE DOCKER
+
+### COMANDOS FRONTEND
+
+~~~cmd
+docker compose -f docker-compose-dev.yml up -d
+
+docker compose -f docker-compose-dev.yml exec frontend sh
+
+npm run dev
+
+docker compose -f docker-compose-dev.yml down
+
+wsl --shutdown
+~~~
+
+### COMANDOS BACKEND
+
+~~~cmd
+docker compose -f docker-compose-dev.yml up -d
+
+docker compose -f docker-compose-dev.yml exec backend bash
+
+docker compose -f docker-compose-dev.yml down
+
+wsl --shutdown
+~~~
