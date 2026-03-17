@@ -1,0 +1,20 @@
+---
+
+import {Image}  from 'astro:assets';
+import ContactA from '../../assets/navigation_images/contacto-a.png'
+import ContactB from '../../assets/navigation_images/contacto-b.png'
+
+const {isActive} = Astro.props;
+const imagenMostrar = isActive ? ContactB : ContactA;
+---
+
+
+<style>
+    .navigation-contact{
+        padding: 0 5px;
+    }
+</style>
+
+<a href="/" class="navigation-contact">
+    <Image src={imagenMostrar} alt="Contacto">
+</a>

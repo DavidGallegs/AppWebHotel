@@ -1,0 +1,13 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: system-ui;
+    font-size: 18px;
+}
+
+body {
+    background: #f2ddb6 no-repeat center;
+    min-height: 100vh;
+    background-size: cover;
+}

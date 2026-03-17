@@ -5,5 +5,9 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react()]
+  integrations: [react()],
+  server: {
+    port: 4321,
+    host: true, // Esto es vital para que Docker pueda exponer la red hacia afuera
+  }
 });

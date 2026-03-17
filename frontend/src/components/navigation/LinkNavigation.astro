@@ -1,0 +1,26 @@
+---
+const {site} = Astro.props
+---
+
+<style>
+    
+    .navigation-li{
+        display: inline-block;
+        margin: 0 7px;
+    }
+    .navigation-link{
+        text-decoration: dashed;
+        color: #000;
+        
+    }
+
+    .navigation-link:hover{
+        color: #cc530e;
+    }
+
+    .navigation-link:active{
+        color: #77330e;
+    }
+</style>
+
+<li class="navigation-li"><a href={`/${site}`} class="navigation-link">{site}</a></li>

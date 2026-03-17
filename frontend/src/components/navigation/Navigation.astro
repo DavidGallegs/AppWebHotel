@@ -1,0 +1,47 @@
+---
+import {Image}  from 'astro:assets';
+import facebook from '../../assets/navigation_images/facebook.png'
+
+import ContactNavigation from "./ContactNavigation.astro";
+import ImageNavigation from "./HomeNavigation.astro"
+import LinkNavigation from "./LinkNavigation.astro"
+
+
+const {isHome,isContact} = Astro.props;
+---
+
+<nav class="navigation-container">
+        <div class="navigation_url">
+            <ImageNavigation isActive={isHome}/>
+            <ContactNavigation isActive={isContact}/>
+            <a href="http://www.facebook.com/quintanaltaranes" class="navigation-facebook" target="_blank">
+                <Image src={facebook} alt="Home">
+            </a>
+        </div>
+        <ul class="navigation-ul">
+            <LinkNavigation site="Situacion"/>
+            <LinkNavigation site="Taranes"/>
+            <LinkNavigation site="Ponga"/>
+            <LinkNavigation site="Hotel Rural"/>
+            <LinkNavigation site="Bar"/>
+            <LinkNavigation site="Fotos"/>
+            <LinkNavigation site="Comentarios"/>
+        </ul>
+</nav>
+
+<style>
+    .navigation-container{
+        display: flex;
+        height: 50px;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        margin-top: 100px;
+    }
+
+    .navigation-ul{
+        list-style: none;
+        padding: 0 0 0 10px;
+
+    }
+</style>
