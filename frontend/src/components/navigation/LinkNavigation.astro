@@ -21,6 +21,26 @@ const {site} = Astro.props
     .navigation-link:active{
         color: #77330e;
     }
+
+    @media (min-width: 481px) and (max-width: 768px){
+
+        .navigation-link{
+            
+            display: block;
+            color: #fff;
+            font-size: 1.2rem; 
+            padding: 10px 0 10px 20px;
+            
+        }
+
+        .navigation-li{
+            border-top: 1px #444  solid;
+            text-align: left;
+            margin: 0;
+            
+        }
+    }
+
 </style>
 
 <li class="navigation-li"><a href={`/${site}`} class="navigation-link">{site}</a></li>
