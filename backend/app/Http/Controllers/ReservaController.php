@@ -27,8 +27,7 @@ class ReservaController extends Controller
             'sexo' => 'nullable|string|in:M,F,O',
             'tipoDocumento' => 'nullable|string|max:20',
             'documento' => 'required|string|max:15|unique:PERSONA,documento',
-            'soporteDocumento' => 'nullable|string|max:9',
-            'personas' => 'required|array|min:1'
+            'soporteDocumento' => 'nullable|string|max:9'
         ]);
 
         // Crear la persona en la base de datos

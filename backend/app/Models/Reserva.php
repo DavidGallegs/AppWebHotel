@@ -15,6 +15,8 @@ class Reserva extends Model
     // Clave primaria, le dice a Laravel cual es la columna PK
     protected $primaryKey = 'idPersona';
 
+    public $timestamps = false;
+
     // Campos que se pueden asignar, para evitar errores de asignación masiva.
     protected $fillable = [
         'nombre',
@@ -33,7 +35,6 @@ class Reserva extends Model
         'sexo',
         'tipoDocumento',
         'documento',
-        'soporteDocumento',
-        'personas'
+        'soporteDocumento'
     ];
 }
