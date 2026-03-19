@@ -33,6 +33,7 @@ class Reserva extends Model
         'sexo',
         'tipoDocumento',
         'documento',
-        'soporteDocumento'
+        'soporteDocumento',
+        'personas'
     ];
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Reserva;
 use Illuminate\Http\Request;
 
 class ReservaController extends Controller
@@ -27,7 +27,8 @@ class ReservaController extends Controller
             'sexo' => 'nullable|string|in:M,F,O',
             'tipoDocumento' => 'nullable|string|max:20',
             'documento' => 'required|string|max:15|unique:PERSONA,documento',
-            'soporteDocumento' => 'nullable|string|max:9'
+            'soporteDocumento' => 'nullable|string|max:9',
+            'personas' => 'required|array|min:1'
         ]);
 
         // Crear la persona en la base de datos

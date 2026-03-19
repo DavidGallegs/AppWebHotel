@@ -1,5 +1,5 @@
-// test.js
-const fetch = require('node-fetch'); 
+// test_prueba.js
+import fetch from 'node-fetch';
 
 const reserva = {
   nombre: "Guille",
@@ -24,9 +24,20 @@ const reserva = {
 
 fetch('http://localhost:8000/api/reservas', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'  // <- Esto indica que quieres JSON de vuelta
+  },
   body: JSON.stringify(reserva)
 })
-.then(res => res.json())
-.then(data => console.log("Respuesta del backend:", data))
-.catch(err => console.error("Error:", err));
+.then(res => res.text()) // <-- aquí conviertes la respuesta a texto
+.then(text => {
+    console.log("Respuesta cruda del backend:", text);
+    try {
+        const data = JSON.parse(text); // intentamos parsear JSON si es posible
+        console.log("Respuesta parseada:", data);
+    } catch(e) {
+        console.error("No es JSON válido:", e);
+    }
+})
+.catch(err => console.error("Error de fetch:", err));
