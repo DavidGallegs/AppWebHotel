@@ -1,4 +1,4 @@
-# 17-18/03/2026
+# 17-20/03/2026
 
 ## PLANTEAMIENTO DE LAS PÁGINAS
 
@@ -118,10 +118,10 @@ En el caso de los acompañantes:
 |nombre|String 50|Nombre de la persona|
 |apellido|String 50|Primer apellido de la persona|
 |apellido2|String 50|Obligatorio si su tipod de documento es NIF|
-|tipoDocumento|String 5|Obligatorio si la persona es mayor de edad (NIF, DNI,PASSPORT)|
-|numeroDocumento|String 15|Obligatorio si la persona es mayor de edad (NIF, DNI,PASSPORT)|
+|tipoDocumento|String 5|Obligatorio si la persona es mayor de edad (NIF, NIE,PAS,OTRO)|
+|numeroDocumento|String 15|Obligatorio si la persona es mayor de edad (NIF, NIE,PAS.OTRO)|
 |fechaNacimiento|Fecha: AAAA-MM-DD|Fecha de nacimiento|
-|parenteso|String(5)|Obligatorio si la persona es menor de edad|
+|parenteso|String(5)|Obligatorio si la persona es menor de edad(Tiene una lista de códigos, al ser menor de edad elegimos solo aquellos codigos que son de alguien menor de edad)|
 |direccion|Bloque|Apartado 4.1|
 |direccion|string(100)|Direccion de la persona|
 |codigoMunicipio|String(5)|Obligatorio si el pais es España, usar códigos de los municipios de la INE|
@@ -169,3 +169,57 @@ Datos que crea el formulario o son generales:
 - [ ] **Lógica de Ubicación (España vs Extranjero):**
   - *Si pais es 'ESP':* Hacer obligatorio `codigoMunicipio` (validar que sean 5 dígitos) y ocultar/desactivar `nombreMunicipio`.
   - *Si pais NO es 'ESP':* Hacer obligatorio `nombreMunicipio` y ocultar/desactivar `codigoMunicipio`.
+
+### Proceso de creación del formulario
+
+Para el formulario en React vamos a usar la libreria de React-Hook-forms
+usando `npm install react-hook-form` que esta en su web oficial: <https://react-hook-form.com/get-started>
+
+Para el campo de Codigo del pais vamos a isntalar una librearia llamada `i18n-iso-countries` con
+`npm install i18n-iso-countries`
+
+Mini guia:
+
+~~~tsx
+import countries from "i18n-iso-countries";
+import es from "i18n-iso-countries/langs/es.json";
+
+// Registramos el idioma español
+countries.registerLocale(es);
+
+// Obtenemos el objeto con todos los países en formato { "ESP": "España", "ARG": "Argentina"... }
+const paisesObjeto = countries.getNames("es", { select: "official" });
+
+// Lo convertimos a un array para poder usar .map()
+const listaPaises = Object.entries(paisesObjeto).map(([codigo, nombre]) => ({
+  codigo, //Este es para 2 letras es decir ES
+  nombre,
+}));
+
+const listaPaises = Object.entries(paisesObjeto).map(([codigo2, nombre]) => ({
+  codigo3: countries.alpha2ToAlpha3(codigo2), // Convierte "ES" -> "ESP" y en el select ponemos codigo3 en vez de codigo
+  nombre,
+}));
+
+function Formulario() {
+    const { register, handleSubmit } = useForm<IFormulario>();
+
+    return (
+        <select {...register("paisIso")}>
+            <option value="">Selecciona un país...</option>
+            {listaPaises.map((pais) => (
+                <option key={pais.codigo} value={pais.codigo}>
+                    {pais.nombre}
+                </option>
+            ))}
+        </select>
+    );
+}
+~~~
+
+-[] Rescpecto a los 2000 y pico municipios hay una forma de hacer ese select, pero solo si es necesario.
+
+Una vez ya tenemos toda la esturcutra creada, es decir los campos con todas sus opciones, interfaces de tipo
+etc, etc, vamos a hacer que los campos cumplan validaciones es decir, ahora mismo en el campo telefono, puede entrar
+cualquier telefono o en el correo puede entrar una sola letra, para validar cada campo Y desactivar y activar campos
+siguiendo ciertas condiciones vamos a usar la biblicioteca Zod usando el comando: `npm install zod @hookform/resolvers`

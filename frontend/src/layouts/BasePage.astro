@@ -14,7 +14,6 @@ const {tituloPage, isHome, isContact, imageBack} = Astro.props
 	</head>
 	<body style={`background-image: url('${imageBack}');`}>
 		<Navigation isHome ={isHome} isContact={isContact}/>
-		<div class="co"></div>
 		<slot/>
 	</body>
 </html>
