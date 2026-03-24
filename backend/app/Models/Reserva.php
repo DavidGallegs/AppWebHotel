@@ -10,14 +10,17 @@ class Reserva extends Model
     use HasFactory;
 
     // Nombre exacto de la tabla
-    protected $table = 'PERSONA';
+    protected $table = 'persona';
 
     // Clave primaria, le dice a Laravel cual es la columna PK
     protected $primaryKey = 'idPersona';
 
+    // Laravel por defecto espera columnas created_at y updated_at para manejar 
+    // las fechas de creación y actualización de los registros. Si tu tabla no las tiene, debo desactivar esta funcionalidad.
     public $timestamps = false;
 
-    // Campos que se pueden asignar, para evitar errores de asignación masiva.
+    // Campos que se pueden asignar, para evitar errores de asignación masiva, es decir 
+    // que Laravel no permita asignar valores a campos que no estén en esta lista.
     protected $fillable = [
         'nombre',
         'apellido1',

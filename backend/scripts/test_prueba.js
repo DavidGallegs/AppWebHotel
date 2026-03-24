@@ -2,23 +2,49 @@
 import fetch from 'node-fetch';
 
 const reserva = {
-  nombre: "Guille",
-  apellido1: "Niebla",
-  apellido2: "Pérez",
-  fechaNacimiento: "1990-05-12",
-  nacionalidad: "ESP",
-  direccion: "Calle Falsa 123",
-  codigoMunicipio: "41001",
-  nombreMunicipio: "Sevilla",
-  localidad: "Sevilla",
-  cp: "41001",
-  pais: "ESP",
-  telefono: "600123456",
-  correo: "guille@example.com",
-  sexo: "M",
-  tipoDocumento: "DNI",
-  documento: "12345678A",
-  soporteDocumento: "DNI"
+  viajeros: [
+    {
+      rol: "titular",
+      nombre: "Guille",
+      apellido1: "Niebla",
+      apellido2: "Pérez",
+      fechaNacimiento: "1990-05-12",
+      nacionalidad: "ESP",
+      direccion: "Calle Falsa 123",
+      codigoMunicipio: "41001",
+      nombreMunicipio: "Sevilla",
+      localidad: "Sevilla",
+      cp: "41001",
+      pais: "ESP",
+      telefono: "600123456",
+      correo: "guille@example.com",
+      sexo: "M",
+      tipoDocumento: "DNI",
+      documento: "54882182L",
+      soporteDocumento: "AE8765674"
+    },
+    {
+      rol: "acompanante",
+      parentesco: "HJ",
+      nombre: "Ana",
+      apellido1: "López",
+      apellido2: "Martín",
+      fechaNacimiento: "1992-08-20",
+      nacionalidad: "ESP",
+      direccion: "Calle Falsa 123",
+      codigoMunicipio: "41001",
+      nombreMunicipio: "Sevilla",
+      localidad: "Sevilla",
+      cp: "41001",
+      pais: "ESP",
+      telefono: "600987654",
+      correo: "ana@example.com",
+      sexo: "F",
+      tipoDocumento: "DNI",
+      documento: "43511981Y",
+      soporteDocumento: "BB1234567"
+    }
+  ]
 };
 
 fetch('http://localhost:8000/api/reservas', {
