@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 const reserva = {
   viajeros: [
     {
-      rol: "titular",
+      rol: "TI",
       nombre: "Guille",
       apellido1: "Niebla",
       apellido2: "Pérez",
@@ -24,7 +24,7 @@ const reserva = {
       soporteDocumento: "AE8765674"
     },
     {
-      rol: "acompanante",
+      rol: "VI",
       parentesco: "HJ",
       nombre: "Ana",
       apellido1: "López",

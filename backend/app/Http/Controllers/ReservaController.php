@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Persona;
 use App\Models\Reserva;
 use Illuminate\Http\Request;
 use App\Rules\DniValido;
@@ -39,9 +40,9 @@ class ReservaController extends Controller
                 'tipoDocumento' => ['required','in:DNI,NIE,PASAPORTE'],
                 'documento' => ['required','string','max:15','unique:persona,documento', new DniValido], 
                 'soporteDocumento' => ['required','regex:/^[A-Z]{2}[0-9]{7}$/'],
-                'rol' => ['required','in:titular,acompanante'],
+                'rol' => ['required','in:TI,VI'],
                 // Si el viajero es un acompañante, el campo parentesco es obligatorio, si es titular no se requiere.
-                'parentesco' => $viajero['rol'] === 'acompanante' 
+                'parentesco' => $viajero['rol'] === 'VI' 
                     ? ['required', 'string', 'max:5'] 
                     : []
             ])->validate();
@@ -49,16 +50,33 @@ class ReservaController extends Controller
             
         }
         
+        //1.- Guardamos personas
         // Si llegamos aquí, todos los viajeros son válidos: guardar
-        $reservaIds = [];
+        $personas  = [];
         foreach ($validatedViajeros as $viajero) {
-            $reservaIds[] = Reserva::create($viajero)->idPersona;
+            $personas [] = Persona::create($viajero);
         }
+
+
+        //2.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI.
+        $titular = collect($personas)->first(function ($persona, $index) use ($validatedViajeros) {
+            return $validatedViajeros[$index]['rol'] === 'TI';
+        });
+
+
+        //3.- Creamos la reserva asociada al titular.
+        $reserva = Reserva::create([
+            'idPersonaTitular' => $titular->idPersona,
+            'codigoEstablecimiento' => '0000004063', // mejor si viene del request
+            'estado' => 'pendiente',
+            'createdAt' => now(),
+            'updatedAt' => now()
+        ]);
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
         return response()->json([
             'success' => true,
-            'reserva_ids' => $reservaIds
+            'reserva_ids' => $personas 
         ]);
     }
 }
