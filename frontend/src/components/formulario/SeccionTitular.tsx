@@ -1,8 +1,9 @@
 import { useFormContext } from "react-hook-form";
-import { type IFormularioSes, listaPaises } from "./Formulario"; 
+import { listaPaises } from "./Formulario"; // Solo importamos la lista de aquí
+import { type TFormularioSes } from "./esquemaZod";
 
 export function SeccionTitular() {
-    const { register } = useFormContext<IFormularioSes>();
+    const { register } = useFormContext<TFormularioSes>();
 
     return (
         <fieldset className="seccion-titular">

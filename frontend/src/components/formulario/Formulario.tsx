@@ -1,12 +1,17 @@
 import { useForm, FormProvider, useFieldArray, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"; // <-- EL PUENTE DE ZOD
 import countries from "i18n-iso-countries";
 import es from "i18n-iso-countries/langs/es.json";
 
+import { SeccionFechas } from "./SeccionFechas";
 import { SeccionTitular } from "./SeccionTitular";
 import { SeccionAcompanantes } from "./SeccionAcompanantes";
-import { SeccionFechas } from "./SeccionFechas"; // <-- Nueva importación
 
-// --- CONFIGURACIÓN DE PAÍSES (Exportado para los hijos) ---
+import "../../styles/formulario.css";
+
+// <-- IMPORTAMOS EL ESQUEMA Y EL TIPO INFERIDO DESDE TU ARCHIVO ZOD
+import { esquemaFormularioSes, type TFormularioSes } from "./esquemaZod"; 
+
 countries.registerLocale(es);
 const paisesObjeto = countries.getNames("es", { select: "official" });
 
@@ -15,47 +20,10 @@ export const listaPaises = Object.entries(paisesObjeto).map(([codigo2, nombre]) 
     nombre,
 }));
 
-// --- INTERFACES (Exportadas para los hijos) ---
-export interface ITitular {
-    rol: string;
-    nombre: string;
-    apellido1: string;
-    apellido2: string;
-    tipoDocumento: string;
-    numeroDocumento: string;
-    soporteDocumento: string;
-    fechaNacimiento: string;
-    telefono: string;
-    correo: string;
-    direccion: string;
-    codigoPostal: string;
-    pais: string;
-}
-
-export interface IAcompanante {
-    rol: string;
-    nombre: string;
-    apellido1: string;
-    apellido2: string;
-    tipoDocumento: string;
-    numeroDocumento: string;
-    fechaNacimiento: string;
-    parentesco: string;
-    direccion: string;
-    codigoPostal: string;
-    pais: string;
-}
-
-export interface IFormularioSes {
-    fechaEntrada: string;
-    fechaSalida: string;
-    titular: ITitular;
-    acompanantes: IAcompanante[];
-}
-
-// --- COMPONENTE PRINCIPAL ---
 function Formulario() {
-    const methods = useForm<IFormularioSes>({
+    // <-- CONECTAMOS ZOD AL FORMULARIO AQUÍ
+    const methods = useForm<TFormularioSes>({
+        resolver: zodResolver(esquemaFormularioSes),
         defaultValues: {
             acompanantes: []
         }
@@ -68,31 +36,55 @@ function Formulario() {
         name: "acompanantes"
     });
 
-    const enviar: SubmitHandler<IFormularioSes> = (data) => {
+    // Añadimos un console.log extra para ver los errores si la validación falla
+    const enviar: SubmitHandler<TFormularioSes> = async (data) => {
         const numPersonas = 1 + data.acompanantes.length;
-
         const fechaActual = new Date();
-        const fechaContrato = fechaActual.toISOString().split('T')[0]; 
+        const fechaContrato = fechaActual.toISOString().split('T')[0];
 
-        //Juntamos todo en un único objeto final
-        const loadFinal = {
-            ...data,           // Mete todos los datos del titular, acompañantes y fechas de reserva
-            numPersonas,       // contador
-            fechaContrato      // Añade la fecha de envío
+        const payloadFinal = {
+            ...data,
+            numPersonas,
+            fechaContrato
         };
 
-        console.log("Paquete final generado por el formulario:", loadFinal);
-        
-        // Aqui va el fetch a la API
+        try {
+            // Reemplaza el puerto (ej: 8000) por el que tengas expuesto en tu Docker
+            const respuesta = await fetch("http://localhost:8000/api/tu-endpoint-de-laravel", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json" // Importante para que Laravel devuelva errores en JSON
+                },
+                body: JSON.stringify(payloadFinal)
+            });
+
+            if (!respuesta.ok) {
+                // Si Laravel devuelve un 422 (errores de validación) o un 500
+                throw new Error(`Error del servidor: ${respuesta.status}`);
+            }
+
+            const resultado = await respuesta.json();
+            console.log("¡Éxito! Laravel ha guardado esto:", resultado);
+            alert("Formulario enviado correctamente.");
+
+        } catch (error) {
+            console.error("Fallo al conectar con el backend en Docker:", error);
+            alert("Hubo un error al enviar los datos al servidor.");
+        }
+    };
+
+    const erroresAlEnviar = (errores: any) => {
+        console.error("Zod ha bloqueado el envío por estos errores:", errores);
     };
 
     return (
         <div className="container-form">
             <FormProvider {...methods}>
-                <form className="form" onSubmit={handleSubmit(enviar)}>
-
+                {/* Si hay errores, ejecuta erroresAlEnviar en lugar de enviar */}
+                <form className="form" onSubmit={handleSubmit(enviar, erroresAlEnviar)}>
+                    
                     <SeccionFechas />
-
                     <SeccionTitular />
 
                     {fields.map((field, index) => (
@@ -107,9 +99,10 @@ function Formulario() {
                         <button 
                             type="button" 
                             onClick={() => append({ 
-                                rol:"VI", nombre: "", apellido1: "", apellido2: "", tipoDocumento: "", 
-                                numeroDocumento: "", fechaNacimiento: "", parentesco: "", 
-                                direccion: "", codigoPostal: "", pais: "" 
+                                rol: "VI",
+                                nombre: "", apellido1: "", apellido2: "", tipoDocumento: "", 
+                                numeroDocumento: "", soporteDocumento: "", fechaNacimiento: "", 
+                                parentesco: "", direccion: "", codigoPostal: "", pais: "" 
                             })}
                         >
                             + Añadir Acompañante

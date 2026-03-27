@@ -1,0 +1,70 @@
+/* Formulario.css */
+.container-form {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #fdfdfd;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+fieldset {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #ffffff;
+}
+
+legend {
+    font-weight: 600;
+    color: #333;
+    background: #fdfdfd;
+    padding: 0 10px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* Para que el padding no rompa el ancho */
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.acciones-formulario {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-add {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.btn-add:hover { background-color: #cbd5e1; }
+
+button[type="submit"] {
+    background-color: #2563eb;
+    color: white;
+}
+
+button[type="submit"]:hover { background-color: #1d4ed8; }

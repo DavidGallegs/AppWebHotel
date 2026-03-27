@@ -1,5 +1,6 @@
 import { useFormContext } from "react-hook-form";
-import { type IFormularioSes, listaPaises } from "./Formulario";
+import { listaPaises } from "./Formulario"; // Solo importamos la lista de aquí
+import { type TFormularioSes } from "./esquemaZod";
 
 interface PropsAcompanante {
     index: number;
@@ -7,7 +8,7 @@ interface PropsAcompanante {
 }
 
 export function SeccionAcompanantes({ index, remover }: PropsAcompanante) {
-    const { register } = useFormContext<IFormularioSes>();
+    const { register } = useFormContext<TFormularioSes>();
 
     return (
         <fieldset className="seccion-acompanante">
@@ -30,6 +31,7 @@ export function SeccionAcompanantes({ index, remover }: PropsAcompanante) {
             </select>
             
             <input type="text" placeholder="Número Documento" {...register(`acompanantes.${index}.numeroDocumento` as const)} />
+            <input type="text" placeholder="Soporte Documento" {...register(`acompanantes.${index}.soporteDocumento` as const)} />
             <input type="date" {...register(`acompanantes.${index}.fechaNacimiento` as const)} />
             
             <select {...register(`acompanantes.${index}.parentesco` as const)}>

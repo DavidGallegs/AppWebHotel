@@ -70,6 +70,9 @@ todos los parametros como textos, imagen de fonto, fotos y variables
 - [] Preguntar cuando el fondo se hace más pequeño si conservar mi opción o conservar la versión antigua
 - [] Recordar cambiar el logo svg por el de astro en el title de cada página.
 
+IMPORTANTE: RECUERDA QUE LOS MD son para exportar el contenido a componontes NO para crear paginas
+a partir de MD.
+
 ## CREACIÓN DE LOS MARKDOWN
 
 En este paso se crearán todos los markdown con el texto e imagenes correspondientes
@@ -120,6 +123,7 @@ En el caso de los acompañantes:
 |apellido2|String 50|Obligatorio si su tipod de documento es NIF|
 |tipoDocumento|String 5|Obligatorio si la persona es mayor de edad (NIF, NIE,PAS,OTRO)|
 |numeroDocumento|String 15|Obligatorio si la persona es mayor de edad (NIF, NIE,PAS.OTRO)|
+|soporteDocumento|String 9|Obligatorio si es NIF o NIE|
 |fechaNacimiento|Fecha: AAAA-MM-DD|Fecha de nacimiento|
 |parenteso|String(5)|Obligatorio si la persona es menor de edad(Tiene una lista de códigos, al ser menor de edad elegimos solo aquellos codigos que son de alguien menor de edad)|
 |direccion|Bloque|Apartado 4.1|
@@ -223,3 +227,14 @@ Una vez ya tenemos toda la esturcutra creada, es decir los campos con todas sus 
 etc, etc, vamos a hacer que los campos cumplan validaciones es decir, ahora mismo en el campo telefono, puede entrar
 cualquier telefono o en el correo puede entrar una sola letra, para validar cada campo Y desactivar y activar campos
 siguiendo ciertas condiciones vamos a usar la biblicioteca Zod usando el comando: `npm install zod @hookform/resolvers`
+
+## FORMULARIO SES 2
+
+Objetivos:
+
+- [] Docuemntar el Form y el Zod
+- [] Añadir el option de los municipios en caso de ESP
+- [] Mejorar el fechaSalida y fechaEntrada con `react-day-picker`
+- [] Añadir estilos al formulario
+- [] Conexión al Backend con Fetch
+- [] Optimiazr isla de Formulario con React

@@ -59,7 +59,7 @@ export const titularSchema = personaBaseSchema.extend({
     // 1. Mayoría de edad del Titular
     if (edad < 18) {
         ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: "El titular debe ser mayor de edad",
             path: ["fechaNacimiento"],
         });
@@ -68,7 +68,7 @@ export const titularSchema = personaBaseSchema.extend({
     // 2. Contacto mínimo
     if (!data.telefono && !data.correo) {
         ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: "Debe proporcionar al menos un teléfono o un correo",
             path: ["telefono"], // Mostramos el error en el input de teléfono
         });
@@ -76,33 +76,36 @@ export const titularSchema = personaBaseSchema.extend({
 
     // 3. Documentación Titular (siempre requerida por ser mayor de edad)
     if (!data.tipoDocumento) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido", path: ["tipoDocumento"] });
+        ctx.addIssue({ code: "custom", message: "Requerido", path: ["tipoDocumento"] });
+    }
+    if (!data.soporteDocumento) {
+        ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIE/NIF", path: ["soporteDocumento"] });
     }
     if (!data.numeroDocumento) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido", path: ["numeroDocumento"] });
+        ctx.addIssue({ code: "custom", message: "Requerido", path: ["numeroDocumento"] });
     }
 
     // 4. Lógica DNI/NIF
     if (data.tipoDocumento === "DNI" || data.tipoDocumento === "NIF") {
         if (!data.apellido2) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Obligatorio para DNI/NIF", path: ["apellido2"] });
+            ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIF", path: ["apellido2"] });
         }
         if (!data.soporteDocumento) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Obligatorio para DNI/NIF", path: ["soporteDocumento"] });
+            ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIF", path: ["soporteDocumento"] });
         }
         if (data.numeroDocumento && !validarDniNie(data.numeroDocumento)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "DNI/NIF inválido", path: ["numeroDocumento"] });
+            ctx.addIssue({ code: "custom", message: "DNI/NIF inválido", path: ["numeroDocumento"] });
         }
     }
 
     // 5. Lógica de Ubicación
     if (data.pais === "ESP") {
         if (!data.codigoMunicipio || !/^\d{5}$/.test(data.codigoMunicipio)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debe ser un código de 5 dígitos", path: ["codigoMunicipio"] });
+            ctx.addIssue({ code: "custom", message: "Debe ser un código de 5 dígitos", path: ["codigoMunicipio"] });
         }
     } else {
         if (!data.nombreMunicipio) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido para extranjeros", path: ["nombreMunicipio"] });
+            ctx.addIssue({ code: "custom", message: "Requerido para extranjeros", path: ["nombreMunicipio"] });
         }
     }
 });
@@ -111,37 +114,38 @@ export const titularSchema = personaBaseSchema.extend({
 export const acompananteSchema = personaBaseSchema.extend({
     rol: z.literal("VI"),
     parentesco: z.string().optional(),
+    soporteDocumento: z.string().optional(),
 }).superRefine((data, ctx) => {
     const edad = calcularEdad(data.fechaNacimiento);
 
     // 1. Lógica de Edad
     if (edad >= 18) {
-        if (!data.tipoDocumento) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido para mayores", path: ["tipoDocumento"] });
-        if (!data.numeroDocumento) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido para mayores", path: ["numeroDocumento"] });
+        if (!data.tipoDocumento) ctx.addIssue({ code: "custom", message: "Requerido para mayores", path: ["tipoDocumento"] });
+        if (!data.numeroDocumento) ctx.addIssue({ code: "custom", message: "Requerido para mayores", path: ["numeroDocumento"] });
     } else {
         if (!data.parentesco) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido para menores de edad", path: ["parentesco"] });
+            ctx.addIssue({ code: "custom", message: "Requerido para menores de edad", path: ["parentesco"] });
         }
     }
 
     // 2. Lógica DNI/NIE para acompañantes
     if (data.tipoDocumento === "DNI" || data.tipoDocumento === "NIE" || data.tipoDocumento === "NIF") {
         if (!data.apellido2) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Obligatorio para DNI/NIE/NIF", path: ["apellido2"] });
+            ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIE/NIF", path: ["apellido2"] });
         }
         if (data.numeroDocumento && !validarDniNie(data.numeroDocumento)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Documento inválido", path: ["numeroDocumento"] });
+            ctx.addIssue({ code: "custom", message: "Documento inválido", path: ["numeroDocumento"] });
         }
     }
 
     // 3. Lógica de Ubicación
     if (data.pais === "ESP") {
         if (!data.codigoMunicipio || !/^\d{5}$/.test(data.codigoMunicipio)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debe ser un código de 5 dígitos", path: ["codigoMunicipio"] });
+            ctx.addIssue({ code: "custom", message: "Debe ser un código de 5 dígitos", path: ["codigoMunicipio"] });
         }
     } else {
         if (!data.nombreMunicipio) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Requerido", path: ["nombreMunicipio"] });
+            ctx.addIssue({ code: "custom", message: "Requerido", path: ["nombreMunicipio"] });
         }
     }
 });
@@ -159,13 +163,12 @@ export const esquemaFormularioSes = z.object({
 
     if (salida < entrada) {
         ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: "La fecha de salida debe ser igual o posterior a la entrada",
             path: ["fechaSalida"],
         });
     }
 });
 
-// Inferimos el tipo TypeScript automáticamente desde Zod
 // ¡Esto reemplaza tus interfaces manuales ITitular, IAcompanante, etc.!
 export type TFormularioSes = z.infer<typeof esquemaFormularioSes>;

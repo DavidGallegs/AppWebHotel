@@ -1,8 +1,8 @@
 import { useFormContext } from "react-hook-form";
-import { type IFormularioSes } from "./Formulario";
+import { type TFormularioSes } from "./esquemaZod";
 
 export function SeccionFechas() {
-    const { register } = useFormContext<IFormularioSes>();
+    const { register } = useFormContext<TFormularioSes>();
 
     return (
         <fieldset className="seccion-fechas">
