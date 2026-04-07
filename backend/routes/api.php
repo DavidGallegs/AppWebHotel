@@ -8,4 +8,6 @@ use App\Http\Controllers\ReservaController;
 // que se encargará de procesar la solicitud y crear la reserva en la base de datos.
 Route::post('/reservas', [ReservaController::class, 'crear']);
 
+Route::any('/reservas/{id}/confirmar', [ReservaController::class, 'confirmar']);
+
 ?>

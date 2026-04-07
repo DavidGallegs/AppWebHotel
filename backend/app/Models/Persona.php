@@ -40,4 +40,5 @@ class Persona extends Model
         'documento',
         'soporteDocumento'
     ];
+    
 }

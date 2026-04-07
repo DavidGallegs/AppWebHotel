@@ -2,6 +2,10 @@
 import fetch from 'node-fetch';
 
 const reserva = {
+  fechaEntrada: "2026-05-01",
+  fechaSalida: "2026-05-05",
+  numHabitaciones: 1,
+  tipoPago: "EFECT",
   viajeros: [
     {
       rol: "TI",

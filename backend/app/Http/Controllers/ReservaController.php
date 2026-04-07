@@ -3,8 +3,15 @@
 namespace App\Http\Controllers;
 use App\Models\Persona;
 use App\Models\Reserva;
+use App\Models\Contrato;
+use App\Models\Establecimiento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; 
 use App\Rules\DniValido;
+
+use App\Mail\ReservaConfirmadaMail;
+use Illuminate\Support\Facades\Mail;
+
 
 class ReservaController extends Controller
 {
@@ -65,18 +72,59 @@ class ReservaController extends Controller
 
 
         //3.- Creamos la reserva asociada al titular.
+        $establecimiento = Establecimiento::first(); // Aqui obtengo el establecimiento de la base de datos
+
         $reserva = Reserva::create([
             'idPersonaTitular' => $titular->idPersona,
-            'codigoEstablecimiento' => '0000004063', // mejor si viene del request
+            'codigoEstablecimiento' => $establecimiento->codigo, // mejor si viene del request
             'estado' => 'pendiente',
             'createdAt' => now(),
             'updatedAt' => now()
         ]);
+        //4.- Generamos la referencia del contrato
+        $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
+
+        //5.- Creamos un contrato asociado a la reserva.
+        Contrato::create([
+            'referencia' => $referencia, // o código propio
+            'idReserva' => $reserva->idReserva,
+            'fechaContrato' => now(),
+            'fechaEntrada' => $request->fechaEntrada,
+            'fechaSalida' => $request->fechaSalida,
+            'numPersonas' => count($personas),
+            'numHabitaciones' => $request->numHabitaciones,
+            'internet' => false,
+            'tipoPago' => $request->tipoPago, 
+            'fechaPago' => null,
+            'precioTotal' => null
+        ]);
+
+
+
+
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
         return response()->json([
             'success' => true,
             'reserva_ids' => $personas 
+        ]);
+    }
+
+    public function confirmar($id)
+    {
+        $reserva = Reserva::with('titular')->findOrFail($id);
+
+        $reserva->estado = 'confirmada';
+        $reserva->save();
+
+        // Enviar email
+        Mail::to($reserva->titular->correo)->send(
+            new ReservaConfirmadaMail($reserva)
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reserva confirmada y email enviado'
         ]);
     }
 }
