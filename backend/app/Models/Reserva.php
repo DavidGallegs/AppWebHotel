@@ -4,37 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Persona; // Importamos el modelo Persona para definir la relacion
 
 class Reserva extends Model
 {
-    use HasFactory;
+    protected $table = 'reserva';
 
-    // Nombre exacto de la tabla
-    protected $table = 'PERSONA';
-
-    // Clave primaria, le dice a Laravel cual es la columna PK
-    protected $primaryKey = 'idPersona';
+    protected $primaryKey = 'idReserva';
 
     public $timestamps = false;
 
-    // Campos que se pueden asignar, para evitar errores de asignación masiva.
     protected $fillable = [
-        'nombre',
-        'apellido1',
-        'apellido2',
-        'fechaNacimiento',
-        'nacionalidad',
-        'direccion',
-        'codigoMunicipio',
-        'nombreMunicipio',
-        'localidad',
-        'cp',
-        'pais',
-        'telefono',
-        'correo',
-        'sexo',
-        'tipoDocumento',
-        'documento',
-        'soporteDocumento'
+        'idPersonaTitular',
+        'codigoEstablecimiento',
+        'estado',
+        'createdAt',
+        'updatedAt'
     ];
+
+    // Definimos la relacion con el modelo Persona para acceder al titular de la reserva
+    public function titular()
+    {
+        return $this->belongsTo(Persona::class, 'idPersonaTitular', 'idPersona');
+    }
 }
