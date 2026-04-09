@@ -41,6 +41,7 @@ class ReservaController extends Controller
 
             $viajero['documento'] = strtoupper(trim($viajero['numeroDocumento']));
             $viajero['cp'] = $viajero['codigoPostal'];
+            $viajero['nacionalidad'] = $viajero['pais'];
 
             $viajero['correo'] = strtolower(trim($viajero['correo'] ?? ''));
 
@@ -50,7 +51,7 @@ class ReservaController extends Controller
                 'apellido2' => ['nullable','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'fechaNacimiento' => ['required','date','before:today'],
                 'sexo' => ['nullable','in:M,F,O'],
-                'nacionalidad' => ['nullable'],
+                'nacionalidad' => ['required','size:3'],
                 'direccion' => ['required'],
                 'codigoMunicipio' => ['nullable'],
                 'nombreMunicipio' => ['nullable'],
