@@ -5,6 +5,8 @@ use App\Models\Persona;
 use App\Models\Reserva;
 use App\Models\Contrato;
 use App\Models\Establecimiento;
+use App\Models\Parte;
+use App\Models\ViajeroParte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
 use App\Rules\DniValido;
@@ -99,8 +101,30 @@ class ReservaController extends Controller
             'precioTotal' => null
         ]);
 
+        //6.- Creamos un parte asociado al contrato, con estado "pendiente".
+        $parte = Parte::create([
+            'referenciaContrato' => $referencia,
+            'estado' => 'pendiente',
+            'fechaCreacion' => now(),
+            'fechaEnvio' => null,
+            'createdAt' => now(),
+            'updatedAt' => now()
+        ]);
 
+        /*
+        //7.- Asociamos cada viajero al parte a través de la tabla pivote viajero_parte, 
+        // indicando su rol y parentesco si es acompañante.
+        foreach ($personas as $index => $persona) {
+            $viajero = $validatedViajeros[$index];
 
+            ViajeroParte::create([
+                'idParte' => $parte->idParte,
+                'idPersona' => $persona->idPersona,
+                'rol' => $viajero['rol'],
+                'parentesco' => $viajero['parentesco'] ?? null
+            ]);
+        }
+        */
 
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
@@ -110,6 +134,10 @@ class ReservaController extends Controller
         ]);
     }
 
+    //Funcion para confirmar la reserva, crear el parte y enviar el email al titular.
+    //Es decir, cuando el arrendatario confirme la reserva, se actualiza el estado 
+    // de la reserva a "confirmada", se crea un nuevo parte con el estado "pendiente" 
+    // y se envía un email al titular de la reserva informándole de la confirmación.
     public function confirmar($id)
     {
         $reserva = Reserva::with('titular')->findOrFail($id);

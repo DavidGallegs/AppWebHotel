@@ -7,21 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ViajeroParte extends Model
 {
-    use HasFactory;
-
     protected $table = 'viajero_parte';
-    protected $primaryKey = 'id'; // ajusta según tu PK
-    public $timestamps = false;
 
     protected $fillable = [
-        'idPersona',  // FK hacia persona
+        'idParte',
+        'idPersona',
         'rol',
         'parentesco'
     ];
 
-    // Relación con persona
-    public function persona()
-    {
-        return $this->belongsTo(Reserva::class, 'idPersona');
-    }
+    public $timestamps = false;
 }
