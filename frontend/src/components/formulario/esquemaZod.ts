@@ -60,6 +60,7 @@ export const titularSchema = personaBaseSchema.extend({
     telefono: z.string()
         .regex(/^\+?[0-9\s]{9,20}$/, "Formato de teléfono inválido (ej: +34 600000000)")
         .max(20, "Máximo 20 caracteres")
+        .or(z.literal(""))
         .optional(),
     correo: z.string().email("Formato de correo inválido").max(250, "Máximo 250 caracteres").or(z.literal("")).optional(),
     soporteDocumento: z.string().max(9, "Máximo 9 caracteres").optional(),

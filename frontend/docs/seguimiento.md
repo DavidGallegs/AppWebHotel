@@ -246,3 +246,8 @@ Los municipios son sacados de este repositorio <https://github.com/codeforspain/
 
 Se crea un elemento BuscadorMunicipios, para aligerar la carga y es un busador efectivo, para buscar municipios
 asi se evita cargar 8100 municipios de un click.
+
+## FOMRULARIO SES 3
+
+- [] Arreglar la compatibilidad de telefono o correo. SI se manda el correo no es necesario el telefono
+y si se manda el telefono y esta correcto, no es necesario el correo.
