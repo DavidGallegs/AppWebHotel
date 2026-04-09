@@ -1,15 +1,13 @@
 import { useForm, FormProvider, useFieldArray, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"; // <-- EL PUENTE DE ZOD
+import { zodResolver } from "@hookform/resolvers/zod"; 
 import countries from "i18n-iso-countries";
 import es from "i18n-iso-countries/langs/es.json";
 
 import { SeccionFechas } from "./SeccionFechas";
 import { SeccionTitular } from "./SeccionTitular";
 import { SeccionAcompanantes } from "./SeccionAcompanantes";
-
 import "../../styles/formulario.css";
 
-// <-- IMPORTAMOS EL ESQUEMA Y EL TIPO INFERIDO DESDE TU ARCHIVO ZOD
 import { esquemaFormularioSes, type TFormularioSes } from "./esquemaZod"; 
 
 countries.registerLocale(es);
@@ -21,7 +19,6 @@ export const listaPaises = Object.entries(paisesObjeto).map(([codigo2, nombre]) 
 }));
 
 function Formulario() {
-    // <-- CONECTAMOS ZOD AL FORMULARIO AQUÍ
     const methods = useForm<TFormularioSes>({
         resolver: zodResolver(esquemaFormularioSes),
         defaultValues: {
@@ -36,14 +33,38 @@ function Formulario() {
         name: "acompanantes"
     });
 
-    // Añadimos un console.log extra para ver los errores si la validación falla
     const enviar: SubmitHandler<TFormularioSes> = async (data) => {
-        const numPersonas = 1 + data.acompanantes.length;
+        // --- LIMPIEZA DE DATOS ---
+        // Evitamos enviar `nombreMunicipio` si es ESP, o `codigoMunicipio` si NO es ESP
+        // por si el usuario cambió de país a mitad del formulario.
+        const payloadLimpio = structuredClone(data);
+
+        // Limpiar titular
+        if (payloadLimpio.titular.pais === "ESP") {
+            delete payloadLimpio.titular.nombreMunicipio;
+        } else {
+            delete payloadLimpio.titular.codigoMunicipio;
+        }
+
+        // Limpiar acompañantes
+        if (payloadLimpio.acompanantes && payloadLimpio.acompanantes.length > 0) {
+            payloadLimpio.acompanantes = payloadLimpio.acompanantes.map(acomp => {
+                if (acomp.pais === "ESP") {
+                    delete acomp.nombreMunicipio;
+                } else {
+                    delete acomp.codigoMunicipio;
+                }
+                return acomp;
+            });
+        }
+        // -------------------------
+
+        const numPersonas = 1 + payloadLimpio.acompanantes.length;
         const fechaActual = new Date();
         const fechaContrato = fechaActual.toISOString().split('T')[0];
 
         const payloadFinal = {
-            ...data,
+            ...payloadLimpio,
             numPersonas,
             fechaContrato
         };
@@ -59,8 +80,9 @@ function Formulario() {
             });
 
             if (!respuesta.ok) {
-                // Si Laravel devuelve un 422 (errores de validación) o un 500
-                throw new Error(`Error del servidor: ${respuesta.status}`);
+                const errorDetallado = await respuesta.json();
+                console.error("Detalle del error 500:", errorDetallado);
+                throw new Error(`Error: ${respuesta.status}`);
             }
 
             const resultado = await respuesta.json();
@@ -80,9 +102,7 @@ function Formulario() {
     return (
         <div className="container-form">
             <FormProvider {...methods}>
-                {/* Si hay errores, ejecuta erroresAlEnviar en lugar de enviar */}
                 <form className="form" onSubmit={handleSubmit(enviar, erroresAlEnviar)}>
-                    
                     <SeccionFechas />
                     <SeccionTitular />
 
@@ -106,10 +126,8 @@ function Formulario() {
                         >
                             + Añadir Acompañante
                         </button>
-
                         <button type="submit">Enviar Formulario</button>
                     </div>
-
                 </form>
             </FormProvider>
         </div>

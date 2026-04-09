@@ -2,25 +2,17 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { listaPaises } from "./Formulario"; 
 import { type TFormularioSes } from "./esquemaZod";
 
+// Asegúrate de poner la ruta correcta a tu nuevo archivo JSON
+import datasetMunicipios from "./municipios.json"; 
+
 interface PropsAcompanante {
     index: number;
     remover: () => void;
 }
 
-// ARRAY DE PRUEBA (Mismo que en el Titular)
-const municipiosPrueba = [
-    { codigo: "01051", nombre: "Agurain/Salvatierra" },
-    { codigo: "28079", nombre: "Madrid" },
-    { codigo: "08019", nombre: "Barcelona" },
-    { codigo: "41091", nombre: "Sevilla" },
-    { codigo: "46250", nombre: "Valencia" }
-];
-
 export function SeccionAcompanantes({ index, remover }: PropsAcompanante) {
-    // 1. Extraemos control además de register
     const { register, control } = useFormContext<TFormularioSes>();
 
-    // 2. Escuchamos el país específico de ESTE acompañante
     const paisSeleccionado = useWatch({
         control,
         name: `acompanantes.${index}.pais` as const,
@@ -62,13 +54,13 @@ export function SeccionAcompanantes({ index, remover }: PropsAcompanante) {
                 ))}
             </select>
 
-            {/* RENDERIZADO CONDICIONAL DE MUNICIPIOS PARA EL ACOMPAÑANTE */}
+            {/* Renderizado condicional basado en el país (Usando municipio_id) */}
             {paisSeleccionado === "ESP" ? (
                 <select {...register(`acompanantes.${index}.codigoMunicipio` as const)}>
-                    <option value="">Selecciona Municipio de prueba...</option>
-                    {municipiosPrueba.map((mun) => (
-                        <option key={mun.codigo} value={mun.codigo}>
-                            {mun.nombre} ({mun.codigo})
+                    <option value="">Selecciona Municipio...</option>
+                    {datasetMunicipios.map((mun: any) => (
+                        <option key={mun.municipio_id} value={mun.municipio_id}>
+                            {mun.nombre}
                         </option>
                     ))}
                 </select>

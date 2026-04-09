@@ -39,20 +39,23 @@ const personaBaseSchema = z.object({
         message: "La fecha no puede estar en el futuro",
     }),
     tipoDocumento: z.string().optional(),
-    numeroDocumento: z.string().optional(),
+    numeroDocumento: z.string().max(15, "Máximo 15 caracteres").optional(),
     pais: z.string().length(3, "El código de país debe tener 3 letras (ej. ESP)"),
     codigoMunicipio: z.string().optional(),
-    nombreMunicipio: z.string().optional(),
-    direccion: z.string().min(1, "Requerido"),
-    codigoPostal: z.string().min(1, "Requerido"),
+    nombreMunicipio: z.string().max(100, "Máximo 100 caracteres").optional(),
+    direccion: z.string().min(1, "Requerido").max(100, "Máximo 100 caracteres"),
+    codigoPostal: z.string().min(1, "Requerido").max(20, "Máximo 20 caracteres"),
 });
 
 // --- ESQUEMA TITULAR ---
 export const titularSchema = personaBaseSchema.extend({
     rol: z.literal("TI"),
-    telefono: z.string().optional(),
-    correo: z.string().email("Formato de correo inválido").or(z.literal("")).optional(),
-    soporteDocumento: z.string().optional(),
+    telefono: z.string()
+        .regex(/^\+?[0-9\s]{9,20}$/, "Formato de teléfono inválido (ej: +34 600000000)")
+        .max(20, "Máximo 20 caracteres")
+        .optional(),
+    correo: z.string().email("Formato de correo inválido").max(250, "Máximo 250 caracteres").or(z.literal("")).optional(),
+    soporteDocumento: z.string().max(9, "Máximo 9 caracteres").optional(),
 }).superRefine((data, ctx) => {
     const edad = calcularEdad(data.fechaNacimiento);
 
@@ -78,8 +81,8 @@ export const titularSchema = personaBaseSchema.extend({
     if (!data.tipoDocumento) {
         ctx.addIssue({ code: "custom", message: "Requerido", path: ["tipoDocumento"] });
     }
-    if (!data.soporteDocumento) {
-        ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIE/NIF", path: ["soporteDocumento"] });
+    if (!data.soporteDocumento && (data.tipoDocumento === "DNI" || data.tipoDocumento === "NIF")) {
+        ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIF", path: ["soporteDocumento"] });
     }
     if (!data.numeroDocumento) {
         ctx.addIssue({ code: "custom", message: "Requerido", path: ["numeroDocumento"] });
@@ -89,9 +92,6 @@ export const titularSchema = personaBaseSchema.extend({
     if (data.tipoDocumento === "DNI" || data.tipoDocumento === "NIF") {
         if (!data.apellido2) {
             ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIF", path: ["apellido2"] });
-        }
-        if (!data.soporteDocumento) {
-            ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIF", path: ["soporteDocumento"] });
         }
         if (data.numeroDocumento && !validarDniNie(data.numeroDocumento)) {
             ctx.addIssue({ code: "custom", message: "DNI/NIF inválido", path: ["numeroDocumento"] });
@@ -113,8 +113,8 @@ export const titularSchema = personaBaseSchema.extend({
 // --- ESQUEMA ACOMPAÑANTE ---
 export const acompananteSchema = personaBaseSchema.extend({
     rol: z.literal("VI"),
-    parentesco: z.string().optional(),
-    soporteDocumento: z.string().optional(),
+    parentesco: z.string().max(5, "Máximo 5 caracteres").optional(),
+    soporteDocumento: z.string().max(9, "Máximo 9 caracteres").optional(),
 }).superRefine((data, ctx) => {
     const edad = calcularEdad(data.fechaNacimiento);
 
@@ -132,6 +132,9 @@ export const acompananteSchema = personaBaseSchema.extend({
     if (data.tipoDocumento === "DNI" || data.tipoDocumento === "NIE" || data.tipoDocumento === "NIF") {
         if (!data.apellido2) {
             ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIE/NIF", path: ["apellido2"] });
+        }
+        if (!data.soporteDocumento) {
+            ctx.addIssue({ code: "custom", message: "Obligatorio para DNI/NIE/NIF", path: ["soporteDocumento"] });
         }
         if (data.numeroDocumento && !validarDniNie(data.numeroDocumento)) {
             ctx.addIssue({ code: "custom", message: "Documento inválido", path: ["numeroDocumento"] });
@@ -170,5 +173,4 @@ export const esquemaFormularioSes = z.object({
     }
 });
 
-// ¡Esto reemplaza tus interfaces manuales ITitular, IAcompanante, etc.!
 export type TFormularioSes = z.infer<typeof esquemaFormularioSes>;

@@ -232,9 +232,14 @@ siguiendo ciertas condiciones vamos a usar la biblicioteca Zod usando el comando
 
 Objetivos:
 
-- [] Docuemntar el Form y el Zod
 - [] Añadir el option de los municipios en caso de ESP
 - [] Mejorar el fechaSalida y fechaEntrada con `react-day-picker`
 - [] Añadir estilos al formulario
 - [] Conexión al Backend con Fetch
 - [] Optimiazr isla de Formulario con React
+
+## VERSION FINAL (CON LOS MUNICIPIOS)
+
+Los municipios son sacados de este repositorio <https://github.com/codeforspain/ds-organizacion-administrativa>
+
+### OPTIMIZACION DEL SELECT DE MUNICIPIOS
