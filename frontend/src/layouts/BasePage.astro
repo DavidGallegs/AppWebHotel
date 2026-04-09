@@ -1,0 +1,19 @@
+---
+import Navigation from "../components/navigation/Navigation.astro";
+import '../styles/global.css'
+
+const {tituloPage, isHome, isContact, imageBack} = Astro.props
+---
+
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{tituloPage}</title>
+	</head>
+	<body style={`background-image: url('${imageBack}');`}>
+		<Navigation isHome ={isHome} isContact={isContact}/>
+		<slot/>
+	</body>
+</html>
