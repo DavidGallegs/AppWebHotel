@@ -13,10 +13,19 @@ import { esquemaFormularioSes, type TFormularioSes } from "./esquemaZod";
 countries.registerLocale(es);
 const paisesObjeto = countries.getNames("es", { select: "official" });
 
-export const listaPaises = Object.entries(paisesObjeto).map(([codigo2, nombre]) => ({
-    codigo3: countries.alpha2ToAlpha3(codigo2),
+// 1. Primero sacamos la lista cruda normal
+const listaCruda = Object.entries(paisesObjeto).map(([codigo2, nombre]) => ({
+    codigo3: countries.alpha2ToAlpha3(codigo2) || "",
     nombre,
 }));
+
+// 2. Construimos la lista final poniendo España primero, y ordenando el resto de la A a la Z
+export const listaPaises = [
+    ...listaCruda.filter(pais => pais.codigo3 === "ESP"),
+    ...listaCruda
+        .filter(pais => pais.codigo3 !== "ESP")
+        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+];
 
 function Formulario() {
     const methods = useForm<TFormularioSes>({

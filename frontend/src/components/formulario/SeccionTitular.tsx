@@ -1,9 +1,7 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import { listaPaises } from "./Formulario"; 
 import { type TFormularioSes } from "./esquemaZod";
-
-// Asegúrate de poner la ruta correcta a tu nuevo archivo JSON
-import datasetMunicipios from "./municipios.json"; 
+import { BuscadorMunicipio } from "./BuscadorMunicipio"; 
 
 export function SeccionTitular() {
     const { register, control } = useFormContext<TFormularioSes>();
@@ -49,16 +47,8 @@ export function SeccionTitular() {
                 ))}
             </select>
 
-            {/* Renderizado condicional basado en el país (Usando municipio_id) */}
             {paisSeleccionado === "ESP" ? (
-                <select {...register("titular.codigoMunicipio")}>
-                    <option value="">Selecciona Municipio...</option>
-                    {datasetMunicipios.map((mun: any) => (
-                        <option key={mun.municipio_id} value={mun.municipio_id}>
-                            {mun.nombre}
-                        </option>
-                    ))}
-                </select>
+                <BuscadorMunicipio name="titular.codigoMunicipio" />
             ) : (
                 <input 
                     type="text" 

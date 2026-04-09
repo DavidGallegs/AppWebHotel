@@ -243,3 +243,6 @@ Objetivos:
 Los municipios son sacados de este repositorio <https://github.com/codeforspain/ds-organizacion-administrativa>
 
 ### OPTIMIZACION DEL SELECT DE MUNICIPIOS
+
+Se crea un elemento BuscadorMunicipios, para aligerar la carga y es un busador efectivo, para buscar municipios
+asi se evita cargar 8100 municipios de un click.
