@@ -32,7 +32,6 @@ class Persona extends Model
         'nombreMunicipio',
         'localidad',
         'cp',
-        'pais',
         'telefono',
         'correo',
         'sexo',

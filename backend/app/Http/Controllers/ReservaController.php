@@ -45,7 +45,8 @@ class ReservaController extends Controller
 
             $viajero['correo'] = strtolower(trim($viajero['correo'] ?? ''));
 
-            $validatedViajeros[$index] = validator($viajero, [
+           // VALIDACIÓN
+            $validated = validator($viajero, [
                 'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'apellido1' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'apellido2' => ['nullable','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
@@ -53,27 +54,46 @@ class ReservaController extends Controller
                 'sexo' => ['nullable','in:M,F,O'],
                 'nacionalidad' => ['required','size:3'],
                 'direccion' => ['required'],
-                'codigoMunicipio' => ['nullable'],
-                'nombreMunicipio' => ['nullable'],
-                'localidad' => ['nullable'],
                 'cp' => ['required'],
-                'pais' => ['required'],
                 'telefono' => ['nullable'],
                 'correo' => ['nullable','email'],
                 'tipoDocumento' => ['nullable','in:DNI,NIE,PASAPORTE'],
-                'documento' => ['required','string','max:15','unique:persona,documento', new DniValido],
-                'soporteDocumento' => ['nullable'],
+                'documento' => ['required','string','max:15', new DniValido],
                 'rol' => ['required','in:TI,VI'],
                 'parentesco' => ['nullable']
             ])->validate();
+            
+            // UPSERT REAL
+            // Guardamos personas
+            $persona = Persona::updateOrCreate(
+                ['documento' => $viajero['documento']],
+                [
+                    'nombre' => $viajero['nombre'],
+                    'apellido1' => $viajero['apellido1'],
+                    'apellido2' => $viajero['apellido2'] ?? null,
+                    'fechaNacimiento' => $viajero['fechaNacimiento'],
+                    'nacionalidad' => $viajero['nacionalidad'],
+                    'direccion' => $viajero['direccion'],
+                    'codigoMunicipio' => $viajero['codigoMunicipio'] ?? null,
+                    'nombreMunicipio' => $viajero['nombreMunicipio'] ?? null,
+                    'localidad' => $viajero['localidad'] ?? null,
+                    'cp' => $viajero['cp'],
+                    'pais' => $viajero['pais'],
+                    'telefono' => $viajero['telefono'] ?? null,
+                    'correo' => $viajero['correo'] ?? null,
+                    'sexo' => $viajero['sexo'] ?? null,
+                    'tipoDocumento' => $viajero['tipoDocumento'] ?? null,
+                    'soporteDocumento' => $viajero['soporteDocumento'] ?? null,
+                ]
+            );
+
+            $validatedViajeros[$index] = $viajero;
+            $personas[$index] = $persona;
+            
         }
         
-        //1.- Guardamos personas
-        // Si llegamos aquí, todos los viajeros son válidos: guardar
-        $personas  = [];
-        foreach ($validatedViajeros as $viajero) {
-            $personas [] = Persona::create($viajero);
-        }
+        
+        
 
 
         //2.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI.
@@ -138,8 +158,7 @@ class ReservaController extends Controller
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
         return response()->json([
-            'success' => true,
-            'reserva_id' => $reserva->idReserva
+            'success' => true
         ]);
     }
 
