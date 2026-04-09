@@ -49,12 +49,11 @@ function Formulario() {
         };
 
         try {
-            // Reemplaza el puerto (ej: 8000) por el que tengas expuesto en tu Docker
-            const respuesta = await fetch("http://localhost:8000/api/tu-endpoint-de-laravel", {
+            const respuesta = await fetch("http://localhost:8000/api/reservas", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json" // Importante para que Laravel devuelva errores en JSON
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify(payloadFinal)
             });

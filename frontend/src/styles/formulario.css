@@ -17,6 +17,7 @@ fieldset {
     background: #ffffff;
 }
 
+
 legend {
     font-weight: 600;
     color: #333;
@@ -25,12 +26,11 @@ legend {
 }
 
 input, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 16px;
+
+    margin: 5px;
     border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box; /* Para que el padding no rompa el ancho */
+    border-radius: 4px;
+    padding: 5px;
 }
 
 input:focus, select:focus {
@@ -45,6 +45,7 @@ input:focus, select:focus {
     gap: 15px;
     margin-top: 20px;
 }
+
 
 button {
     padding: 12px 24px;
@@ -67,4 +68,4 @@ button[type="submit"] {
     color: white;
 }
 
-button[type="submit"]:hover { background-color: #1d4ed8; }
+button[type="submit"]:hover { background-color: #1d4ed8; } 

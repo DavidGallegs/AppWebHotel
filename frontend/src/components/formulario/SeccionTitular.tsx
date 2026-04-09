@@ -1,9 +1,24 @@
-import { useFormContext } from "react-hook-form";
-import { listaPaises } from "./Formulario"; // Solo importamos la lista de aquí
+import { useFormContext, useWatch } from "react-hook-form";
+import { listaPaises } from "./Formulario"; 
 import { type TFormularioSes } from "./esquemaZod";
 
+const municipiosPrueba = [
+    { codigo: "01051", nombre: "Agurain/Salvatierra" },
+    { codigo: "28079", nombre: "Madrid" },
+    { codigo: "08019", nombre: "Barcelona" },
+    { codigo: "41091", nombre: "Sevilla" },
+    { codigo: "46250", nombre: "Valencia" }
+];
+
 export function SeccionTitular() {
-    const { register } = useFormContext<TFormularioSes>();
+    // 1. Extraemos register y también control para poder usar useWatch
+    const { register, control } = useFormContext<TFormularioSes>();
+
+    // 2. Escuchamos el país seleccionado en tiempo real
+    const paisSeleccionado = useWatch({
+        control,
+        name: "titular.pais",
+    });
 
     return (
         <fieldset className="seccion-titular">
@@ -40,6 +55,24 @@ export function SeccionTitular() {
                     </option>
                 ))}
             </select>
+
+            {/* 3. Renderizado condicional de los Municipios */}
+            {paisSeleccionado === "ESP" ? (
+                <select {...register("titular.codigoMunicipio")}>
+                    <option value="">Selecciona Municipio de prueba...</option>
+                    {municipiosPrueba.map((mun) => (
+                        <option key={mun.codigo} value={mun.codigo}>
+                            {mun.nombre} ({mun.codigo})
+                        </option>
+                    ))}
+                </select>
+            ) : (
+                <input 
+                    type="text" 
+                    placeholder="Nombre de Ciudad / Municipio" 
+                    {...register("titular.nombreMunicipio")} 
+                />
+            )}
         </fieldset>
     );
 }
