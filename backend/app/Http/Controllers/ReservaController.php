@@ -20,43 +20,51 @@ class ReservaController extends Controller
     // Método para recibir la reserva
     public function crear(Request $request)
     {
+        // 1. Unificar viajeros (titular + acompañantes)
+        $viajeros = [];
+
+        $viajeros[] = $request->input('titular');
+
+        foreach ($request->input('acompanantes', []) as $acompanante) {
+            $viajeros[] = $acompanante;
+        }
+
+
         $validatedViajeros = [];
-        //Recorremos cada viajero enviado desde el frontend.
-        foreach ($request->input('viajeros') as $index => $viajero) {
-            
+        // 2. Validación
+        foreach ($viajeros as $index => $viajero) {
+
+            // Normalización de datos
             $viajero['nombre'] = trim($viajero['nombre']);
             $viajero['apellido1'] = trim($viajero['apellido1']);
-            $viajero['apellido2'] = trim($viajero['apellido2']);
-            $viajero['documento'] = strtoupper(trim($viajero['documento']));
-            $viajero['correo'] = strtolower(trim($viajero['correo']));
+            $viajero['apellido2'] = trim($viajero['apellido2'] ?? '');
 
-            //Validacion de cada viajero.
-            $validatedViajeros[$index] = validator($viajero,[
+            $viajero['documento'] = strtoupper(trim($viajero['numeroDocumento']));
+            $viajero['cp'] = $viajero['codigoPostal'];
+
+            $viajero['correo'] = strtolower(trim($viajero['correo'] ?? ''));
+
+            $validatedViajeros[$index] = validator($viajero, [
                 'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'apellido1' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
-                'apellido2' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
+                'apellido2' => ['nullable','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'fechaNacimiento' => ['required','date','before:today'],
-                'sexo' => ['required','in:M,F,O'],
-                'nacionalidad' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,70}$/u'],
-                'direccion' => ['required','regex:/^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\.,ºª\-\/]{1,100}$/u'],
-                'codigoMunicipio' => ['required','regex:/^[0-9]{1,5}$/'],
-                'nombreMunicipio' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,100}$/u'],
-                'localidad' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,100}$/u'],
-                'cp' => ['required','regex:/^[0-9]{5}$/'],
-                'pais' => ['required','regex:/^[A-Z]{2,3}$/'],
-                'telefono' => ['required','regex:/^[0-9\+\s]{7,20}$/'],
-                'correo' => ['required','email','max:250'],
-                'tipoDocumento' => ['required','in:DNI,NIE,PASAPORTE'],
-                'documento' => ['required','string','max:15','unique:persona,documento', new DniValido], 
-                'soporteDocumento' => ['required','regex:/^[A-Z]{2}[0-9]{7}$/'],
+                'sexo' => ['nullable','in:M,F,O'],
+                'nacionalidad' => ['nullable'],
+                'direccion' => ['required'],
+                'codigoMunicipio' => ['nullable'],
+                'nombreMunicipio' => ['nullable'],
+                'localidad' => ['nullable'],
+                'cp' => ['required'],
+                'pais' => ['required'],
+                'telefono' => ['nullable'],
+                'correo' => ['nullable','email'],
+                'tipoDocumento' => ['nullable','in:DNI,NIE,PASAPORTE'],
+                'documento' => ['required','string','max:15','unique:persona,documento', new DniValido],
+                'soporteDocumento' => ['nullable'],
                 'rol' => ['required','in:TI,VI'],
-                // Si el viajero es un acompañante, el campo parentesco es obligatorio, si es titular no se requiere.
-                'parentesco' => $viajero['rol'] === 'VI' 
-                    ? ['required', 'string', 'max:5'] 
-                    : []
+                'parentesco' => ['nullable']
             ])->validate();
-
-            
         }
         
         //1.- Guardamos personas
@@ -130,7 +138,7 @@ class ReservaController extends Controller
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
         return response()->json([
             'success' => true,
-            'reserva_ids' => $personas 
+            'reserva_id' => $reserva->idReserva
         ]);
     }
 
