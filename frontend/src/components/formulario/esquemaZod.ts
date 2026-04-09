@@ -2,7 +2,10 @@ import { z } from "zod";
 
 // --- FUNCIONES AUXILIARES ---
 
-// Calcular edad exacta
+// Función calcular edad: Usando la fecha de nacimiento y el día actual
+// comprueba tu edad exacta, teniendo en cuenta los meses, es decir
+// si es noviembre y tu cumple es en diciembre, le restara un año a la edad introducida
+// porque realemente auqnue ese año es tu cumpleaños, no los has cumplido aún
 const calcularEdad = (fechaNacimiento: string): number => {
     const hoy = new Date();
     const nacimiento = new Date(fechaNacimiento);
@@ -14,7 +17,7 @@ const calcularEdad = (fechaNacimiento: string): number => {
     return edad;
 };
 
-// Validar DNI/NIE real (cálculo de letra)
+// Función validar Dni: Usando regex verifica si son válidos esos formatos
 const validarDniNie = (documento: string): boolean => {
     const validChars = 'TRWAGMYFPDXBNJZSQVHLCKE';
     const nifRexp = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
@@ -30,8 +33,12 @@ const validarDniNie = (documento: string): boolean => {
     return validChars.charAt(charIndex) === letter;
 };
 
-// --- ESQUEMA BASE (Campos compartidos) ---
+// --- ESQUEMA BASE  ---
+// Posee los campos que comparten la persona titular y la persona viajero
+// Esto se hace para evitar repeticiones de campos comunes
+
 const personaBaseSchema = z.object({
+
     nombre: z.string().min(1, "Requerido").max(50, "Máximo 50 caracteres"),
     apellido1: z.string().min(1, "Requerido").max(50, "Máximo 50 caracteres"),
     apellido2: z.string().max(50, "Máximo 50 caracteres").optional(),
