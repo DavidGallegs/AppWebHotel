@@ -111,7 +111,7 @@ class ReservaController extends Controller
             'updatedAt' => now()
         ]);
 
-        /*
+        
         //7.- Asociamos cada viajero al parte a través de la tabla pivote viajero_parte, 
         // indicando su rol y parentesco si es acompañante.
         foreach ($personas as $index => $persona) {
@@ -124,7 +124,7 @@ class ReservaController extends Controller
                 'parentesco' => $viajero['parentesco'] ?? null
             ]);
         }
-        */
+        
 
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
