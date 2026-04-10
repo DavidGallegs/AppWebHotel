@@ -16,11 +16,11 @@ class Persona extends Model
     protected $primaryKey = 'idPersona';
 
     // Laravel por defecto espera columnas created_at y updated_at para manejar 
-    // las fechas de creación y actualización de los registros. Si tu tabla no las tiene, debo desactivar esta funcionalidad.
+    // las fechas de creacion y actualizacion de los registros. Si tu tabla no las tiene, debo desactivaar esta funcionalidad.
     public $timestamps = false;
 
-    // Campos que se pueden asignar, para evitar errores de asignación masiva, es decir 
-    // que Laravel no permita asignar valores a campos que no estén en esta lista.
+    // Campos que se pueden asignar, para evitar errores de asignacioon masiva, es decir 
+    // que Laravel no permita asignar valores a campos que no esten en esta lista.
     protected $fillable = [
         'nombre',
         'apellido1',
@@ -34,7 +34,6 @@ class Persona extends Model
         'cp',
         'telefono',
         'correo',
-        'sexo',
         'tipoDocumento',
         'documento',
         'soporteDocumento'

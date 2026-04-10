@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ReservaController extends Controller
 {
-    // Método para recibir la reserva
+    // Metodo para recibir la reserva desde el frontend, validar los datos, crear o actualizar las personas en la base de datos.
     public function crear(Request $request)
     {
         // 1. Unificar viajeros (titular + acompañantes)
@@ -29,30 +29,28 @@ class ReservaController extends Controller
             $viajeros[] = $acompanante;
         }
 
-
+        //Array para almacenar los viajeros validados y las personas creadas/actualizadas en la base de datos.
         $validatedViajeros = [];
-        // 2. Validación
+
+
+        // 2. Validacion de cada viajero, y creacion o actualizacion en la base de datos.
         foreach ($viajeros as $index => $viajero) {
 
             // Normalización de datos
             $viajero['nombre'] = trim($viajero['nombre']);
             $viajero['apellido1'] = trim($viajero['apellido1']);
-            $viajero['apellido2'] = trim($viajero['apellido2'] ?? '');
+            $viajero['apellido2'] = trim($viajero['apellido2']);
 
             $viajero['documento'] = strtoupper(trim($viajero['numeroDocumento']));
             $viajero['cp'] = $viajero['codigoPostal'];
             $viajero['nacionalidad'] = $viajero['pais'];
+            $viajero['correo'] = strtolower(trim($viajero['correo'] ?? null));
 
-            $viajero['correo'] = strtolower(trim($viajero['correo'] ?? ''));
-
-           // VALIDACIÓN
             $validated = validator($viajero, [
                 'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'apellido1' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'apellido2' => ['nullable','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
                 'fechaNacimiento' => ['required','date','before:today'],
-                'sexo' => ['nullable','in:M,F,O'],
-                'nacionalidad' => ['required','size:3'],
                 'direccion' => ['required'],
                 'cp' => ['required'],
                 'telefono' => ['nullable'],
@@ -63,8 +61,7 @@ class ReservaController extends Controller
                 'parentesco' => ['nullable']
             ])->validate();
             
-            // UPSERT REAL
-            // Guardamos personas
+            // UPSERT - Si el documento ya existe, actualiza la persona, si no existe, crea una nueva persona.
             $persona = Persona::updateOrCreate(
                 ['documento' => $viajero['documento']],
                 [
@@ -78,31 +75,27 @@ class ReservaController extends Controller
                     'nombreMunicipio' => $viajero['nombreMunicipio'] ?? null,
                     'localidad' => $viajero['localidad'] ?? null,
                     'cp' => $viajero['cp'],
-                    'pais' => $viajero['pais'],
                     'telefono' => $viajero['telefono'] ?? null,
                     'correo' => $viajero['correo'] ?? null,
-                    'sexo' => $viajero['sexo'] ?? null,
                     'tipoDocumento' => $viajero['tipoDocumento'] ?? null,
                     'soporteDocumento' => $viajero['soporteDocumento'] ?? null,
                 ]
             );
 
+            // Almacenamos el viajero validado y la persona creada/actualizada en los arrays correspondientes.
             $validatedViajeros[$index] = $viajero;
             $personas[$index] = $persona;
             
         }
-        
-        
-        
 
 
-        //2.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI.
+        //3.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI.
         $titular = collect($personas)->first(function ($persona, $index) use ($validatedViajeros) {
             return $validatedViajeros[$index]['rol'] === 'TI';
         });
 
 
-        //3.- Creamos la reserva asociada al titular.
+        //4.- Creamos la reserva asociada al titular.
         $establecimiento = Establecimiento::first(); // Aqui obtengo el establecimiento de la base de datos
 
         $reserva = Reserva::create([
@@ -112,25 +105,25 @@ class ReservaController extends Controller
             'createdAt' => now(),
             'updatedAt' => now()
         ]);
-        //4.- Generamos la referencia del contrato
+        //5.- Generamos la referencia del contrato
         $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
 
-        //5.- Creamos un contrato asociado a la reserva.
+        //6.- Creamos un contrato asociado a la reserva.
         Contrato::create([
-            'referencia' => $referencia, // o código propio
+            'referencia' => $referencia, 
             'idReserva' => $reserva->idReserva,
             'fechaContrato' => now(),
             'fechaEntrada' => $request->fechaEntrada,
             'fechaSalida' => $request->fechaSalida,
-            'numPersonas' => count($personas),
+            'numPersonas' => $request->numPersonas,
             'numHabitaciones' => $request->numHabitaciones,
             'internet' => false,
-            'tipoPago' => $request->tipoPago, 
+            'tipoPago' => null, 
             'fechaPago' => null,
             'precioTotal' => null
         ]);
 
-        //6.- Creamos un parte asociado al contrato, con estado "pendiente".
+        //7.- Creamos un parte asociado al contrato, con estado "pendiente".
         $parte = Parte::create([
             'referenciaContrato' => $referencia,
             'estado' => 'pendiente',
@@ -141,7 +134,7 @@ class ReservaController extends Controller
         ]);
 
         
-        //7.- Asociamos cada viajero al parte a través de la tabla pivote viajero_parte, 
+        //8.- Asociamos cada viajero al parte a traves de la tabla viajero_parte, 
         // indicando su rol y parentesco si es acompañante.
         foreach ($personas as $index => $persona) {
             $viajero = $validatedViajeros[$index];
@@ -156,7 +149,7 @@ class ReservaController extends Controller
         
 
  
-        // Responder al frontend con JSON indicando que la reserva se ha creado correctamente y devolviendo el ID de la reserva creada.
+        // Responder al frontend con JSON indicando que la reserva se ha creado correctamente.
         return response()->json([
             'success' => true
         ]);
@@ -165,19 +158,21 @@ class ReservaController extends Controller
     //Funcion para confirmar la reserva, crear el parte y enviar el email al titular.
     //Es decir, cuando el arrendatario confirme la reserva, se actualiza el estado 
     // de la reserva a "confirmada", se crea un nuevo parte con el estado "pendiente" 
-    // y se envía un email al titular de la reserva informándole de la confirmación.
+    // y se envia un email al titular de la reserva informandole de la confirmación.
     public function confirmar($id)
     {
         $reserva = Reserva::with('titular')->findOrFail($id);
 
+        // Actualizar estado de la reserva a "confirmada"
         $reserva->estado = 'confirmada';
-        $reserva->save();
+        $reserva->save(); // Guardamos los cambios en la base de datos.
 
-        // Enviar email
+        //Enviamos el email al titular.
         Mail::to($reserva->titular->correo)->send(
             new ReservaConfirmadaMail($reserva)
         );
 
+        //Respuesta JSON indicando que la reserva se ha confirmado y el email se ha enviado correctamente.
         return response()->json([
             'success' => true,
             'message' => 'Reserva confirmada y email enviado'
