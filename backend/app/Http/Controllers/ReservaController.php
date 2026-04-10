@@ -146,7 +146,6 @@ class ReservaController extends Controller
                 'parentesco' => $viajero['parentesco'] ?? null
             ]);
         }
-        
 
  
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente.
