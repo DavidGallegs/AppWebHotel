@@ -89,7 +89,7 @@ class ReservaController extends Controller
         }
 
 
-        //3.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI.
+        //3.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI, es decir, busco el viajero con rol titular para asignarlo a la reserva.
         $titular = collect($personas)->first(function ($persona, $index) use ($validatedViajeros) {
             return $validatedViajeros[$index]['rol'] === 'TI';
         });
