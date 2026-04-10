@@ -12,7 +12,7 @@ class Establecimiento extends Model
 
     public $incrementing = false; // clave si NO es autoincrement
 
-    protected $keyType = 'string'; // si el código es tipo '0000004063'
+    protected $keyType = 'string'; // si el codigo es tipo '0000004063'
 
     protected $fillable = [
         'codigo',
