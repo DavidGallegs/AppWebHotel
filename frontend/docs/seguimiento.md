@@ -251,3 +251,33 @@ asi se evita cargar 8100 municipios de un click.
 
 - [] Arreglar la compatibilidad de telefono o correo. SI se manda el correo no es necesario el telefono
 y si se manda el telefono y esta correcto, no es necesario el correo.
+
+## SEMANA 3
+
+- [] Hacer lo del day picker para ver las habiaciones reservas <https://react-day-picker-v7.netlify.app/docs/getting-started/>
+- [] Hacer sistema de sesiones <<https://youtu.be/ETNIlT-AhL0?t=1305>>
+- [] Interfaz user para rellenar el parte d eusers
+- [] Interfaz adminsitrador
+- [] Pedir a guillermo, que me pase su .venv
+
+### PLANIFICACIÓN DE IDEAS
+
+1. Un cliente accede a la página web, si quiere hacer una reserva tiene que registrarse o inciar sesión.
+2. El cliente inicia sesión usando Lucia-Auth y ya puede acceder al formulario y al panel de SUS reservas
+    - Entonces lo primero es hacer el sistema de Autenficación, que se conecte a un BD.
+3. Al hacer la reserva solo rellena que Él va a hacer una reserva y se envia a la BD
+    - Editar formulario y ajustarlo a solo el titular.
+4. Cuando la reserva haya sido aprobada, puede ver en su panel de reservas las reservas pendientes, podra hacer reservas, cancelar reservas y rellenar el parte de viajeros de una reserva ya aceptada o cancelarla aunque la hayan aprovado.
+    - Hacer panel de administración del cliente.
+5. Al aprobar una reserva, puede rellenar el parte de viajeros, es decir se abre un nuevo formulario para el día del checkin
+    - Hacer formulario del parte viajero
+6. Hacer el calendario para ver las habitaciones libres, para que las reservas no tengan peros.
+    - Hacer calendario react reservas.
+
+Conclusión de cliente:
+
+1. [] Sistema de autentificación.
+2. [] Formulario titular.
+3. [] Panel de administración del cliente + opciones  sobre una reserva.
+4. [] Formulario parte viajero.
+5. [] Calendario de habitaciones ocupadas.

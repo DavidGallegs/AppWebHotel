@@ -2,6 +2,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { listaPaises } from "./Formulario"; 
 import { type TFormularioSes } from "./esquemaZod";
 import { BuscadorMunicipio } from "./BuscadorMunicipio";
+import opciones_parentesco from './parentescos.json';
 
 interface PropsAcompanante {
     index: number;
@@ -38,7 +39,18 @@ export function SeccionAcompanantes({ index, remover }: PropsAcompanante) {
             <input type="text" placeholder="Soporte Documento" {...register(`acompanantes.${index}.soporteDocumento` as const)} />
             
             <input type="date" {...register(`acompanantes.${index}.fechaNacimiento` as const)} />
-            <input type="text" placeholder="Parentesco" {...register(`acompanantes.${index}.parentesco` as const)} />
+            <select 
+                {...register(`acompanantes.${index}.parentesco` as const)}
+                defaultValue=""
+            >
+                <option value="">Selecciona un parentesco</option>
+                
+                {opciones_parentesco.map((opcion) => (
+                    <option key={opcion.value} value={opcion.value}>
+                        {opcion.label}
+                    </option>
+                ))}
+            </select>
             
             <input type="text" placeholder="Dirección" {...register(`acompanantes.${index}.direccion` as const)} />
             <input type="text" placeholder="Código Postal" {...register(`acompanantes.${index}.codigoPostal` as const)} />

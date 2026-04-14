@@ -1,0 +1,17 @@
+[
+    { "value": "AB", "label": "Abuelo/a" },
+    { "value": "BA", "label": "Bisabuelo/a" },
+    { "value": "BN", "label": "Bisnieto/a" },
+    { "value": "CD", "label": "Cuñado/a" },
+    { "value": "CY", "label": "Cónyuge" },
+    { "value": "HJ", "label": "Hijo/a" },
+    { "value": "HR", "label": "Hermano/a" },
+    { "value": "NI", "label": "Nieto/a" },
+    { "value": "PM", "label": "Padre o madre" },
+    { "value": "SB", "label": "Sobrino/a" },
+    { "value": "SG", "label": "Suegro/a" },
+    { "value": "TI", "label": "Tío/a" },
+    { "value": "YN", "label": "Yerno o nuera" },
+    { "value": "TU", "label": "Tutor/a" },
+    { "value": "OT", "label": "Otro" }
+]
