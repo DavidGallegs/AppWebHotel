@@ -1,0 +1,8 @@
+---
+import BasePage from "../layouts/BasePage.astro"
+import ImageBack from "../assets/background_Images/10_reserva.jpg"
+import LoginForm from "../components/sesiones/LoginForm"
+---
+<BasePage tituloPage="Hotel rural Taranes"  isHome={false} isContact={false} imageBack={ImageBack.src}>
+    <LoginForm client:load/>
+</BasePage>
