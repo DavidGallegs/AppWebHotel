@@ -33,7 +33,6 @@ class Persona extends Model
         'localidad',
         'cp',
         'telefono',
-        'correo',
         'tipoDocumento',
         'documento',
         'soporteDocumento'
