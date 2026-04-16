@@ -294,3 +294,8 @@ En el navigation añadir:
 
 En este punto se creara el panel de usaurio, para ello usaremos unas cuantas librerias de react,
 cabe recalcar que solo se puede acceder al panel de usuario con la cookie inicada.
+
+## SEMANA 4
+
+Creación de un dashboard provisional, queda documentar todo el codigo y buscar errores, y otimizar
+esas partes (esperando a que el backend haga las calls para continuar).
