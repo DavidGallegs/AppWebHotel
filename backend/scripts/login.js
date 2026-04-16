@@ -7,8 +7,8 @@ async function login() {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        email: 'melanie@ejemplo.com',
-        password: 'password123'
+        email: 'nieblarobertguillermo@gmail.com',
+        password: 'omega567'
       })
     });
 

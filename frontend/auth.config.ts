@@ -23,7 +23,7 @@ export default defineConfig({
 
         try {
           // LLAMADA AL BACKEND (Dentro de la red de Docker)
-          const response = await fetch("http://backend:8000/api/login", {
+          const response = await fetch("http://backend:80/api/login", {
             method: "POST",
             headers: { 
               "Content-Type": "application/json",
