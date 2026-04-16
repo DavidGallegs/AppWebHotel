@@ -11,7 +11,7 @@ const session = await getSession(Astro.request);
 const token = (session?.user as any)?.token || "";
 ---
 
-<BasePage tituloPage="Mi Dashboard" isHome={false} isContact={false} imageBack={ImageBack.src}>
+<BasePage tituloPage="Hotel Rural Taranes" isHome={false} isContact={false} imageBack={ImageBack.src}>
   
   <DashboardApp client:load token={token} />
 
