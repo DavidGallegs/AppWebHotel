@@ -36,11 +36,12 @@ export default defineConfig({
           });
 
           const data = await response.json();
+          console.log(" RESPUESTA DE LARAVEL:", data);
 
           // Si Laravel dice que ok, devolvemos el objeto usuario
           if (response.ok && data.user) {
             return {
-              id: data.user.id,
+              id: data.user.id.toString(), // Aseguramos que el ID sea string
               name: data.user.name,
               email: data.user.email,
               token: data.token, // Guardamos el token de Laravel (Sanctum/JWT)
