@@ -1,0 +1,18 @@
+---
+export const prerender = false;
+import BasePage from "../layouts/BasePage.astro";
+import ImageBack from "../assets/background_Images/10_reserva.jpg";
+import { getSession } from 'auth-astro/server';
+
+// Fíjate que ahora importamos DashboardApp
+import { DashboardApp } from '../components/dashboard/ReservationList';
+
+const session = await getSession(Astro.request);
+const token = (session?.user as any)?.token || "";
+---
+
+<BasePage tituloPage="Mi Dashboard" isHome={false} isContact={false} imageBack={ImageBack.src}>
+  
+  <DashboardApp client:load token={token} />
+
+</BasePage>

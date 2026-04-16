@@ -7,7 +7,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
   // 1. LISTA DE RUTAS PRIVADAS (Solo para usuarios logueados)
-  const privateRoutes = ['/reserva'];
+  const privateRoutes = ['/reserva','/dashboard'];
   
   // Comprobamos si la URL actual EMPIEZA por alguna de las rutas privadas
   const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));

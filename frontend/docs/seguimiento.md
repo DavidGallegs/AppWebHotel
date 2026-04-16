@@ -286,6 +286,7 @@ En el navigation añadir:
 
 - [] Mostrar en el navigation que la sesion esta en marcha
 - [] Boton de cerrar sesión
+- [] Arreglar generación de cookie cuando falla
 
 ## SEMANA 3,5
 
