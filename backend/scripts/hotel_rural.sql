@@ -1,9 +1,5 @@
 
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
-
 
 CREATE TABLE `administrador` (
   `idUsuario` int NOT NULL,
@@ -11,7 +7,6 @@ CREATE TABLE `administrador` (
   `passwordHash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 CREATE TABLE `arrendador` (
   `codigo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -25,8 +20,6 @@ CREATE TABLE `arrendador` (
 
 INSERT INTO `arrendador` (`codigo`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
 ('0000004794', 'ARRE', 'Elena', 'Serrano', 'Castro', 'DNI', '50093052H');
-
-
 
 CREATE TABLE `comunicaciones_ses` (
   `idComunicacionSES` bigint NOT NULL,
@@ -46,8 +39,7 @@ CREATE TABLE `comunicaciones_ses` (
   `aplicacion` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL
-) ;
-
+);
 
 CREATE TABLE `contrato` (
   `referencia` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -63,8 +55,6 @@ CREATE TABLE `contrato` (
   `precioTotal` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
 CREATE TABLE `establecimiento` (
   `codigo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `codigoArrendador` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -77,12 +67,14 @@ CREATE TABLE `establecimiento` (
   `pais` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
 INSERT INTO `establecimiento` (`codigo`, `codigoArrendador`, `tipo`, `nombre`, `direccion`, `codigoMunicipio`, `localidad`, `cp`, `pais`) VALUES
 ('0000004063', '0000004794', 'HOTEL', 'Hotel Rural ', 'Calle Mayor 10', '1001', 'Villahotel', '12345', 'ESP');
 
-
+CREATE TABLE `migrations` (
+  `id` int UNSIGNED NOT NULL,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `operaciones_ses` (
   `idOperacion` bigint NOT NULL,
@@ -98,8 +90,6 @@ CREATE TABLE `operaciones_ses` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
 CREATE TABLE `parte` (
   `idParte` bigint NOT NULL,
   `referenciaContrato` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -110,12 +100,10 @@ CREATE TABLE `parte` (
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
 CREATE TABLE `persona` (
   `idPersona` int NOT NULL,
   `nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `apellido1` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `apellido1` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `apellido2` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fechaNacimiento` date DEFAULT NULL,
   `nacionalidad` varchar(70) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -125,13 +113,23 @@ CREATE TABLE `persona` (
   `localidad` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `telefono` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `correo` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipoDocumento` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `documento` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `documento` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `soporteDocumento` varchar(9) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tokenable_id` bigint UNSIGNED DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `abilities` text COLLATE utf8mb4_unicode_ci,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `reserva` (
   `idReserva` int NOT NULL,
@@ -142,7 +140,15 @@ CREATE TABLE `reserva` (
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+CREATE TABLE `users` (
+  `id` bigint UNSIGNED NOT NULL,
+  `idPersona` int NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `viajero_parte` (
   `id` bigint NOT NULL,
@@ -152,126 +158,114 @@ CREATE TABLE `viajero_parte` (
   `parentesco` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 ALTER TABLE `administrador`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `uk_administrador_userName` (`userName`),
   ADD UNIQUE KEY `uk_administrador_email` (`email`);
 
-
 ALTER TABLE `arrendador`
   ADD PRIMARY KEY (`codigo`),
   ADD UNIQUE KEY `uk_arrendador_documento` (`documento`);
 
-
 ALTER TABLE `comunicaciones_ses`
-  ADD PRIMARY KEY (`idComunicacionSES`),
-  ADD KEY `idx_comses_contrato` (`referenciaContrato`),
-  ADD KEY `idx_comses_reserva` (`idReserva`),
-  ADD KEY `idx_comses_parte` (`idParte`),
-  ADD KEY `idx_comses_lote` (`codigo_lote`),
-  ADD KEY `idx_comses_codigo_com` (`codigo_comunicacion`),
-  ADD KEY `idx_comses_estado` (`estado_ses`);
-
+  ADD PRIMARY KEY (`idComunicacionSES`);
 
 ALTER TABLE `contrato`
   ADD PRIMARY KEY (`referencia`),
   ADD UNIQUE KEY `uk_contrato_reserva` (`idReserva`);
 
-
 ALTER TABLE `establecimiento`
-  ADD PRIMARY KEY (`codigo`),
-  ADD KEY `idx_establecimiento_arrendador` (`codigoArrendador`);
+  ADD PRIMARY KEY (`codigo`);
 
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `operaciones_ses`
-  ADD PRIMARY KEY (`idOperacion`),
-  ADD KEY `idx_opses_comunicacion` (`idComunicacionSES`),
-  ADD KEY `idx_opses_operacion_fecha` (`operacion`,`created_at`),
-  ADD KEY `idx_opses_ses_codigo` (`ses_codigo`);
-
+  ADD PRIMARY KEY (`idOperacion`);
 
 ALTER TABLE `parte`
-  ADD PRIMARY KEY (`idParte`),
-  ADD KEY `idx_parte_contrato` (`referenciaContrato`);
+  ADD PRIMARY KEY (`idParte`);
 
 ALTER TABLE `persona`
-  ADD PRIMARY KEY (`idPersona`),
-  ADD KEY `idx_persona_documento` (`documento`);
+  ADD PRIMARY KEY (`idPersona`);
 
+ALTER TABLE `personal_access_tokens`
+  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `reserva`
-  ADD PRIMARY KEY (`idReserva`),
-  ADD KEY `idx_reserva_persona` (`idPersonaTitular`),
-  ADD KEY `idx_reserva_establecimiento` (`codigoEstablecimiento`);
+  ADD PRIMARY KEY (`idReserva`);
 
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 ALTER TABLE `viajero_parte`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uk_viajero_parte_persona_rol` (`idParte`,`idPersona`,`rol`),
-  ADD KEY `idx_viajero_parte_parte` (`idParte`),
-  ADD KEY `idx_viajero_parte_persona` (`idPersona`);
-
-
-
+  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `administrador`
   MODIFY `idUsuario` int NOT NULL AUTO_INCREMENT;
 
-
 ALTER TABLE `comunicaciones_ses`
   MODIFY `idComunicacionSES` bigint NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `migrations`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `operaciones_ses`
   MODIFY `idOperacion` bigint NOT NULL AUTO_INCREMENT;
 
-
 ALTER TABLE `parte`
   MODIFY `idParte` bigint NOT NULL AUTO_INCREMENT;
-
 
 ALTER TABLE `persona`
   MODIFY `idPersona` int NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `personal_access_tokens`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `reserva`
   MODIFY `idReserva` int NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `users`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `viajero_parte`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `comunicaciones_ses`
+  ADD CONSTRAINT `fk_comses_contrato` FOREIGN KEY (`referenciaContrato`) REFERENCES `contrato` (`referencia`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `comunicaciones_ses`
-  ADD CONSTRAINT `fk_comses_contrato` FOREIGN KEY (`referenciaContrato`) REFERENCES `contrato` (`referencia`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_comses_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_comses_reserva` FOREIGN KEY (`idReserva`) REFERENCES `reserva` (`idReserva`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_comses_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `comunicaciones_ses`
+  ADD CONSTRAINT `fk_comses_reserva` FOREIGN KEY (`idReserva`) REFERENCES `reserva` (`idReserva`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `contrato`
   ADD CONSTRAINT `fk_contrato_reserva` FOREIGN KEY (`idReserva`) REFERENCES `reserva` (`idReserva`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
 ALTER TABLE `establecimiento`
   ADD CONSTRAINT `fk_establecimiento_arrendador` FOREIGN KEY (`codigoArrendador`) REFERENCES `arrendador` (`codigo`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 
 ALTER TABLE `operaciones_ses`
   ADD CONSTRAINT `fk_opses_comses` FOREIGN KEY (`idComunicacionSES`) REFERENCES `comunicaciones_ses` (`idComunicacionSES`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
 ALTER TABLE `parte`
   ADD CONSTRAINT `fk_parte_contrato` FOREIGN KEY (`referenciaContrato`) REFERENCES `contrato` (`referencia`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `reserva`
+  ADD CONSTRAINT `fk_reserva_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigo`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE `reserva`
-  ADD CONSTRAINT `fk_reserva_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigo`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_reserva_persona` FOREIGN KEY (`idPersonaTitular`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE CASCADE;
 
 ALTER TABLE `viajero_parte`
-  ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
-COMMIT;
+  ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `viajero_parte`
+  ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+COMMIT;
