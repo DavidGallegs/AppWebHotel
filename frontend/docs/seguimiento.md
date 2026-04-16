@@ -255,7 +255,6 @@ y si se manda el telefono y esta correcto, no es necesario el correo.
 ## SEMANA 3
 
 - [] Hacer lo del day picker para ver las habiaciones reservas <https://react-day-picker-v7.netlify.app/docs/getting-started/>
-- [] Hacer sistema de sesiones <<https://youtu.be/ETNIlT-AhL0?t=1305>>
 - [] Interfaz user para rellenar el parte d eusers
 - [] Interfaz adminsitrador
 - [] Pedir a guillermo, que me pase su .venv
@@ -276,8 +275,21 @@ y si se manda el telefono y esta correcto, no es necesario el correo.
 
 Conclusión de cliente:
 
-1. [] Sistema de autentificación.
+1. [x] Sistema de autentificación.
 2. [] Formulario titular.
 3. [] Panel de administración del cliente + opciones  sobre una reserva.
 4. [] Formulario parte viajero.
 5. [] Calendario de habitaciones ocupadas.
+
+Para terminar ya hoy 16 de abril funciona, solo queda pendiente
+En el navigation añadir:
+
+- [] Mostrar en el navigation que la sesion esta en marcha
+- [] Boton de cerrar sesión
+
+## SEMANA 3,5
+
+### CREACIÓN DEL PANEL DE USUARIO
+
+En este punto se creara el panel de usaurio, para ello usaremos unas cuantas librerias de react,
+cabe recalcar que solo se puede acceder al panel de usuario con la cookie inicada.
