@@ -4,7 +4,7 @@ import { personaBaseSchema, calcularEdad, validarDniNie } from "../utils/validac
 export const titularSchema = personaBaseSchema.extend({
     rol: z.literal("TI"),
     telefono: z.string().regex(/^\+?[0-9\s]{9,20}$/, "Formato inválido").max(20).or(z.literal("")).optional(),
-    correo: z.string().email("Formato inválido").max(250).or(z.literal("")).optional(),
+    correo: z.email("Formato inválido").max(250).or(z.literal("")).optional(),
     soporteDocumento: z.string().max(9).optional(),
 }).superRefine((data, ctx) => {
     const edad = calcularEdad(data.fechaNacimiento);
@@ -27,7 +27,7 @@ export const titularSchema = personaBaseSchema.extend({
 export const esquemaReserva = z.object({
     fechaEntrada: z.string().min(1, "Requerido"),
     fechaSalida: z.string().min(1, "Requerido"),
-    numPersonas: z.coerce.number().min(1, "Debe haber al menos 1 persona").max(20, "Máximo permitido excedido"),
+    numPersonas: z.number().min(1, "Debe haber al menos 1 persona").max(20, "Máximo permitido excedido"),
     titular: titularSchema,
 }).superRefine((data, ctx) => {
     const entrada = new Date(data.fechaEntrada);

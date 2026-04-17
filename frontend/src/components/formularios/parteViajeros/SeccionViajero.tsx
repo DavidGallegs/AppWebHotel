@@ -1,5 +1,5 @@
 import { useFormContext, useWatch } from "react-hook-form";
-import { listaPaises } from "../utils/"; 
+import { listaPaises } from "../utils/paises"; 
 import { type TParteViajeros } from "./esquemaViajeros";
 import { BuscadorMunicipio } from "../utils/BuscadorMunicipio"; 
 import opciones_parentesco from '../utils/parentescos.json';

@@ -13,7 +13,7 @@ export function SeccionTitular() {
 
             <div className="input-group">
                 <label>Número total de personas en la reserva:</label>
-                <input type="number" min="1" {...register("numPersonas")} />
+                <input type="number" min="1" {...register("numPersonas", { valueAsNumber: true })} />
             </div>
 
             <input type="hidden" value="TI" {...register("titular.rol")} />
