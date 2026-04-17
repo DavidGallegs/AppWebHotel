@@ -60,7 +60,7 @@ export default function ParteViajeros() {
                                 codigoPostal: "", pais: "" 
                             })}
                         >
-                            + Añadir Viajero
+                            + Rellenar parte viajeros
                         </button>
                         
                         {fields.length > 0 && (
