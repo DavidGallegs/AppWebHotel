@@ -12,7 +12,5 @@ const token = (session?.user as any)?.token || "";
 ---
 
 <BasePage tituloPage="Hotel Rural Taranes" isHome={false} isContact={false} imageBack={ImageBack.src}>
-  
   <DashboardApp client:load token={token} />
-
 </BasePage>
