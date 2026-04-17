@@ -17,6 +17,10 @@ class Reserva extends Model
     protected $fillable = [
         'idPersonaTitular',
         'codigoEstablecimiento',
+        'fechaEntrada',
+        'fechaSalida',
+        'numPersonas',
+        'numHabitaciones',
         'estado',
         'createdAt',
         'updatedAt'

@@ -14,7 +14,7 @@ Route::post('/register', [RegisterController::class, 'registrarUsuario']);
 Route::post('/login', [LoginController::class, 'login']);
 
 
-Route::post('/reservas', [ReservaController::class, 'crear']);
+Route::post('/reservas', [ReservaController::class, 'crearReserva']);
 
 Route::any('/reservas/{id}/confirmar', [ReservaController::class, 'confirmar']);
 
