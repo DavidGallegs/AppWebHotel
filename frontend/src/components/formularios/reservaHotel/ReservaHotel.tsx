@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SeccionFechas } from "./SeccionFechas";
 import { SeccionTitular } from "./SeccionTitular";
 import { esquemaReserva, type TReserva } from "./esquemaReserva"; 
-// import "../../styles/formulario.css";
 
 export default function ReservaHotel() {
     const methods = useForm<TReserva>({
