@@ -299,3 +299,5 @@ cabe recalcar que solo se puede acceder al panel de usuario con la cookie inicad
 
 Creación de un dashboard provisional, queda documentar todo el codigo y buscar errores, y otimizar
 esas partes (esperando a que el backend haga las calls para continuar).
+
+Prueba
