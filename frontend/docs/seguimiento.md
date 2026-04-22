@@ -300,4 +300,10 @@ cabe recalcar que solo se puede acceder al panel de usuario con la cookie inicad
 Creación de un dashboard provisional, queda documentar todo el codigo y buscar errores, y otimizar
 esas partes (esperando a que el backend haga las calls para continuar).
 
-Prueba
+## Obejtivos SMEANA 4
+
+- [] Documentacion bibliotecas react
+- [] Poner boton de cerrar sesion y arreglar bug de las cookies
+- [] Ver los tipos de estado de una reserva
+- [] Mostrar el parte de viajeros cuando una reserva este aprobada.
+  
