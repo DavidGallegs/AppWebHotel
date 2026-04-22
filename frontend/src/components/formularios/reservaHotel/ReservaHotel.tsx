@@ -25,7 +25,7 @@ export default function ReservaHotel() {
         };
 
         try {
-            const respuesta = await fetch("http://localhost:8000/api/reservas", { // Ajusta tu endpoint
+            const respuesta = await fetch("http://localhost:8000/api/reservas", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify(payloadFinal)

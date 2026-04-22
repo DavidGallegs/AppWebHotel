@@ -26,7 +26,7 @@ export default function ParteViajeros() {
         }
 
         try {
-            const respuesta = await fetch("http://localhost:8000/api/viajeros", { // Ajusta tu endpoint
+            const respuesta = await fetch("http://localhost:8000/api/viajeros", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify(payloadLimpio)
