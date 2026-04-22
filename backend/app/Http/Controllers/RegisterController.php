@@ -52,9 +52,11 @@ class RegisterController extends Controller
             return response()->json([
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
+        }catch (\Exception $e) {
+            // Esto te enviará el mensaje exacto de por qué está fallando la base de datos
             return response()->json([
-                'error' => 'Error en el registro'
+                'error' => 'Error en el registro',
+                'detalle_real' => $e->getMessage() // <-- AÑADE ESTO
             ], 400);
         }
     }
