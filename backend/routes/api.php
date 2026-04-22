@@ -14,8 +14,14 @@ Route::post('/register', [RegisterController::class, 'registrarUsuario']);
 Route::post('/login', [LoginController::class, 'login']);
 
 
+Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']);
+
 Route::post('/reservas', [ReservaController::class, 'crearReserva']);
 
-Route::any('/reservas/{id}/confirmar', [ReservaController::class, 'confirmar']);
+
+
+
+
+Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
 
 ?>

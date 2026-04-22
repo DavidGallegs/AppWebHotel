@@ -28,7 +28,8 @@ class RegisterController extends Controller
             DB::beginTransaction();
             //1.- Crear persona (solo datos basicos)
             $persona = Persona::create([
-                'nombre' => $validated['name']
+                'nombre' => $validated['name'],
+                'email' => $validated['email'],
             ]);
 
             //2.- Crear usuario en la tabla users, relacionandolo con la persona creada

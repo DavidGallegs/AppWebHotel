@@ -94,7 +94,7 @@ class CrearParteViajeros extends Controller
             return $validatedViajeros[$index]['rol'] === 'TI';
         });
 
-
+        /*
         //4.- Creamos la reserva asociada al titular.
         $establecimiento = Establecimiento::first(); // Aqui obtengo el establecimiento de la base de datos
 
@@ -105,6 +105,7 @@ class CrearParteViajeros extends Controller
             'createdAt' => now(),
             'updatedAt' => now()
         ]);
+        */
         //5.- Generamos la referencia del contrato
         $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
 

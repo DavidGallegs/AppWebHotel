@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Persona;
 use App\Models\Reserva;
-use App\Models\Contrato;
 use App\Models\Establecimiento;
-use App\Models\Parte;
-use App\Models\ViajeroParte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
 use App\Rules\DniValido;
@@ -30,6 +27,7 @@ class ReservaController extends Controller
         $titular['cp'] = $titular['codigoPostal'];
         $titular['correo'] = strtolower(trim($titular['correo']));
 
+
         // 3. Validación
         $validated = validator($titular, [
             'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
@@ -38,7 +36,7 @@ class ReservaController extends Controller
 
             'fechaNacimiento' => ['required','date','before:today'],
 
-            'nacionalidad' => ['nullable','string','max:3'],
+            'pais' => ['nullable','string','max:3'],
 
             'direccion' => ['required','string','max:255'],
 
@@ -52,20 +50,22 @@ class ReservaController extends Controller
             'correo' => ['nullable','email','max:255'],
 
             'tipoDocumento' => ['nullable','in:DNI,NIE,PASAPORTE'],
-            'documento' => ['required','string','max:15', new DniValido]
+            'documento' => ['required','string','max:15', new DniValido],
+            'soporteDocumento' => ['nullable','string','max:9'],
+
         ])->validate();
 
         // 4. Upsert persona
         $persona = Persona::updateOrCreate(
             [
-                'documento' => $validated['documento'],
+                'email' => $validated['correo'],
             ],
             [
                 'nombre' => $validated['nombre'],
                 'apellido1' => $validated['apellido1'],
                 'apellido2' => $validated['apellido2'] ?? null,
                 'fechaNacimiento' => $validated['fechaNacimiento'],
-                'nacionalidad' => $validated['nacionalidad'] ?? null,
+                'nacionalidad' => $validated['pais'] ?? null,
                 'direccion' => $validated['direccion'],
                 'codigoMunicipio' => $validated['codigoMunicipio'] ?? null,
                 'nombreMunicipio' => $validated['nombreMunicipio'] ?? null,
@@ -74,6 +74,7 @@ class ReservaController extends Controller
                 'email' => $validated['correo'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'tipoDocumento' => $validated['tipoDocumento'] ?? null,
+                'documento' => $validated['documento'],
                 'soporteDocumento' => $validated['soporteDocumento'] ?? null,
             ]
         );
@@ -96,8 +97,52 @@ class ReservaController extends Controller
         ]);
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'date' => $titular,
         ]);
+    }
+
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        // Obtener persona asociada al usuario
+        $idPersona = $user->idPersona;
+
+        // Obtener reservas SOLO del usuario autenticado
+        $reservas = Reserva::where('idPersonaTitular', $idPersona)
+            ->join('persona', 'reserva.idPersonaTitular', '=', 'persona.idPersona')
+            ->select(
+                'reserva.idReserva as id',
+                'persona.nombre as nombre',
+                'persona.apellido1 as apellido1',
+                'reserva.fechaEntrada as fechaEntrada',
+                'reserva.fechaSalida as fechaSalida',
+                'reserva.estado as status'
+            )
+            ->orderBy('reserva.fechaEntrada', 'desc')
+            ->get();
+
+        // Normalizar status para frontend (MUY IMPORTANTE)
+        $reservas->transform(function ($reserva) {
+
+            $map = [
+                'pendiente' => 'pending',
+                'aprobada'  => 'approved',
+                'cancelada' => 'cancelled',
+                'finalizada'=> 'finished',
+            ];
+
+            $reserva->status = $map[$reserva->status];
+
+            return $reserva;
+        });
+
+        return response()->json($reservas);
     }
 
 }
