@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 use App\Models\Persona;
 use App\Models\Reserva;
+use App\Models\Contrato;
+use App\Models\Parte;
+use App\Models\ViajeroParte;
 use App\Models\Establecimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
@@ -95,6 +98,43 @@ class ReservaController extends Controller
             'createdAt' => now(),
             'updatedAt' => now(),
         ]);
+
+
+        //.- Generamos la referencia del contrato
+        $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
+
+        //.- Creamos un contrato asociado a la reserva.
+        Contrato::create([
+            'referencia' => $referencia, 
+            'idReserva' => $reserva->idReserva,
+            'fechaContrato' => now(),
+            'fechaEntrada' => $request->fechaEntrada,
+            'fechaSalida' => $request->fechaSalida,
+            'internet' => false,
+            'tipoPago' => null, 
+            'fechaPago' => null,
+            'precioTotal' => null
+        ]);
+
+        //.- Creamos un parte asociado al contrato, con estado "pendiente".
+        $parte = Parte::create([
+            'referenciaContrato' => $referencia,
+            'estado' => 'pendiente',
+            'fechaCreacion' => now(),
+            'fechaEnvio' => null,
+            'createdAt' => now(),
+            'updatedAt' => now()
+        ]);
+
+
+        ViajeroParte::create([
+            'idParte' => $parte->idParte,
+            'idPersona' => $persona->idPersona,
+            'rol' => $titular['rol'],
+        ]);
+
+
+
 
         return response()->json([
             'success' => true,

@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\CrearParteViajeros;
 
 // Aquí definimos la ruta para crear una reserva
 
@@ -28,6 +29,7 @@ Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);
 
 
 
-Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
+
+//Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
 
 ?>
