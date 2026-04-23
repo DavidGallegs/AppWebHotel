@@ -87,7 +87,7 @@ class ReservaController extends Controller
         $reserva = Reserva::create([
             'idPersonaTitular' => $persona->idPersona,
             'codigoEstablecimiento' => $establecimiento->codigo,
-            'numPersonas' => $request->input('numPersonas', 1),
+            'numPersonas' => $request->input('numPersonas'),
             'numHabitaciones' => $request->input('numHabitaciones', 1),
             'fechaEntrada' => $request->input('fechaEntrada'),
             'fechaSalida' => $request->input('fechaSalida'),

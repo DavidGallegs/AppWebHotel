@@ -94,9 +94,12 @@ class CrearParteViajeros extends Controller
             return $validatedViajeros[$index]['rol'] === 'TI';
         });
 
-        /*
+
         //4.- Creamos la reserva asociada al titular.
         $establecimiento = Establecimiento::first(); // Aqui obtengo el establecimiento de la base de datos
+
+        /*
+        
 
         $reserva = Reserva::create([
             'idPersonaTitular' => $titular->idPersona,
