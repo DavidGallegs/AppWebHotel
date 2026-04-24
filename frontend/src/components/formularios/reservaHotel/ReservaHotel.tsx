@@ -5,11 +5,14 @@ import { SeccionTitular } from "./SeccionTitular";
 import { esquemaReserva, type TReserva } from "./esquemaReserva"; 
 
 export default function ReservaHotel() {
+
+    //Implementación del tipado y validaciones al componente
     const methods = useForm<TReserva>({
         resolver: zodResolver(esquemaReserva),
         defaultValues: { numPersonas: 1 }
     });
 
+    //Función de petición al Backend
     const enviar: SubmitHandler<TReserva> = async (data) => {
         const payloadLimpio = structuredClone(data);
 
@@ -33,9 +36,8 @@ export default function ReservaHotel() {
 
             if (!respuesta.ok) throw new Error(`Error: ${respuesta.status}`);
             alert("Reserva creada correctamente. Ahora registre a los viajeros.");
-            
-            // Aquí podrías emitir un evento, guardar en un estado global o redirigir
-            // para que el usuario pase al formulario de ParteViajeros
+
+            //Redireccionar o limpiar buffers tras crear la reserva + aññadir lo del correo.
 
         } catch (error) {
             console.error("Fallo al conectar con el backend:", error);

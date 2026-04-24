@@ -2,10 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
 import type { Reservation } from './reservation';
 
-// 1. La función que realmente hace el viaje a Laravel
+// 1. Función fetch
 const fetchReservations = async (): Promise<Reservation[]> => {
-  // Axios automáticamente añade el 'Bearer Token' gracias a tu Proveedor
-  // Asegúrate de que '/reservations' es la ruta correcta en tu routes/api.php de Laravel
+  // Axios automáticamente añade el 'Bearer Token' gracias al Proveedor
   const response = await api.get('/reservations'); 
   return response.data;
 };

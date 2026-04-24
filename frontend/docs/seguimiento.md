@@ -306,4 +306,3 @@ esas partes (esperando a que el backend haga las calls para continuar).
 - [] Poner boton de cerrar sesion y arreglar bug de las cookies
 - [] Ver los tipos de estado de una reserva
 - [] Mostrar el parte de viajeros cuando una reserva este aprobada.
-  
