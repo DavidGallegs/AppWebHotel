@@ -13,7 +13,11 @@ export function SeccionTitular() {
 
             <div className="input-group">
                 <label>Número total de personas en la reserva:</label>
-                <input type="number" min="1" {...register("numPersonas", { valueAsNumber: true })} />
+                <select {...register("numPersonas", { valueAsNumber: true })}>
+                    <option value="1">1 Persona</option>
+                    <option value="2">2 Personas</option>
+                    <option value="3">3 Personas</option>
+                </select>
             </div>
 
             <input type="hidden" value="TI" {...register("titular.rol")} />
