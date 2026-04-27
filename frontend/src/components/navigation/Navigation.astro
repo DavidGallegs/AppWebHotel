@@ -8,8 +8,14 @@ import ContactNavigation from "./ContactNavigation.astro";
 import ImageNavigation from "./HomeNavigation.astro"
 import LinkNavigation from "./LinkNavigation.astro"
 
+// 1. Añadimos las importaciones necesarias
+import { getSession } from 'auth-astro/server';
+import LogoutButton from '../sesiones/LogoutButton.tsx';
 
 const {isHome,isContact} = Astro.props;
+
+// 2. Comprobamos la sesión en el servidor
+const session = await getSession(Astro.request);
 ---
 
 <nav class="navigation">
@@ -21,7 +27,6 @@ const {isHome,isContact} = Astro.props;
         <Image src={logoDark} alt="Logo Hotel" class="navigation-logoDark"/>
     </div>
 
-
     <div class="navigation-container">
         <div class="navigation_url">
             <ImageNavigation isActive={isHome}/>
@@ -31,6 +36,7 @@ const {isHome,isContact} = Astro.props;
             </a>
         </div>
         <ul class="navigation-ul">
+
             <LinkNavigation site="Situacion"/>
             <LinkNavigation site="Taranes"/>
             <LinkNavigation site="Ponga"/>
@@ -38,9 +44,14 @@ const {isHome,isContact} = Astro.props;
             <LinkNavigation site="Bar"/>
             <LinkNavigation site="Fotos"/>
             <LinkNavigation site="Comentarios"/>
+
+            {session && (
+                <li>
+                    <LogoutButton client:load />
+                </li>
+            )}
         </ul>
     </div>
-        
 </nav>
 
 <style>

@@ -306,3 +306,13 @@ esas partes (esperando a que el backend haga las calls para continuar).
 - [] Poner boton de cerrar sesion y arreglar bug de las cookies
 - [] Ver los tipos de estado de una reserva
 - [] Mostrar el parte de viajeros cuando una reserva este aprobada.
+
+## OBJETIVOS SEMANA 5
+
+- [] Añadir el num habitaciones.
+- [] Parte de viajes en función del numero de personas que se diga
+- [] Numero de perosnas que sea un select por maximo 3 por habitaciones.
+- [] Terminar interfaz de usuario.
+- [] Terminar interfaz del administrador.
+- [] Boton de datos de la reserva
+- [] Boton de solicitar modificacion de la reserva. es decir CRUD de reservas.

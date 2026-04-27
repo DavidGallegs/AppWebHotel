@@ -1,11 +1,9 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useReservations } from './useReservations';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Clock, CheckCircle2, XCircle, CalendarCheck, CalendarDays } from 'lucide-react';
 import type { ReservationStatus } from './reservation';
-import { setAuthToken } from './api';
+import { QueryProvider } from './QueryProvider'; 
 
 const statusConfig: Record<ReservationStatus, { label: string, color: string, bg: string, icon: any }> = {
   pending: { label: 'Pendiente de aceptar', color: 'text-amber-700', bg: 'bg-amber-100', icon: Clock },
@@ -14,9 +12,10 @@ const statusConfig: Record<ReservationStatus, { label: string, color: string, bg
   cancelled: { label: 'Cancelada/Rechazada', color: 'text-rose-700', bg: 'bg-rose-100', icon: XCircle },
 };
 
-// Esta es la parte visual de las tarjetas
+// 1. EL COMPONENTE VISUAL (Solo pide datos y los pinta)
 const ReservationListContent = () => {
   const { data: reservations, isLoading, isError } = useReservations();
+  console.log(reservations);
 
   if (isLoading) return <div className="p-4 text-gray-600">Cargando tus reservas...</div>;
   if (isError) return <div className="p-4 text-red-500">Error conectando con Laravel.</div>;
@@ -50,23 +49,14 @@ const ReservationListContent = () => {
   );
 };
 
-// ESTE ES EL COMPONENTE QUE EXPORTAMOS A ASTRO (La Isla Única)
+// 2. EL ENSAMBLAJE FINAL (La Isla que exportamos a Astro)
 export const DashboardApp = ({ token }: { token: string }) => {
-  // 1. Configuramos el token nada más arrancar
-  setAuthToken(token); 
-  
-  // 2. Iniciamos el cliente
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
-  }));
-
-  // 3. Envolvemos la interfaz visual con el Proveedor
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryProvider token={token}>
       <div className="p-6 bg-white/80 backdrop-blur-md rounded-xl shadow-xl">
         <h2 className="text-2xl font-bold text-gray-800">Gestión de Reservas</h2>
         <ReservationListContent />
       </div>
-    </QueryClientProvider>
+    </QueryProvider>
   );
-};
+}
