@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Persona;
 use App\Models\Reserva;
 use App\Models\Contrato;
-use App\Models\Establecimiento;
 use App\Models\Parte;
 use App\Models\ViajeroParte;
+use App\Models\Establecimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
 use App\Rules\DniValido;
@@ -20,23 +19,28 @@ class CrearParteViajeros extends Controller
      // Metodo para recibir la reserva desde el frontend, validar los datos, crear o actualizar las personas en la base de datos.
     public function parteViajeros(Request $request)
     {
+        
+        
+        // IMPORTANTE: el frontend debe enviarme el idParte
+        //$idParte = $request->idParte;
+        $idParte = 1; // Solo prueba
+
         // 1. Unificar viajeros (titular + acompañantes)
         $viajeros = [];
 
-        $viajeros[] = $request->input('titular');
+        //$viajeros[] = $request->input('titular');
 
-        foreach ($request->input('acompanantes', []) as $acompanante) {
+        foreach ($request->input('viajeros', []) as $acompanante) {
             $viajeros[] = $acompanante;
         }
 
-        //Array para almacenar los viajeros validados y las personas creadas/actualizadas en la base de datos.
         $validatedViajeros = [];
+        $personas = [];
 
-
-        // 2. Validacion de cada viajero, y creacion o actualizacion en la base de datos.
+        // 2. Validación + UPSERT de Persona
         foreach ($viajeros as $index => $viajero) {
 
-            // Normalización de datos
+            // Normalización
             $viajero['nombre'] = trim($viajero['nombre']);
             $viajero['apellido1'] = trim($viajero['apellido1']);
             $viajero['apellido2'] = trim($viajero['apellido2']);
@@ -44,7 +48,9 @@ class CrearParteViajeros extends Controller
             $viajero['documento'] = strtoupper(trim($viajero['numeroDocumento']));
             $viajero['cp'] = $viajero['codigoPostal'];
             $viajero['nacionalidad'] = $viajero['pais'];
-            $viajero['correo'] = strtolower(trim($viajero['correo'] ?? null));
+            $viajero['correo'] = isset($viajero['correo']) 
+                ? strtolower(trim($viajero['correo'])) 
+                : null;
 
             $validated = validator($viajero, [
                 'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
@@ -60,8 +66,8 @@ class CrearParteViajeros extends Controller
                 'rol' => ['required','in:TI,VI'],
                 'parentesco' => ['nullable']
             ])->validate();
-            
-            // UPSERT - Si el documento ya existe, actualiza la persona, si no existe, crea una nueva persona.
+
+            // UPSERT Persona
             $persona = Persona::updateOrCreate(
                 ['documento' => $viajero['documento']],
                 [
@@ -82,77 +88,29 @@ class CrearParteViajeros extends Controller
                 ]
             );
 
-            // Almacenamos el viajero validado y la persona creada/actualizada en los arrays correspondientes.
             $validatedViajeros[$index] = $viajero;
             $personas[$index] = $persona;
-            
         }
 
-
-        //3.- Obtenemos el ID del titular para la reserva, que es el primer viajero con rol TI, es decir, busco el viajero con rol titular para asignarlo a la reserva.
-        $titular = collect($personas)->first(function ($persona, $index) use ($validatedViajeros) {
-            return $validatedViajeros[$index]['rol'] === 'TI';
-        });
-
-        /*
-        //4.- Creamos la reserva asociada al titular.
-        $establecimiento = Establecimiento::first(); // Aqui obtengo el establecimiento de la base de datos
-
-        $reserva = Reserva::create([
-            'idPersonaTitular' => $titular->idPersona,
-            'codigoEstablecimiento' => $establecimiento->codigo, // mejor si viene del request
-            'estado' => 'pendiente',
-            'createdAt' => now(),
-            'updatedAt' => now()
-        ]);
-        */
-        //5.- Generamos la referencia del contrato
-        $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
-
-        //6.- Creamos un contrato asociado a la reserva.
-        Contrato::create([
-            'referencia' => $referencia, 
-            'idReserva' => $reserva->idReserva,
-            'fechaContrato' => now(),
-            'fechaEntrada' => $request->fechaEntrada,
-            'fechaSalida' => $request->fechaSalida,
-            'numPersonas' => $request->numPersonas,
-            'numHabitaciones' => $request->numHabitaciones,
-            'internet' => false,
-            'tipoPago' => null, 
-            'fechaPago' => null,
-            'precioTotal' => null
-        ]);
-
-        //7.- Creamos un parte asociado al contrato, con estado "pendiente".
-        $parte = Parte::create([
-            'referenciaContrato' => $referencia,
-            'estado' => 'pendiente',
-            'fechaCreacion' => now(),
-            'fechaEnvio' => null,
-            'createdAt' => now(),
-            'updatedAt' => now()
-        ]);
-
-        
-        //8.- Asociamos cada viajero al parte a traves de la tabla viajero_parte, 
-        // indicando su rol y parentesco si es acompañante.
+        // 3. Insertar en viajero_parte
         foreach ($personas as $index => $persona) {
             $viajero = $validatedViajeros[$index];
 
             ViajeroParte::create([
-                'idParte' => $parte->idParte,
+                'idParte' => $idParte,
                 'idPersona' => $persona->idPersona,
                 'rol' => $viajero['rol'],
                 'parentesco' => $viajero['parentesco'] ?? null
             ]);
         }
 
- 
+        
+
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente.
         return response()->json([
-            'success' => true
+            'data' => $request->all()
         ]);
+        
     }
 
     //Funcion para confirmar la reserva, crear el parte y enviar el email al titular.
