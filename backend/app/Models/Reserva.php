@@ -23,8 +23,6 @@ class Reserva extends Model
         'codigoEstablecimiento',
         'fechaEntrada',
         'fechaSalida',
-        'numPersonas',
-        'numHabitaciones',
         'estado',
         'createdAt',
         'updatedAt'

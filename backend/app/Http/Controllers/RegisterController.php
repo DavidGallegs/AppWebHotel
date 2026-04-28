@@ -21,7 +21,7 @@ class RegisterController extends Controller
             // Validacion
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'apellido1' => 'required|string|max:255',
+                //'apellido1' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:6',
             ]);
@@ -30,7 +30,7 @@ class RegisterController extends Controller
             //1.- Crear persona (solo datos basicos)
             $persona = Persona::create([
                 'nombre' => $validated['name'],
-                'apellido1' => $validated['apellido1'], 
+                //'apellido1' => $validated['apellido1'], 
                 'email' => $validated['email'],
             ]);
 

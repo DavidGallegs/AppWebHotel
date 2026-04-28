@@ -30,7 +30,7 @@ Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarRe
 Route::get('/reservas/{id}', [ReservaController::class, 'show']); //ver si funciona
 
 // Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
-Route::get('/api/ocupacion', [ReservaController::class, 'ocupacion']); //ver si funciona
+Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //ver si funciona
 
 
 

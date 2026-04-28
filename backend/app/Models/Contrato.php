@@ -16,6 +16,7 @@ class Contrato extends Model
         'referencia',
         'idReserva',
         'fechaContrato',
+        'estado',
         'internet',
         'tipoPago',
         'fechaPago',

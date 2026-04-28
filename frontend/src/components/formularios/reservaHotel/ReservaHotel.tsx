@@ -9,14 +9,14 @@ export default function ReservaHotel() {
     //Implementación del tipado y validaciones al componente
     const methods = useForm<TReserva>({
         resolver: zodResolver(esquemaReserva),
-        defaultValues: { numPersonas: 1 }
+        defaultValues: { numPersonas: 1, habitacion: "1" } //modificado
     });
 
     //Función de petición al Backend
     const enviar: SubmitHandler<TReserva> = async (data) => {
         const payloadLimpio = structuredClone(data);
 
-        if (payloadLimpio.titular.pais === "ESP") {
+        if (payloadLimpio.titular.pais === "ESP") { 
             delete payloadLimpio.titular.nombreMunicipio;
         } else {
             delete payloadLimpio.titular.codigoMunicipio;

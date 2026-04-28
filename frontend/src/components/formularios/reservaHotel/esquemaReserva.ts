@@ -25,7 +25,7 @@ export const titularSchema = personaBaseSchema.extend({
 });
 
 export const esquemaReserva = z.object({
-    habitacion: z.enum(["1", "2"]).default("1"),
+    habitacion: z.enum(["1", "2"]), //modificado
     fechaEntrada: z.string().min(1, "Requerido"),
     fechaSalida: z.string().min(1, "Requerido"),
     numPersonas: z.number().min(1, "Debe haber al menos 1 persona").max(3, "Máximo 3 personas por habitación"),

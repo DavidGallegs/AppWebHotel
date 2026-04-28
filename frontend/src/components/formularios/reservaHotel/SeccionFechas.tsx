@@ -15,7 +15,7 @@ export function SeccionFechas() {
     const { setValue, control, register } = useFormContext<TReserva>();
     
     // Observamos qué habitación está seleccionada
-    const habitacionSeleccionada = useWatch({ control, name: "habitacion" });
+    const habitacionSeleccionada = useWatch<TReserva>({ control, name: "habitacion" }); //modificado
     
     // Estados para la lógica del calendario
     const [range, setRange] = useState<DateRange | undefined>();

@@ -8,14 +8,14 @@ class Establecimiento extends Model
 {
     protected $table = 'establecimiento';
 
-    protected $primaryKey = 'codigo';
+    protected $primaryKey = 'codigoEstablecimiento';
 
     public $incrementing = false; // clave si NO es autoincrement
 
     protected $keyType = 'string'; // si el codigo es tipo '0000004063'
 
     protected $fillable = [
-        'codigo',
+        'codigoEstablecimiento',
         'codigoArrendador',
         'tipo',
         'nombre',
