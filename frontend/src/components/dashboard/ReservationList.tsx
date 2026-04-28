@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { useReservations, useCancelReservation, useUpdateReservation } from './useReservations';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Clock, CheckCircle2, XCircle, CalendarCheck, CalendarDays, Eye, Edit, Trash2, Users } from 'lucide-react';
 import type { Reservation, ReservationStatus } from './reservation';
 import { QueryProvider } from './QueryProvider'; 
 
 import { FormularioModificar } from './FormularioModificar';
-import type { TReserva } from '../formularios/reservaHotel/esquemaReserva';
 
 export interface FullReservation extends Reservation {
   habitacion?: string;
