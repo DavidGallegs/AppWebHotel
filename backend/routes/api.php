@@ -18,10 +18,21 @@ Route::post('/register', [RegisterController::class, 'registrarUsuario']);
 Route::post('/login', [LoginController::class, 'login']);
 
 // Ruta protegida para obtener las reservas del usuario autenticado
-Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); //ver si funciona
 
 // Ruta para crear reserva 
-Route::post('/reservas', [ReservaController::class, 'crearReserva']);
+Route::post('/reservas', [ReservaController::class, 'crearReserva']); 
+// Ruta para cancelar reserva
+// PATCH solo modifica parcialmente un recurso (solo el estado)
+Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']); //ver si funciona
+
+// Ruta para obtener detalles de una reserva especifica
+Route::get('/reservas/{id}', [ReservaController::class, 'show']); //ver si funciona
+
+// Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
+Route::get('/api/ocupacion', [ReservaController::class, 'ocupacion']); //ver si funciona
+
+
 
 // Ruta para crear parte de viajeros
 Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);

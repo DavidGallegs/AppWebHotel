@@ -21,9 +21,9 @@ class CrearParteViajeros extends Controller
     {
         
         
-        // IMPORTANTE: el frontend debe enviarte el idParte
+        // IMPORTANTE: el frontend debe enviarme el idParte
         //$idParte = $request->idParte;
-        $idParte = 1; // Esto es solo para pruebas, luego debes usar el idParte real que te envíe el frontend.
+        $idParte = 1; // Solo prueba
 
         // 1. Unificar viajeros (titular + acompañantes)
         $viajeros = [];
