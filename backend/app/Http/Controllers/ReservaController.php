@@ -234,6 +234,52 @@ class ReservaController extends Controller
         return response()->json($response, $status);
     }
 
+    public function update(Request $request, $id)
+    {
+        $status = 200;
+        $response = [];
+
+        $reserva = Reserva::with('persona')->find($id);
+
+        if (!$reserva) {
+
+            $status = 404;
+            $response = [
+                'error' => 'Reserva no encontrada'
+            ];
+
+        } else {
+
+            // --- ACTUALIZAR RESERVA ---
+            $reserva->fechaEntrada = $request->fechaEntrada;
+            $reserva->fechaSalida = $request->fechaSalida;
+
+            if ($request->has('idHabitacion')) {
+                $reserva->idHabitacion = $request->idHabitacion;
+            }
+
+            $reserva->save();
+
+            // --- ACTUALIZAR TITULAR CON RELACIÓN ---
+            if ($request->has('titular') && $reserva->persona) {
+
+                $reserva->persona->update([
+                    'nombre' => $request->titular['nombre'] ?? $reserva->persona->nombre,
+                    'apellidos' => $request->titular['apellidos'] ?? $reserva->persona->apellidos,
+                    'dni' => $request->titular['dni'] ?? $reserva->persona->dni,
+                    'telefono' => $request->titular['telefono'] ?? $reserva->persona->telefono,
+                    'email' => $request->titular['email'] ?? $reserva->persona->email,
+                ]);
+            }
+
+            $response = [
+                "message" => "Reserva actualizada con éxito"
+            ];
+        }
+
+        return response()->json($response, $status);
+    }
+
     public function ocupacion(Request $request)
     {
         $habitacionId = $request->query('habitacion');

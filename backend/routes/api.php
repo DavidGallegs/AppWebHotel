@@ -29,6 +29,10 @@ Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarRe
 // Ruta para obtener detalles de una reserva especifica
 Route::get('/reservas/{id}', [ReservaController::class, 'show']); //ver si funciona
 
+// Ruta para actualizar una reserva (por ejemplo, cambiar fechas o numero de personas)
+Route::put('/reservations/{id}', [ReservaController::class, 'update']);
+
+
 // Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
 Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //ver si funciona
 
