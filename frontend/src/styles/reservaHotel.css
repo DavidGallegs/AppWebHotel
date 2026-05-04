@@ -132,3 +132,54 @@ select:focus {
     box-shadow: none;
     cursor: not-allowed;
 }
+
+/* =========================================
+   ESTILOS DEL CALENDARIO (React Day Picker)
+   ========================================= */
+
+/* Variables principales del calendario */
+.rdp {
+    --rdp-cell-size: 45px; /* Tamaño de los días (más fácil de tocar en móvil) */
+    --rdp-accent-color: #2563eb; /* Azul corporativo */
+    --rdp-background-color: #eff6ff; /* Azul muy clarito para el rango intermedio */
+    --rdp-accent-color-dark: #1d4ed8; /* Azul oscuro para hover */
+    --rdp-outline: 2px solid var(--rdp-accent-color); /* Borde al navegar con teclado */
+    margin: 0;
+    font-family: inherit;
+}
+
+/* Redondear suavemente los botones de los días */
+.rdp-day {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Efecto al pasar el ratón por un día libre */
+.rdp-day:not(.rdp-day_disabled):hover {
+    background-color: #f3f4f6;
+}
+
+/* Estilo para los días bloqueados/ocupados */
+.rdp-day_disabled {
+    color: #ef4444 !important; /* Rojo */
+    text-decoration: line-through;
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #fef2f2;
+}
+
+/* --- Mensaje de confirmación debajo del calendario --- */
+.seleccion-info {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f0fdf4; /* Verde muy clarito */
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    color: #166534;
+    font-weight: 500;
+}
+
+.seleccion-info p {
+    margin: 0;
+}

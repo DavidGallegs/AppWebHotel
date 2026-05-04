@@ -2,15 +2,11 @@
 export const prerender = false;
 import BasePage from "../layouts/BasePage.astro"
 import ImageBack from "../assets/background_Images/2_contact.jpg"
-import ParteViajeros from "../components/formularios/parteViajeros/ParteViajeros";
+
 import ReservaHotel from "../components/formularios/reservaHotel/ReservaHotel";
 ---
 
-<BasePage tituloPage="Hotel rural Taranes"  isHome={false} isContact={false} imageBack={ImageBack.src}>
+<BasePage tituloPage="Hotel rural Taranes" imageBack={ImageBack.src} centrado={true}>
     <div style="height: 100px;"></div>
     <ReservaHotel client:load/>
-    <!-- <div style="height: 150px;"></div>
-     <ParteViajeros client:load/>
-     <div style="height: 50px;"></div> -->
-    
 </BasePage>

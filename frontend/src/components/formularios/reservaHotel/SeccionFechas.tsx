@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { DayPicker, type DateRange } from "react-day-picker";
-import { format, isBefore, startOfToday, parseISO, isSameDay } from "date-fns";
+import "react-day-picker/dist/style.css"; // <-- Importación base del calendario
+import { format, startOfToday, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { type TReserva } from "./esquemaReserva";
-
-const cssModificadores = `
-  .rdp-day_disabled { color: red; opacity: 1; } 
-  .rdp-day:not(.rdp-day_disabled) { font-weight: bold; }
-  .seleccion-info { margin-top: 10px; font-size: 0.9em; color: #555; }
-`;
 
 export function SeccionFechas() {
     const { setValue, control, register } = useFormContext<TReserva>();
@@ -27,7 +22,7 @@ export function SeccionFechas() {
         const cargarOcupacion = async () => {
             setIsLoading(true);
             try {
-                // Simulación del fetch que acordamos
+                // Fetch hacia tu backend
                 const res = await fetch(`http://localhost:8000/api/ocupacion?habitacion=${habitacionSeleccionada}`);
                 const data = await res.json();
                 
@@ -36,7 +31,6 @@ export function SeccionFechas() {
                 setDiasOcupados(fechas);
             } catch (error) {
                 console.error("Error cargando ocupación:", error);
-                // Mock temporal por si el backend no está listo todavía
                 setDiasOcupados([]); 
             } finally {
                 setIsLoading(false);
@@ -68,9 +62,8 @@ export function SeccionFechas() {
     return (
         <fieldset className="seccion-fechas">
             <legend>Reserva de Habitación</legend>
-            <style>{cssModificadores}</style>
 
-            <div className="input-group">
+            <div className="input-group" style={{ marginBottom: '1.5rem' }}>
                 <label>Seleccione Habitación:</label>
                 <select {...register("habitacion")}>
                     <option value="1">Habitación 1</option>
@@ -79,7 +72,7 @@ export function SeccionFechas() {
             </div>
 
             {isLoading ? (
-                <p>Actualizando calendario...</p>
+                <p style={{ textAlign: 'center', padding: '2rem' }}>Actualizando calendario...</p>
             ) : (
                 <div className="calendario-container">
                     <DayPicker
@@ -91,8 +84,6 @@ export function SeccionFechas() {
                             { before: startOfToday() }, // No permite días pasados
                             ...diasOcupados             // No permite días ocupados
                         ]}
-                        modifiers={{ ocupado: diasOcupados }}
-                        modifiersStyles={{ ocupado: { color: 'red' } }}
                     />
                 </div>
             )}
@@ -105,7 +96,7 @@ export function SeccionFechas() {
                         <p>Selecciona la fecha de salida...</p>
                     )
                 ) : (
-                    <p>Por favor, selecciona una fecha de entrada.</p>
+                    <p>Por favor, selecciona una fecha de entrada en el calendario.</p>
                 )}
             </div>
             
