@@ -10,6 +10,9 @@ use App\Models\Establecimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
 use App\Rules\DniValido;
+use Illuminate\Support\Facades\DB;
+use App\Models\ReservaHabitacion;
+
 
 
 
@@ -25,8 +28,8 @@ class ReservaController extends Controller
         // 2. Normalización básica
         $titular['nombre'] = trim($titular['nombre']);
         $titular['apellido1'] = trim($titular['apellido1']);
-        $titular['apellido2'] = trim($titular['apellido2'] );
-        $titular['documento'] = strtoupper(trim($titular['numeroDocumento']));
+        $titular['apellido2'] = trim($titular['apellido2'] ?? null);
+        $titular['numeroDocumento'] = strtoupper(trim($titular['numeroDocumento']));
         $titular['cp'] = $titular['codigoPostal'];
         $titular['correo'] = strtolower(trim($titular['correo']));
 
@@ -53,7 +56,7 @@ class ReservaController extends Controller
             'correo' => ['nullable','email','max:255'],
 
             'tipoDocumento' => ['nullable','in:DNI,NIE,PASAPORTE'],
-            'documento' => ['required','string','max:15', new DniValido],
+            'numeroDocumento' => ['required','string','max:15', new DniValido],
             'soporteDocumento' => ['nullable','string','max:9'],
 
         ])->validate();
@@ -77,11 +80,11 @@ class ReservaController extends Controller
                 'email' => $validated['correo'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'tipoDocumento' => $validated['tipoDocumento'] ?? null,
-                'documento' => $validated['documento'],
+                'documento' => $validated['numeroDocumento'],
                 'soporteDocumento' => $validated['soporteDocumento'] ?? null,
             ]
         );
-
+        
         // 5. Crear reserva (solo titular)
         $establecimiento = Establecimiento::first();
 
@@ -89,17 +92,23 @@ class ReservaController extends Controller
 
         $reserva = Reserva::create([
             'idPersonaTitular' => $persona->idPersona,
-            'codigoEstablecimiento' => $establecimiento->codigo,
-            'numPersonas' => $request->input('numPersonas'),
-            'numHabitaciones' => $request->input('numHabitaciones', 1),
+            'codigoEstablecimiento' => $establecimiento->codigoEstablecimiento,
             'fechaEntrada' => $request->input('fechaEntrada'),
             'fechaSalida' => $request->input('fechaSalida'),
-            'estado' => 'pendiente',
+            'estado' => 'pending',
             'createdAt' => now(),
             'updatedAt' => now(),
         ]);
 
-
+        
+        // 6. Asociar habitaciones a la reserva (si se envían)
+        ReservaHabitacion::create([
+            'idReserva' => $reserva->idReserva,
+            'idHabitacion' => (int) $request->input('habitacion'),
+            'numPersonas' => $request->input('numPersonas'),
+        ]);
+        
+        /*
         //.- Generamos la referencia del contrato
         $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
 
@@ -107,9 +116,8 @@ class ReservaController extends Controller
         Contrato::create([
             'referencia' => $referencia, 
             'idReserva' => $reserva->idReserva,
-            'fechaContrato' => now(),
-            'fechaEntrada' => $request->fechaEntrada,
-            'fechaSalida' => $request->fechaSalida,
+            'fechaContrato' => $request->input('fechaContrato'),
+            'estado' => 'activo',
             'internet' => false,
             'tipoPago' => null, 
             'fechaPago' => null,
@@ -119,7 +127,7 @@ class ReservaController extends Controller
         //.- Creamos un parte asociado al contrato, con estado "pendiente".
         $parte = Parte::create([
             'referenciaContrato' => $referencia,
-            'estado' => 'pendiente',
+            'estado' => 'pending',
             'fechaCreacion' => now(),
             'fechaEnvio' => null,
             'createdAt' => now(),
@@ -133,7 +141,7 @@ class ReservaController extends Controller
             'rol' => $titular['rol'],
         ]);
 
-
+        */
 
 
         return response()->json([
@@ -181,46 +189,102 @@ class ReservaController extends Controller
         return response()->json($data, $status);
     }
 
-    public function cancelarReserva(Reserva $reserva)
+    public function cancelarReserva($id)
     {
-        $response = [];
+        $response = null;
         $status = 200;
 
         try {
 
-            DB::transaction(function () use ($reserva, &$response, &$status) {
+            $reserva = Reserva::findOrFail($id);
 
-                // Si ya está cancelada
-                if ($reserva->estado === 'cancelled') {
-                    $response = [
-                        'error' => 'La reserva ya está cancelada'
-                    ];
-                    $status = 400;
-                    return;
-                }
+            if ($reserva->estado === 'cancelled') {
+                $response = [
+                    'error' => 'La reserva ya está cancelada'
+                ];
+                $status = 400;
+            } else {
 
-                // Cancelar reserva
-                $reserva->estado = 'cancelled';
-                $reserva->save();
+                DB::transaction(function () use ($reserva) {
 
-                // Cancelar contrato si existe
-                if ($reserva->contrato) {
-                    $reserva->contrato->estado = 'cancelled';
-                    $reserva->contrato->save();
-                }
+                    // Cancelar reserva
+                    $reserva->estado = 'cancelled';
+                    $reserva->save();
+
+                    // Cancelar contrato si existe
+                    $contrato = Contrato::where('idReserva', $reserva->idReserva)->first();
+
+                    if ($contrato) {
+                        $contrato->estado = 'cancelled';
+                        $contrato->save();
+                    }
+                });
 
                 $response = [
                     'success' => true,
                     'message' => 'Reserva cancelada correctamente'
                 ];
-            });
+            }
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            $response = [
+                'error' => 'Reserva no encontrada'
+            ];
+            $status = 404;
 
         } catch (\Exception $e) {
 
             $response = [
-                'error' => 'Error al cancelar la reserva'
+                'error' => $e->getMessage()
             ];
             $status = 500;
+        }
+
+        return response()->json($response, $status);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $status = 200;
+        $response = [];
+
+        $reserva = Reserva::with('persona')->find($id);
+
+        if (!$reserva) {
+
+            $status = 404;
+            $response = [
+                'error' => 'Reserva no encontrada'
+            ];
+
+        } else {
+
+            // --- ACTUALIZAR RESERVA ---
+            $reserva->fechaEntrada = $request->fechaEntrada;
+            $reserva->fechaSalida = $request->fechaSalida;
+
+            if ($request->has('idHabitacion')) {
+                $reserva->idHabitacion = $request->idHabitacion;
+            }
+
+            $reserva->save();
+
+            // --- ACTUALIZAR TITULAR CON RELACIÓN ---
+            if ($request->has('titular') && $reserva->persona) {
+
+                $reserva->persona->update([
+                    'nombre' => $request->titular['nombre'] ?? $reserva->persona->nombre,
+                    'apellidos' => $request->titular['apellidos'] ?? $reserva->persona->apellidos,
+                    'dni' => $request->titular['dni'] ?? $reserva->persona->dni,
+                    'telefono' => $request->titular['telefono'] ?? $reserva->persona->telefono,
+                    'email' => $request->titular['email'] ?? $reserva->persona->email,
+                ]);
+            }
+
+            $response = [
+                "message" => "Reserva actualizada con éxito"
+            ];
         }
 
         return response()->json($response, $status);
@@ -312,14 +376,14 @@ class ReservaController extends Controller
                         'apellido1' => $reserva->persona->apellido1,
                         'apellido2' => $reserva->persona->apellido2,
                         'tipoDocumento' => $reserva->persona->tipoDocumento,
-                        'numeroDocumento' => $reserva->persona->numeroDocumento,
+                        'numeroDocumento' => $reserva->persona->documento,
                         'telefono' => $reserva->persona->telefono,
-                        'correo' => $reserva->persona->correo,
+                        'correo' => $reserva->persona->email,
                         'direccion' => $reserva->persona->direccion,
                         'codigoPostal' => $reserva->persona->codigoPostal,
                         'nombreMunicipio' => $reserva->persona->nombreMunicipio,
                         'codigoMunicipio' => $reserva->persona->codigoMunicipio,
-                        'pais' => $reserva->persona->pais,
+                        'pais' => $reserva->persona->nacionalidad,
                     ]
                 ];
             });

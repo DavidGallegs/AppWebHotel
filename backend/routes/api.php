@@ -4,12 +4,25 @@ use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CrearParteViajeros;
+use App\Http\Controllers\Admin\ReservationAdminController;
 
 // Aquí definimos la ruta para crear una reserva
 
 //Cuando alguien haga un POST a /api/reservas, ejecuta el método crear del controlador ReservaController, 
 // que se encargará de procesar la solicitud y crear la reserva en la base de datos.
 
+/*******************************Admin************************* */
+// Ruta para obtener todas las reservas (solo para admin)
+Route::get('/admin/reservations', [ReservationAdminController::class, 'indexAdmin']);
+
+// Ruta para aprobar una reserva (solo para admin)
+Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approve']);
+
+// Ruta para rechazar una reserva (solo para admin)
+Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'reject']);
+
+
+/****************************Viajeros***************************** */
 
 // Ruta para registro de usuarios
 Route::post('/register', [RegisterController::class, 'registrarUsuario']);
@@ -18,7 +31,7 @@ Route::post('/register', [RegisterController::class, 'registrarUsuario']);
 Route::post('/login', [LoginController::class, 'login']);
 
 // Ruta protegida para obtener las reservas del usuario autenticado
-Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); //ver si funciona
+Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); //funciona
 
 // Ruta para crear reserva 
 Route::post('/reservas', [ReservaController::class, 'crearReserva']); 
@@ -27,19 +40,17 @@ Route::post('/reservas', [ReservaController::class, 'crearReserva']);
 Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']); //ver si funciona
 
 // Ruta para obtener detalles de una reserva especifica
-Route::get('/reservas/{id}', [ReservaController::class, 'show']); //ver si funciona
+Route::get('/reservas/{id}', [ReservaController::class, 'show']); //funciona
+
+// Ruta para actualizar una reserva (por ejemplo, cambiar fechas o numero de personas)
+Route::put('/reservations/{id}', [ReservaController::class, 'update']);
 
 // Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
-Route::get('/api/ocupacion', [ReservaController::class, 'ocupacion']); //ver si funciona
-
+Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //funcoina
 
 
 // Ruta para crear parte de viajeros
 Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);
-
-
-
-
 
 //Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
 
