@@ -1,0 +1,124 @@
+.admin-layout {
+  display: flex;
+  gap: 2rem;
+  min-height: 80vh;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* --- BARRA LATERAL --- */
+.admin-sidebar {
+  width: 260px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-btn:hover { background: #f3f4f6; }
+.admin-nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+
+/* --- ÁREA PRINCIPAL --- */
+.admin-main {
+  flex: 1;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  overflow-x: auto; /* Por si la tabla es muy ancha */
+}
+
+.admin-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #111827;
+  font-size: 1.5rem;
+}
+
+/* --- TABLA DE RESERVAS --- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  background-color: #f9fafb;
+  color: #374151;
+  font-weight: 700;
+  padding: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1f2937;
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* --- ETIQUETAS DE ESTADO (Badges) --- */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-success { background: #d1fae5; color: #065f46; } /* Verde suave */
+.badge-warning { background: #fef3c7; color: #92400e; } /* Amarillo suave */
+.badge-danger  { background: #fee2e2; color: #991b1b; } /* Rojo suave */
+.badge-neutral { background: #f3f4f6; color: #4b5563; } /* Gris */
+
+/* --- BOTONES DE ACCIÓN (Estilo Outline como en la foto) --- */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-outline {
+  background: transparent;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-blue { border: 1px solid #3b82f6; color: #3b82f6; }
+.btn-blue:hover:not(:disabled) { background: #eff6ff; }
+
+.btn-red { border: 1px solid #ef4444; color: #ef4444; }
+.btn-red:hover:not(:disabled) { background: #fef2f2; }
+
+.btn-green { border: 1px solid #10b981; color: #10b981; }
+.btn-green:hover:not(:disabled) { background: #ecfdf5; }
+
+.btn-grey { border: 1px solid #d1d5db; color: #9ca3af; cursor: default; }

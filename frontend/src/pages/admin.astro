@@ -1,0 +1,40 @@
+---
+// src/pages/admin.astro
+
+import BaseLayout from '../layouts/BasePage.astro';
+import { getSession } from 'auth-astro/server';
+import { DashboardAdmin } from '../components/panelAdmin/DashboardAdmin';
+
+// 1. Comprobamos la sesión
+const session = await getSession(Astro.request);
+
+// 2. Si no hay sesión, al login
+if (!session) {
+  return Astro.redirect('/login');
+}
+
+// 3. Sacamos el usuario (que viene de tu auth.config.ts)
+const usuario = (session as any).user;
+
+// --- EL APAÑO DE SEGURIDAD ---
+// Define aquí los correos que tienen permiso de administrador
+const correosAdmin = [
+  'jjuan123@gmail.com', 
+  'davidgallegs11@gmail.com'
+];
+
+// Si el email del usuario logueado NO está en la lista vip, lo echamos
+if (!correosAdmin.includes(usuario?.email)) {
+  return Astro.redirect('/dashboard'); 
+}
+// -----------------------------
+
+// 4. Sacamos el token de Laravel (que en tu config está dentro del user)
+const token = usuario?.token as string; 
+---
+
+<BaseLayout tituloPage="Panel de Administración" centrado={true}>
+  <div style="width: 100%; max-width: 1200px; margin: 0 auto; padding-top: 2rem;">
+    <DashboardAdmin client:only="react" token={token} />
+  </div>
+</BaseLayout>

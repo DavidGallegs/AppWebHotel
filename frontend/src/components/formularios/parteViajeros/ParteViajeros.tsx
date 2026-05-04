@@ -3,7 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SeccionViajero } from "./SeccionViajero";
 import { esquemaParteViajeros, type TParteViajeros } from "./esquemaViajeros"; 
 
-export default function ParteViajeros() {
+// 1. Añadimos la interfaz para que acepte el ID de la reserva opcionalmente
+interface Props {
+    reservaId?: string | number;
+}
+
+export default function ParteViajeros({ reservaId }: Props) {
     const methods = useForm<TParteViajeros>({
         resolver: zodResolver(esquemaParteViajeros),
         defaultValues: { viajeros: [] }
@@ -25,15 +30,25 @@ export default function ParteViajeros() {
             });
         }
 
+        // 2. Empaquetamos los datos limpios JUNTO con el ID de la reserva
+        const payloadFinal = {
+            ...payloadLimpio,
+            reserva_id: reservaId 
+        };
+
         try {
             const respuesta = await fetch("http://localhost:8000/api/viajeros", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                body: JSON.stringify(payloadLimpio)
+                // 3. Enviamos el payload final
+                body: JSON.stringify(payloadFinal)
             });
 
             if (!respuesta.ok) throw new Error(`Error: ${respuesta.status}`);
             alert("Parte de viajeros enviado correctamente.");
+
+            // Opcional: limpiar el formulario tras enviarlo con éxito
+            methods.reset();
 
         } catch (error) {
             console.error("Fallo al conectar con el backend:", error);
