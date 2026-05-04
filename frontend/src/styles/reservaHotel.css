@@ -1,0 +1,134 @@
+/* =========================================
+   ESTILOS PARA EL FORMULARIO DE RESERVA
+   ========================================= */
+
+.container-form {
+    max-width: 850px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* Espacio entre los fieldsets */
+}
+
+/* --- Fieldsets y Leyendas --- */
+fieldset {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #f9fafb; /* Fondo gris súper clarito para separar secciones */
+    margin: 0;
+}
+
+legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    padding: 0.2rem 0.8rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+/* --- Inputs y Selects Generales --- */
+input[type="text"],
+input[type="date"],
+input[type="tel"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    color: #374151;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto al hacer clic en un input */
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* --- Labels (Etiquetas descriptivas) --- */
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+/* --- Grid para el Titular --- */
+/* Esto hace que los campos se pongan en 2 o 3 columnas dependiendo del espacio, 
+   en lugar de uno debajo de otro infinitamente */
+.seccion-titular {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+/* Hace que la leyenda y el selector de personas ocupen toda la fila superior */
+.seccion-titular legend,
+.seccion-titular .input-group {
+    grid-column: 1 / -1; 
+}
+
+/* --- Calendario Container --- */
+.calendario-container {
+    background: white;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- Botón de Envío --- */
+.acciones-formulario {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.acciones-formulario button {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.acciones-formulario button:hover {
+    background-color: #1d4ed8;
+}
+
+.acciones-formulario button:active {
+    transform: scale(0.98);
+}
+
+.acciones-formulario button:disabled {
+    background-color: #9ca3af;
+    box-shadow: none;
+    cursor: not-allowed;
+}

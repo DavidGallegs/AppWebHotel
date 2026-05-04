@@ -1,20 +1,25 @@
-import { useForm, FormProvider, type SubmitHandler } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { SeccionFechas } from "./SeccionFechas";
 import { SeccionTitular } from "./SeccionTitular";
 import { esquemaReserva, type TReserva } from "./esquemaReserva"; 
+import "../../../styles/reservaHotel.css";
 
 export default function ReservaHotel() {
 
-    //Implementación del tipado y validaciones al componente
-    const methods = useForm<TReserva>({
+    // 1. Quitamos <TReserva> y dejamos que zodResolver haga la magia.
+    // 2. Añadimos habitacion: "1" para calmar a TypeScript.
+    const methods = useForm({
         resolver: zodResolver(esquemaReserva),
-        defaultValues: { numPersonas: 1 }
+        defaultValues: { 
+            habitacion: "1", 
+            numPersonas: 1 
+        }
     });
 
-    //Función de petición al Backend
-    const enviar: SubmitHandler<TReserva> = async (data) => {
-        const payloadLimpio = structuredClone(data);
+    // 3. Tipamos 'data' como 'any' y le confirmamos que es 'TReserva' dentro
+    const enviar = async (data: any) => {
+        const payloadLimpio = structuredClone(data as TReserva);
 
         if (payloadLimpio.titular.pais === "ESP") {
             delete payloadLimpio.titular.nombreMunicipio;
@@ -37,7 +42,8 @@ export default function ReservaHotel() {
             if (!respuesta.ok) throw new Error(`Error: ${respuesta.status}`);
             alert("Reserva creada correctamente. Ahora registre a los viajeros.");
 
-            //Redireccionar o limpiar buffers tras crear la reserva + aññadir lo del correo.
+            // Opcional: Limpiar el formulario tras enviarlo
+            methods.reset();
 
         } catch (error) {
             console.error("Fallo al conectar con el backend:", error);
