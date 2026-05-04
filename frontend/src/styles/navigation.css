@@ -1,0 +1,191 @@
+/* --- 1. ESTADO INICIAL (Al subir el scroll) --- */
+.navigation {
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 0; 
+    z-index: 1000; 
+    background-color: transparent; 
+    box-shadow: none;
+    padding: 1rem;
+
+    /* ¡MAGIA AL SUBIR! Tarda más en desvanecerse (ej: 0.8 segundos) */
+    transition: background-color 0.20s ease, box-shadow 0.20s ease; 
+}
+
+/* --- 2. ESTADO AL HACER SCROLL (Al bajar el scroll) --- */
+.navigation.scrolled {
+    background-color: rgba(255, 255, 255, 0.95); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
+    /* ¡MAGIA AL BAJAR! Es súper rápido para proteger la lectura (0.3 segundos) */
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 1rem;
+    flex-wrap: wrap; /* ESTO evita que se corte al encoger la ventana */
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* --- Botón Hamburguesa por defecto (oculto en PC) --- */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* --- MODO MÓVIL (Menos de 850px) --- */
+@media (max-width: 850px) {
+
+    .navigation {
+        background-color: rgba(255, 255, 255, 1);
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    /* Ocultamos el menú y lo preparamos para que FLOTE por encima */
+    .nav-menu {
+        display: none; 
+        flex-direction: column;
+        
+        /* MAGIA AQUÍ: Lo sacamos del flujo normal para que no empuje nada */
+        position: absolute; 
+        top: 100%; /* Que empiece justo debajo de la barra de iconos */
+        left: 0;
+        width: 100%;
+        
+        /* Le damos un fondo para que tape lo de atrás y quede bonito */
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 1rem 0 2rem 0;
+        
+        /* Una sombra para que parezca que está "por encima" */
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-radius: 0 0 8px 8px; /* Redondeamos solo la parte de abajo */
+        
+        /* Z-index alto para asegurar que ninguna imagen o texto se ponga delante */
+        z-index: 1000;
+    }
+
+    /* Esta clase se activa con nuestro JavaScript */
+    .nav-menu.open {
+        display: flex;
+    }
+
+    .nav-links, .nav-auth {
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        border-left: none; 
+        padding-left: 0;
+        gap: 1rem;
+    }
+}
+
+/* Listas sin puntos y en horizontal */
+.nav-links, .nav-auth {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.nav-icons {
+    display: flex;
+    gap: 1.5rem;
+}
+
+/* Estilos de los enlaces */
+.nav-item {
+    text-decoration: none;
+    color: #111;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+    color: #cc530e;
+}
+
+/* El estado activo (página actual) */
+.nav-item.active {
+    color: #cc530e;
+    font-weight: bold;
+}
+
+/* Botones especiales de Login/Join */
+.auth-btn {
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    border-radius: 4px;
+}
+
+.auth-btn:hover {
+    background-color: #e5e7eb;
+}
+
+
+/* Botón de Cerrar Sesión */
+.logout-btn {
+    background-color: #eee;
+    cursor: pointer;
+    border: none;             /* Sin borde por defecto */
+    padding: 0.5rem 1rem;     /* Espaciado interno */
+    border-radius: 6px;       /* Bordes redondeados */
+    font-weight: bold;
+    font-size: 0.95rem;
+    font-family: inherit;     /* Hereda la fuente de tu web */
+    transition: background-color 0.2s ease-in-out; /* Suavidad en el cambio de color */
+}
+
+.logout-btn:hover {
+    background-color: #fecaca; /* Rojo un poco más oscuro al pasar el ratón */
+}
+
+/* --- Estilos para los iconos de imagen (Home y Contacto) --- */
+
+.icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon-img {
+    width: 32px; /* Cambia este valor si quieres los iconos más grandes o más pequeños */
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Un pequeño efecto de rebote al pasar el ratón */
+.icon-link:hover .nav-icon-img {
+    transform: scale(1.1);
+}

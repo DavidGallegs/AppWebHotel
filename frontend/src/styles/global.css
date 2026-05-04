@@ -1,21 +1,19 @@
-*{
+/* Reseteo universal */
+* {
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-family: system-ui;
+    font-family: system-ui, -apple-system, sans-serif;
     font-size: 18px;
 }
 
+/* Reglas generales para toda la web */
 body {
-    background: #f2ddb6 no-repeat center;
-
+    background-color: #f2ddb6; /* Tu color crema corporativo */
     min-height: 100vh;
-    background-size: cover;
+    padding-bottom: 3rem;
+    position: relative; /* Súper importante para que la imagen portada no se vuelva loca */
 }
 
-@media (min-width: 481px) and (max-width: 768px){
-
-    body{
-        background-attachment: fixed;
-    }
-}
+/* Ya no necesitamos el @media con background-attachment: fixed porque la foto
+   ya no está en el body, la sacamos a un div independiente (fondo-hero) */

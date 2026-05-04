@@ -1,8 +1,15 @@
 ---
-import BasePage from "../layouts/BasePage.astro"
-import ImageBack from "../assets/background_Images/1_home.jpg"
+// src/pages/index.astro
+import BaseLayout from '../layouts/BasePage.astro'; // Ajusta la ruta si es necesario
+
+// 1. Importamos TODA la información de tu archivo home.mdx directamente
+import * as HomeData from '../md_pages/home.mdx';
+
+// 2. Extraemos el Componente del contenido y sus variables
+const { Content, frontmatter } = HomeData;
 ---
 
-<BasePage tituloPage="Hotel rural Taranes"  isHome={true} isContact={false} imageBack={ImageBack.src}>
-
-</BasePage>
+<!-- 3. Usamos tu Layout pasándole las variables de tu home.mdx -->
+<BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
+  <Content />
+</BaseLayout>

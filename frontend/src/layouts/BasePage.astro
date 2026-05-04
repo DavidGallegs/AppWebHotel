@@ -1,19 +1,136 @@
 ---
 import Navigation from "../components/navigation/Navigation.astro";
-import '../styles/global.css'
+import '../styles/global.css'; 
 
-const {tituloPage, isHome, isContact, imageBack} = Astro.props
+// 1. Añadimos la variable "centrado" y le damos el valor "false" por defecto
+const { tituloPage, imageBack, centrado = false } = Astro.props;
 ---
 
 <html lang="es">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{tituloPage}</title>
-	</head>
-	<body style={`background-image: url('${imageBack}');`}>
-		<Navigation isHome ={isHome} isContact={isContact}/>
-		<slot/>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{tituloPage}</title>
+    </head>
+    
+    <body>
+        <div class="fondo-hero" style={`background-image: url('${imageBack}');`}></div>
+        
+        <div style="height: 80px; width: 100%;"></div>
+
+        <Navigation />
+        
+        <!-- 2. MAGIA: Si centrado es true, pone la clase 'modo-centrado', si no, 'modo-derecha' -->
+        <main class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
+            <div class="bloque-texto">
+                <slot />
+            </div>
+
+            <div class="bloque-imagenes">
+                <slot name="imagenes" />
+            </div>
+        </main>
+    </body>
 </html>
+
+<style>
+    .fondo-hero {
+        position: absolute; 
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh; 
+        background-size: cover;
+        background-position: center top; 
+        background-repeat: no-repeat;
+        z-index: -1; 
+    }
+
+    /* --- Base del Contenedor --- */
+    .contenedor-torre {
+        display: flex;
+        flex-direction: column;
+        max-width: 1100px; 
+        margin: 0 auto;
+        margin-top: 5vh; 
+        padding: 0 2rem; 
+    }
+
+    /* =========================================
+       VARIANTE 1: MODO DERECHA (Tus páginas MDX)
+       ========================================= */
+    .modo-derecha {
+        align-items: flex-end; 
+    }
+    .modo-derecha .bloque-texto, 
+    .modo-derecha .bloque-imagenes {
+        width: 55%; 
+    }
+    .modo-derecha .bloque-texto {
+
+        padding: 2.5rem;
+        border-radius: 12px;
+        backdrop-filter: blur(4px); 
+    }
+
+    /* =========================================
+       VARIANTE 2: MODO CENTRADO (Login, Dashboard)
+       ========================================= */
+    .modo-centrado {
+        align-items: center; 
+    }
+    .modo-centrado .bloque-texto,
+    .modo-centrado .bloque-imagenes {
+        width: 100%; 
+        /* En el modo centrado quitamos el cristal del texto porque tu tarjeta de login ya tiene el suyo */
+        background-color: transparent;
+        padding: 0;
+        backdrop-filter: none;
+        box-shadow: none;
+    }
+
+    /* --- Estilos comunes del Texto --- */
+    .bloque-texto {
+        text-align: left; 
+        font-size: 1.15rem; 
+        line-height: 1.6;
+        color: #111; 
+        margin-bottom: 3rem;
+    }
+
+    .bloque-texto :global(h1) {
+        font-size: 2.2rem;
+        color: #3b2a1a; 
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+    .bloque-texto :global(h2), .bloque-texto :global(h3) {
+        color: #444;
+        margin-top: 1.5rem;
+    }
+
+    /* --- Imágenes comunes --- */
+    .bloque-imagenes {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .bloque-imagenes :global(img) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* --- Móviles --- */
+    @media (max-width: 850px) {
+        .contenedor-torre {
+            align-items: center; 
+        }
+        .modo-derecha .bloque-texto, 
+        .modo-derecha .bloque-imagenes {
+            width: 100%; 
+            background-color: rgba(255, 255, 255, 0.85); 
+        }
+    }
+</style>

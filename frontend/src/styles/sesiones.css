@@ -1,90 +1,114 @@
-/* --- Login css --- */
+/* --- Contenedor Principal del Formulario --- */
 .login-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 70vh;
-    padding: 20px;
-}
-
-.login-card {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 400px;
-    backdrop-filter: blur(5px);
+    margin: 2rem auto;
 }
 
-h2 {
+/* --- La Tarjeta (Efecto Cristal Elegante) --- */
+.login-card {
+    /* Fondo un poco más blanco para que el formulario sea súper legible */
+    background: rgba(255, 255, 255, 0.85);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 450px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Borde sutil blanquecino */
+}
+
+.login-card h2 {
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
+    color: #3b2a1a; /* Marrón oscuro elegante */
+    margin-bottom: 2rem;
+    font-size: 2rem;
     font-family: serif;
+    margin-top: 0;
 }
 
+/* --- Agrupación de Inputs --- */
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 1.5rem;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
-label {
-    font-size: 0.9rem;
-    color: #555;
+.input-group label {
+    font-size: 0.95rem;
+    color: #444;
     font-weight: 600;
 }
 
-input {
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+/* --- Los campos de texto --- */
+.input-group input {
+    padding: 0.85rem 1rem;
+    border: 1px solid #d4c4b7; /* Color tierra clarito */
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
     font-size: 1rem;
+    color: #333;
     outline: none;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
-input:focus {
-    border-color: #a67c52;
+/* Efecto al hacer clic en un input */
+.input-group input:focus {
+    border-color: #cc530e; /* Tu naranja/marrón corporativo */
+    box-shadow: 0 0 0 3px rgba(204, 83, 14, 0.15); /* Halo de luz naranja */
 }
 
+/* Mensajes de error debajo de los inputs */
+.error-text {
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: -0.2rem;
+}
+
+/* --- Botón Principal --- */
 .login-btn {
-    background-color: #a67c52;
+    background-color: #cc530e; 
     color: white;
     padding: 1rem;
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
-    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    box-shadow: 0 4px 10px rgba(204, 83, 14, 0.2);
 }
 
 .login-btn:hover {
-    background-color: #8b6542;
+    background-color: #a84209; /* Un tono más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Se levanta un poquito */
 }
 
+/* --- Textos del Footer --- */
 .footer-text {
     text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.85rem;
-    color: #666;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: #555;
 }
 
 .footer-text a {
-    color: #a67c52;
+    color: #cc530e;
     text-decoration: none;
     font-weight: bold;
+    transition: color 0.2s;
 }
 
 .footer-text a:hover {
+    color: #3b2a1a;
     text-decoration: underline;
 }

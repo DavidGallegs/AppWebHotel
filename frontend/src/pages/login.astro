@@ -1,9 +1,11 @@
 ---
-export const prerender = false;
-import BasePage from "../layouts/BasePage.astro"
-import ImageBack from "../assets/background_Images/10_reserva.jpg"
-import LoginForm from "../components/sesiones/LoginForm"
+import BaseLayout from '../layouts/BasePage.astro';
+import LoginForm from "../components/sesiones/LoginForm";
+import ImageBack from "../assets/background_Images/10_reserva.jpg";
 ---
-<BasePage tituloPage="Hotel rural Taranes"  isHome={false} isContact={false} imageBack={ImageBack.src}>
-    <LoginForm client:load/>
-</BasePage>
+
+<BaseLayout tituloPage="Iniciar Sesión" imageBack={ImageBack.src} centrado={true}>
+  
+  <LoginForm client:load />
+
+</BaseLayout>

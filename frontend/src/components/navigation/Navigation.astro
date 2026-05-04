@@ -1,135 +1,126 @@
 ---
-import {Image}  from 'astro:assets';
-import facebook from '../../assets/navigation_Images/facebook.png'
-import menuIcon from '../../assets/navigation_Images/menu.png'
-import logoDark from '../../assets/navigation_Images/logo_dark.png'
+//Imagenes del Home y Contact
+import homeNegra from '../../assets/navigation_Images/homeBlack.png';
+import homeMarron from '../../assets/navigation_Images/homeBrowm.png';
+import contactoNegra from '../../assets/navigation_Images/contacto-a.png';
+import contactoMarron from '../../assets/navigation_Images/contacto-b.png';
 
-import ContactNavigation from "./ContactNavigation.astro";
-import ImageNavigation from "./HomeNavigation.astro"
-import LinkNavigation from "./LinkNavigation.astro"
+// Tus variables:
+const imgHomeNegra = homeNegra.src;
+const imgHomeMarron = homeMarron.src;
+const imgContactoNegra = contactoNegra.src;
+const imgContactoMarron = contactoMarron.src;
 
-// 1. Añadimos las importaciones necesarias
+// 1. Importación correcta según la documentación de auth-astro
 import { getSession } from 'auth-astro/server';
-import LogoutButton from '../sesiones/LogoutButton.tsx';
+import LogoutButton from '../sesiones/LogoutButton.tsx'; 
+import '../../styles/navigation.css'; 
 
-const {isHome,isContact} = Astro.props;
-
-// 2. Comprobamos la sesión en el servidor
+// 2. Leemos la sesión pasándole la request de Astro
 const session = await getSession(Astro.request);
+
+// 3. (Opcional pero útil para depurar): Haz un console.log para ver si en la terminal sale tu usuario
+console.log("Sesión actual:", session ? "Usuario Logueado" : "No logueado");
+
+// ... resto de tu código de import.meta.glob ...
+const paginas = Object.values(import.meta.glob('../../md_pages/*.mdx', { eager: true })) as any[];
+
+const enlacesTexto = paginas
+    .filter(page => !page.frontmatter.isHome && !page.frontmatter.isContact)
+    .sort((a, b) => a.frontmatter.orden - b.frontmatter.orden);
+
+const currentPath = Astro.url.pathname;
+
+// Lógica para saber si estamos en Home o Contacto
+const isHome = currentPath === '/';
+const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
 ---
 
 <nav class="navigation">
-    <div class="navigation-container-menu">
-        <button id="menu-toggle-btn" class="navigation-btn">
-            <Image src={menuIcon} alt="menu Icon"/>
-        </button>
-
-        <Image src={logoDark} alt="Logo Hotel" class="navigation-logoDark"/>
-    </div>
-
-    <div class="navigation-container">
-        <div class="navigation_url">
-            <ImageNavigation isActive={isHome}/>
-            <ContactNavigation isActive={isContact}/>
-            <a href="http://www.facebook.com/quintanaltaranes" class="navigation-facebook" target="_blank">
-                <Image src={facebook} alt="Home"/>
+    <div class="nav-container">
+        
+        <!-- Enlaces Fijos (Iconos) -->
+        <div class="nav-icons">
+            <a href="/" class="icon-link">
+                <img src={isHome ? imgHomeMarron : imgHomeNegra} alt="Inicio" class="nav-icon-img" />
+            </a>
+            <a href="/contacto" class="icon-link">
+                <img src={isContact ? imgContactoMarron : imgContactoNegra} alt="Contacto" class="nav-icon-img" />
             </a>
         </div>
-        <ul class="navigation-ul">
 
-            <LinkNavigation site="Situacion"/>
-            <LinkNavigation site="Taranes"/>
-            <LinkNavigation site="Ponga"/>
-            <LinkNavigation site="Hotel Rural"/>
-            <LinkNavigation site="Bar"/>
-            <LinkNavigation site="Fotos"/>
-            <LinkNavigation site="Comentarios"/>
+        <!-- Botón Hamburguesa (Oculto en PC, visible en móvil) -->
+        <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-            {session && (
-                <li>
-                    <LogoutButton client:load />
-                </li>
-            )}
-        </ul>
+        <!-- Contenedor colapsable: Agrupa texto y sesión -->
+        <div class="nav-menu" id="nav-menu">
+            <!-- Enlaces Dinámicos (.mdx) -->
+            <ul class="nav-links">
+                {enlacesTexto.map((page) => {
+                    const nombreArchivo = page.file.split('/').pop()!.replace('.mdx', '');
+                    const ruta = `/${nombreArchivo}`;
+                    const isActive = currentPath === ruta || currentPath === `${ruta}/`;
+
+                    return (
+                        <li>
+                            <a href={ruta} class={`nav-item ${isActive ? 'active' : ''}`}>
+                                {page.frontmatter.nombreEnlace}
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
+
+            <!-- Zona de Sesión -->
+            <ul class="nav-auth">
+                {session ? (
+                    <>
+                        <li><a href="/reserva" class={`nav-item ${currentPath === '/reserva' ? 'active' : ''}`}>Reservar</a></li>
+                        <li><a href="/dashboard" class={`nav-item ${currentPath === '/dashboard' ? 'active' : ''}`}>Dashboard</a></li>
+                        <li><LogoutButton client:load /></li>
+                    </>
+                ) : (
+                    <>
+                        <li><a href="/login" class="nav-item auth-btn">Iniciar Sesión</a></li>
+                        <li><a href="/join" class="nav-item auth-btn">Registrarse</a></li>
+                    </>
+                )}
+            </ul>
+        </div>
     </div>
 </nav>
 
-<style>
-    .navigation-container{
-        display: flex;
-        height: 50px;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-        margin-top: 100px;
-    }
+<!-- Lógica del Menú Hamburguesa -->
+<script>
+    const btn = document.getElementById('hamburger-btn');
+    const menu = document.getElementById('nav-menu');
 
-    .navigation-ul{
-        list-style: none;
-        padding: 0 0 0 10px;
-    }
+    btn?.addEventListener('click', () => {
+        // Añade o quita la clase 'open' para mostrar/ocultar
+        menu?.classList.toggle('open');
+        // Opcional: animación para el botón
+        btn.classList.toggle('is-active');
+    });
 
-    .navigation-container-menu{
-        display: none;
-    }
-
-    @media (max-width: 768px){
-
-        .navigation{
-            position: sticky;
-            top:0;
-            width: 100%;
-        }
-
-        .navigation-container{
-            display: none;
-        }
-
-        .navigation-container-menu{
-            display: flex;
-            align-items: center;
-            width: 100%;
-            background-color: #0c0c0c ; 
-            padding: 10px 15px;
-        }
-
-        .navigation-btn{
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            padding: 0;
-        }
-
-        .navigation-logoDark{
-            margin-left: auto;
-        }
-
-        .navigation-container.show-menu {
-            display: block; 
-            text-align: center;
-            background-color: #0c0c0c;
-            margin-top: 0; 
-            padding: 0;
-        }
-
-        .navigation-ul{
-            background-color: #333;
-            display: flex;
-            flex-direction: column; 
-            justify-content: center;
-            align-content: center;
-            padding: 0;
-        }
-    }
-</style>
+</script>
 
 <script>
-    const menuBtn = document.getElementById('menu-toggle-btn');
-    const menuContainer = document.querySelector('.navigation-container');
+  document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.querySelector('.navigation');
+    
+    // El seguro de vida para TypeScript: Si no encuentra el nav, no hace nada y evita el error
+    if (!nav) return; 
 
-    if (menuBtn && menuContainer) {
-        menuBtn.addEventListener('click', () => {
-            menuContainer.classList.toggle('show-menu');
-        });
-    }
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 120) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  });
 </script>
