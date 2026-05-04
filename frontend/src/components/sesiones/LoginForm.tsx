@@ -78,6 +78,7 @@ export default function LoginForm() {
           <button type="submit" className="login-btn">Entrar</button>
         </form>
         <p className="footer-text">¿No tienes cuenta? <a href="/join">Regístrate aquí</a></p>
+        <p className="footer-text">¿Has olvidado tu contraseña? <a href="/forgetPassword">Cambiar</a></p>
       </div>
     </div>
   );

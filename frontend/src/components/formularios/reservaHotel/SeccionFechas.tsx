@@ -71,22 +71,33 @@ export function SeccionFechas() {
                 </select>
             </div>
 
-            {isLoading ? (
-                <p style={{ textAlign: 'center', padding: '2rem' }}>Actualizando calendario...</p>
-            ) : (
-                <div className="calendario-container">
-                    <DayPicker
-                        mode="range"
-                        selected={range}
-                        onSelect={handleRangeSelect}
-                        locale={es}
-                        disabled={[
-                            { before: startOfToday() }, // No permite días pasados
-                            ...diasOcupados             // No permite días ocupados
-                        ]}
-                    />
-                </div>
-            )}
+            <div 
+                className="calendario-container" 
+                style={{ 
+                    position: 'relative',
+                    opacity: isLoading ? 0.5 : 1, 
+                    pointerEvents: isLoading ? 'none' : 'auto', 
+                    transition: 'opacity 0.2s ease-in-out' 
+                }}
+            >
+                {/* Un pequeño cartel de "Cargando" flotante encima del calendario */}
+                {isLoading && (
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600, color: '#2563eb', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                        Actualizando fechas...
+                    </div>
+                )}
+                
+                <DayPicker
+                    mode="range"
+                    selected={range}
+                    onSelect={handleRangeSelect}
+                    locale={es}
+                    disabled={[
+                        { before: startOfToday() }, 
+                        ...diasOcupados             
+                    ]}
+                />
+            </div>
 
             <div className="seleccion-info">
                 {range?.from ? (
@@ -100,7 +111,6 @@ export function SeccionFechas() {
                 )}
             </div>
             
-            {/* Inputs ocultos para que react-hook-form siga recibiendo los datos */}
             <input type="hidden" {...register("fechaEntrada")} />
             <input type="hidden" {...register("fechaSalida")} />
         </fieldset>
