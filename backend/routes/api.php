@@ -5,6 +5,8 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CrearParteViajeros;
 use App\Http\Controllers\Admin\ReservationAdminController;
+use App\Http\Controllers\Auth\PasswordResetController;
+
 
 // Aquí definimos la ruta para crear una reserva
 
@@ -23,6 +25,11 @@ Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::cla
 
 
 /****************************Viajeros***************************** */
+
+// Ruta para recuperar contraseña
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
 
 // Ruta para registro de usuarios
 Route::post('/register', [RegisterController::class, 'registrarUsuario']);
