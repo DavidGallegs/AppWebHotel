@@ -112,3 +112,124 @@
     color: #3b2a1a;
     text-decoration: underline;
 }
+
+/* =========================================
+   ESTILOS PARA RECUPERACIÓN DE CONTRASEÑA
+   ========================================= */
+
+/* Contenedor principal para centrar los formularios de auth */
+.auth-container {
+    max-width: 450px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(255,255, 255, 0.85); /* Fondo oscuro semitransparente */
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Títulos y textos de ayuda */
+.auth-title {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #333;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Estilos de los inputs en el formulario de recuperación */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-label {
+    color: #333;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.auth-input {
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #111;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+
+}
+
+/* Botón de acción principal */
+.auth-button {
+    background: #cc530e;
+    color: #ffffff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+}
+
+.auth-button:hover {
+    background: #bc430e;
+}
+
+.auth-button:active {
+    transform: scale(0.98);
+}
+
+.auth-button:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Mensajes de éxito */
+.auth-success-msg {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(22, 101, 52, 0.2);
+    border: 1px solid #166534;
+    border-radius: 8px;
+    color: #4ade80;
+    font-weight: 500;
+}
+
+/* Enlace de "Volver al login" */
+.auth-back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.auth-back-link:hover {
+    color: #cc530e;
+}
