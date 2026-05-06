@@ -12,6 +12,7 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export const joinSchema = z.object({
   nombre: z.string().min(2, { error: 'El nombre debe tener al menos 2 caracteres' }),
   email: z.email({ error: 'Formato de correo inválido' }),
+  apellido1: z.string().min(2, "El primer apellido es obligatorio"),
   password: z.string().min(6, { error: 'La contraseña debe tener al menos 6 caracteres' }),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {

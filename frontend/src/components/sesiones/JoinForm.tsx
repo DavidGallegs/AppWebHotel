@@ -22,6 +22,7 @@ export default function JoinForm() {
         },
         body: JSON.stringify({
           name: data.nombre,
+          apellido1: data.nombre,
           email: data.email,
           password: data.password,
           password_confirmation: data.confirmPassword // Convención de Laravel
@@ -49,11 +50,14 @@ export default function JoinForm() {
         <h2>Crear Cuenta</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="login-form">
           <div className="input-group">
-            <label htmlFor="nombre">Nombre Completo</label>
-            <input id="nombre" placeholder="Juan Pérez" {...register('nombre')} />
+            <label htmlFor="nombre" className="auth-label">Nombre</label>
+            <input id="nombre" className="auth-input" placeholder="Juan" {...register('nombre')} />
             {errors.nombre && <span className="error-text">{errors.nombre.message}</span>}
-          </div>
 
+            <label htmlFor="apellido1" className="auth-label">Primer Apellido</label>
+            <input id="apellido1" className="auth-input" placeholder="Pérez" {...register("apellido1")}/>
+            {errors.apellido1 && <span className="error-text">{errors.apellido1.message}</span>}
+        </div>
           <div className="input-group">
             <label htmlFor="email">Correo Electrónico</label>
             <input type="email" id="email" placeholder="tu@email.com" {...register('email')} />
