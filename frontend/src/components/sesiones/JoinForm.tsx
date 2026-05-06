@@ -22,7 +22,7 @@ export default function JoinForm() {
         },
         body: JSON.stringify({
           name: data.nombre,
-          apellido1: data.nombre,
+          apellido1: data.apellido1,
           email: data.email,
           password: data.password,
           password_confirmation: data.confirmPassword // Convención de Laravel
