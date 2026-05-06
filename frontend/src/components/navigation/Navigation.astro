@@ -112,15 +112,15 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
   document.addEventListener('DOMContentLoaded', () => {
     const nav = document.querySelector('.navigation');
     
-    // El seguro de vida para TypeScript: Si no encuentra el nav, no hace nada y evita el error
     if (!nav) return; 
-
-    window.addEventListener('scroll', () => {
+    const checkScroll = () => {
       if (window.scrollY > 120) {
         nav.classList.add('scrolled');
       } else {
         nav.classList.remove('scrolled');
       }
-    });
+    };
+    checkScroll();
+    window.addEventListener('scroll', checkScroll);
   });
 </script>

@@ -1,6 +1,6 @@
 /* --- 1. ESTADO INICIAL (Al subir el scroll) --- */
 .navigation {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     position: sticky;
     top: 0; 
     z-index: 1000; 
@@ -57,11 +57,27 @@
     transition: all 0.3s ease;
 }
 
+@media (max-width: 965px) {
+    .nav-icons{
+        margin: auto;
+    }
+}
+
 /* --- MODO MÓVIL (Menos de 850px) --- */
 @media (max-width: 850px) {
 
     .navigation {
         background-color: rgba(255, 255, 255, 1);
+        /* Reforzamos que se clave en la parte superior izquierda */
+        position: fixed; /* O cambia a 'fixed' si 'sticky' te da problemas con algún contenedor padre */
+        top: 0;
+        left: 0;
+        width: 100%;
+        margin-top: 0; /* Eliminamos cualquier margen superior */
+        box-sizing: border-box; /* Asegura que el padding no desborde el 100% del ancho */
+        
+        /* Opcional: reducir un poco el padding en móvil para que el menú no ocupe demasiada pantalla */
+        padding: 1.5rem 1rem; 
     }
 
     .hamburger {
@@ -104,6 +120,11 @@
         padding-left: 0;
         gap: 1rem;
     }
+
+    .nav-icons{
+        margin: 0;
+    }
+    
 }
 
 /* Listas sin puntos y en horizontal */
