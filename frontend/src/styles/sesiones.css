@@ -136,7 +136,7 @@
 /* Títulos y textos de ayuda */
 .auth-title {
     text-align: center;
-    color: #ffffff;
+    color: #111;
     font-size: 1.8rem;
     margin-bottom: 0.5rem;
 }
@@ -184,6 +184,16 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 
 }
+
+.auth-msg-true{
+    text-align: center;
+    padding: 2rem;
+    background-color: #f0fdf4;
+    border-radius: 4px;
+    color: #166534
+}
+
+
 
 /* Botón de acción principal */
 .auth-button {
@@ -236,4 +246,78 @@
 
 .auth-back-link:hover {
     color: #cc530e;
+}
+
+
+/* --- RESET PASSWORD */
+
+/* Contenedor principal del formulario */
+.container-form {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.70);
+    border-radius: 8px;
+}
+
+.container-form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.container-form p {
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Estructura del Formulario */
+.form-reset {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Grupos de campos (Label + Input) */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white; /* Asegura legibilidad */
+    font-size: 1rem;
+}
+
+/* Botón de acción */
+.btn-submit {
+    background-color: #cc530e;
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #bc430e;
+}
+
+.btn-submit:disabled {
+    background-color: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
 }

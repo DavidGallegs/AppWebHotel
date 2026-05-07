@@ -21,8 +21,6 @@ const session = await getSession(Astro.request);
 
 // 3. (Opcional pero útil para depurar): Haz un console.log para ver si en la terminal sale tu usuario
 console.log("Sesión actual:", session ? "Usuario Logueado" : "No logueado");
-
-// ... resto de tu código de import.meta.glob ...
 const paginas = Object.values(import.meta.glob('../../md_pages/*.mdx', { eager: true })) as any[];
 
 const enlacesTexto = paginas

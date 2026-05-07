@@ -16,20 +16,14 @@ if (!session) {
 // 3. Sacamos el usuario (que viene de tu auth.config.ts)
 const usuario = (session as any).user;
 
-// --- EL APAÑO DE SEGURIDAD ---
-// Define aquí los correos que tienen permiso de administrador
-const correosAdmin = [
-  'jjuan123@gmail.com', 
-  'davidgallegs11@gmail.com'
-];
-
-// Si el email del usuario logueado NO está en la lista vip, lo echamos
-if (!correosAdmin.includes(usuario?.email)) {
+// --- LA NUEVA SEGURIDAD POR ROL ---
+// Si el rol del usuario logueado NO es "admin", lo echamos al dashboard normal
+if (usuario?.role !== 'admin') {
   return Astro.redirect('/dashboard'); 
 }
 // -----------------------------
 
-// 4. Sacamos el token de Laravel (que en tu config está dentro del user)
+// 4. Sacamos el token de Laravel para hacer peticiones seguras
 const token = usuario?.token as string; 
 ---
 

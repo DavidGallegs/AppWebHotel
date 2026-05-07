@@ -18,7 +18,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // 2. LISTA DE RUTAS DE AUTENTICACIÓN (Solo para invitados)
-  const authRoutes = ['/login', '/join'];
+  const authRoutes = ['/login', '/join','/forgetPassword'];
   
   // Comprobamos si la URL actual ES EXACTAMENTE alguna de estas
   const isAuthRoute = authRoutes.includes(pathname);
@@ -26,6 +26,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (isAuthRoute && session) {
     // Si ya tiene sesión e intenta ir al login/join, lo mandamos al inicio
     return context.redirect('/');
+  }
+
+  // Si intenta entrar al panel de admin...
+  if (pathname.startsWith('/admin')) {
+    // Sacamos el rol del usuario de la sesión
+    const userRole = (session as any)?.user?.role;
+    
+    // Si no es admin, patada al dashboard
+    if (userRole !== 'admin') {
+      return context.redirect('/');
+    }
   }
 
   // 3. Si pasa todos los filtros, le mostramos la página normal
