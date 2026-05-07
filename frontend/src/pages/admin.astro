@@ -4,6 +4,7 @@
 import BaseLayout from '../layouts/BasePage.astro';
 import { getSession } from 'auth-astro/server';
 import { DashboardAdmin } from '../components/panelAdmin/DashboardAdmin';
+import ImageBack from "../assets/background_Images/3_pajaro.jpg";
 
 // 1. Comprobamos la sesión
 const session = await getSession(Astro.request);
@@ -27,7 +28,7 @@ if (usuario?.role !== 'admin') {
 const token = usuario?.token as string; 
 ---
 
-<BaseLayout tituloPage="Panel de Administración" centrado={true}>
+<BaseLayout tituloPage="Panel de Administración" imageBack={ImageBack.src} centrado={true}>
   <div style="width: 100%; max-width: 1200px; margin: 0 auto; padding-top: 2rem;">
     <DashboardAdmin client:only="react" token={token} />
   </div>

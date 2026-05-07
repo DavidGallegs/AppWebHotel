@@ -48,9 +48,13 @@ export function SeccionTitular() {
             </select>
 
             {paisSeleccionado === "ESP" ? (
-                <BuscadorMunicipio name="titular.codigoMunicipio" />
+                <div className="campo-municipio-largo"> {/* <-- Añade este div */}
+                    <BuscadorMunicipio name="titular.codigoMunicipio" />
+                </div>
             ) : (
-                <input type="text" placeholder="Nombre de Ciudad" {...register("titular.nombreMunicipio")} />
+                <div className="campo-municipio-largo"> {/* <-- Añade este div también aquí */}
+                    <input type="text" placeholder="Nombre de Ciudad" {...register("titular.nombreMunicipio")} />
+                </div>
             )}
         </fieldset>
     );
