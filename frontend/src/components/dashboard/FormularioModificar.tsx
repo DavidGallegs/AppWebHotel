@@ -28,14 +28,15 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
             apellido2: reservaOriginal.titular?.apellido2 || "",
             tipoDocumento: reservaOriginal.titular?.tipoDocumento || "",
             numeroDocumento: reservaOriginal.titular?.numeroDocumento || "",
-            fechaNacimiento: "", 
+            fechaNacimiento: reservaOriginal.titular?.fechaNacimiento || "", 
             telefono: reservaOriginal.titular?.telefono || "",
             correo: reservaOriginal.titular?.correo || "",
             direccion: reservaOriginal.titular?.direccion || "",
             codigoPostal: reservaOriginal.titular?.codigoPostal || "",
             pais: reservaOriginal.titular?.pais || "",
             codigoMunicipio: reservaOriginal.titular?.codigoMunicipio || "",
-            nombreMunicipio: reservaOriginal.titular?.nombreMunicipio || ""
+            nombreMunicipio: reservaOriginal.titular?.nombreMunicipio || "",
+            soporteDocumento: reservaOriginal.titular?.soporteDocumento || ""
         }
     };
 
