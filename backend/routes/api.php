@@ -23,6 +23,9 @@ Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::cl
 // Ruta para rechazar una reserva (solo para admin)
 Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'reject']);
 
+// Ruta para crear bloqueos de fechas (solo para admin)
+Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
+
 
 /****************************Viajeros***************************** */
 

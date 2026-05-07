@@ -7,39 +7,89 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Administrador;
+
 
 class LoginController extends Controller
 {
     public function login(Request $request)
     {
-        // 1. Validar entrada
+        // Validar datos
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        // 2. Buscar usuario
-        $user = User::where('email', $request->email)->first();
+        $usuario = null;
+        $role = null;
 
-        // 3. Verificar existencia y contraseña
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        /*
+        |--------------------------------------------------------------------------
+        | ADMINISTRADOR
+        |--------------------------------------------------------------------------
+        */
+
+        $admin = Administrador::where('email', $request->email)->first();
+
+        if ($admin && Hash::check($request->password, $admin->passwordHash)) {
+
+            $usuario = [
+                'id' => $admin->idUsuario,
+                'name' => $admin->userName,
+                'email' => $admin->email
+            ];
+
+            $role = 'admin';
+
+            $token = $admin->createToken('admin_token')->plainTextToken;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIO NORMAL
+        |--------------------------------------------------------------------------
+        */
+
+        else {
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+
+                $usuario = [
+                    'id' => $user->id,
+                    'name' => $user->persona->nombre,
+                    'email' => $user->email
+                ];
+
+                $role = 'user';
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ERROR LOGIN
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$usuario) {
             return response()->json([
                 'message' => 'Credenciales incorrectas'
             ], 401);
         }
 
-        // 4. Crear token 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        /*
+        |--------------------------------------------------------------------------
+        | ÚNICO RETURN
+        |--------------------------------------------------------------------------
+        */
 
-        // 5. Respuesta 
         return response()->json([
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->persona->nombre,
-                'email' => $user->email
-            ]
-            
+            'role' => $role,
+            'user' => $usuario
         ], 200);
     }
 }

@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use App\Rules\DniValido;
 use Illuminate\Support\Facades\DB;
 use App\Models\ReservaHabitacion;
+use App\Models\BloqueoFecha;
+
 
 
 
@@ -300,7 +302,18 @@ class ReservaController extends Controller
 
         if ($habitacionId) {
 
-            $reservas = Reserva::join('reserva_habitacion as rh', 'reserva.idReserva', '=', 'rh.idReserva')
+            /*
+            |--------------------------------------------------------------------------
+            | RESERVAS
+            |--------------------------------------------------------------------------
+            */
+
+            $reservas = Reserva::join(
+                    'reserva_habitacion as rh',
+                    'reserva.idReserva',
+                    '=',
+                    'rh.idReserva'
+                )
                 ->where('rh.idHabitacion', $habitacionId)
                 ->where('reserva.estado', 'approved')
                 ->select('reserva.fechaEntrada', 'reserva.fechaSalida')
@@ -312,7 +325,35 @@ class ReservaController extends Controller
                 $end = new \DateTime($reserva->fechaSalida);
 
                 while ($start <= $end) {
+
                     $diasOcupados[] = $start->format('Y-m-d');
+
+                    $start->modify('+1 day');
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | BLOQUEOS MANUALES
+            |--------------------------------------------------------------------------
+            */
+
+            $bloqueos = BloqueoFecha::where('idHabitacion', $habitacionId)
+                ->orWhere(function ($query) {
+
+                    $query->whereNull('idHabitacion');
+                })
+                ->get();
+
+            foreach ($bloqueos as $bloqueo) {
+
+                $start = new \DateTime($bloqueo->fechaInicio);
+                $end = new \DateTime($bloqueo->fechaFin);
+
+                while ($start <= $end) {
+
+                    $diasOcupados[] = $start->format('Y-m-d');
+
                     $start->modify('+1 day');
                 }
             }
@@ -320,18 +361,9 @@ class ReservaController extends Controller
             $diasOcupados = array_values(array_unique($diasOcupados));
         }
 
-        $response = [
+        return response()->json([
             'diasOcupados' => $diasOcupados
-        ];
-
-        if (!$habitacionId) {
-            $response = [
-                'message' => 'Falta el parámetro habitacion',
-                'diasOcupados' => []
-            ];
-        }
-
-        return response()->json($response);
+        ]);
     }
 
     public function index(Request $request)
