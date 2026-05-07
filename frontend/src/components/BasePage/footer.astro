@@ -1,0 +1,122 @@
+---
+---
+
+<footer class="footer-web">
+    <div class="footer-container">
+        
+        <div class="footer-info">
+            <p>
+                Proyecto subvencionado con la colaboración del grupo de acción local 
+                <strong class="footer-strongN">ASOCIACIÓN PARA EL DESARROLLO RURAL E INTEGRAL DEL ORIENTE DE ASTURIAS</strong>, 
+                en el desarrollo de la medida <strong class="footer-strongN">LEADER 19.2</strong> del 
+                <strong class="footer-strongN">PROGRAMA DE DESARROLLO RURAL 2014-2020</strong>, Principado de Asturias.
+            </p>
+            <p><strong class="footer-strongB">Proyecto:</strong> mejoras en casa rural y bar</p>
+            <p><strong class="footer-strongB">Beneficiario:</strong> Cristina Garrido Garrido</p>
+            <p><strong class="footer-strongB">Ayuda:</strong> 11.079€ (Financiada por la Unión Europea: 80%)</p>
+        </div>
+
+        <div class="footer-container">
+
+        <div class="footer-logos">
+            <img src="/footer/logo-union-europea.png" alt="Logo unión Eueropea" />
+            <img src="/footer/logo-ministerio.jpg" alt="Logo ministerio " />
+            <img src="/footer/logo-leader.jpg" alt="Logo Leader" />
+            <img src="/footer/logo-consorcio.jpg" alt="Logo consorcio" />
+            <img src="/footer/logo-principado.png" alt="Logo principado" />
+        </div>
+        
+    </div>
+</footer>
+
+<style>
+    .footer-web {
+        background-color: #fff;
+        padding: 3rem 2rem;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: auto; 
+    }
+
+    .footer-container {
+        max-width: 1300px; /* Lo hacemos más ancho para que quepa todo bien al lado */
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row; /* Uno al lado del otro */
+        justify-content: space-between;
+        align-items: center; /* Los centra verticalmente */
+        gap: 4rem;
+    }
+
+    /* Estilo del texto a la izquierda */
+    .footer-info {
+        flex: 1; /* Ocupa la mitad del espacio */
+        text-align: left;
+        color: #333;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    /* Reseteamos márgenes para que no generen espacios en blanco abajo */
+    .footer-info p {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-info p:last-child {
+        margin-bottom: 0;
+    }
+
+
+    /* Imágenes a la derecha */
+    .footer-logos {
+        flex: 1.2; 
+        display: flex;
+        /* Cambiamos a center para que las dos filas (ej: 3 arriba, 2 abajo) queden bonitas y simétricas */
+        justify-content: center; 
+        align-items: center;
+        flex-wrap: wrap; 
+        gap: 1.5rem;
+        
+        /* 🌟 EL TRUCO 🌟: Le ponemos un tope. Así, en vez de estirarse y ahogar al texto, saltan de línea solas */
+        max-width: 500px; 
+        
+        /* Esto asegura que, aunque estén centradas entre sí, el bloque entero siga pegado a la derecha de la web */
+        margin-left: auto; 
+    }
+    .footer-logos img {
+        height: 60px; 
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(20%);
+        transition: filter 0.3s ease;
+    }
+
+    .footer-logos img:hover {
+        filter: grayscale(0%);
+    }
+
+    .footer-strongB{
+        color: #48f;
+    }
+
+    .footer-strongN{
+        color: #e69930
+    }
+
+    /* En móviles no cabe todo lado a lado, así que lo apilamos */
+    @media (max-width: 965px) {
+        .footer-container {
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .footer-info {
+            text-align: center;
+        }
+
+        .footer-logos {
+            justify-content: center;
+        }
+    }
+</style>

@@ -1,5 +1,6 @@
 ---
-import Navigation from "../components/navigation/Navigation.astro";
+import Navigation from "../components/BasePage/Navigation.astro";
+import Footer from "../components/BasePage/footer.astro"
 import '../styles/global.css'; 
 import '../styles/baseAstro.css';
 
@@ -27,9 +28,7 @@ const { tituloPage, imageBack, centrado = false } = Astro.props;
                 <slot />
             </div>
 
-            <div class="bloque-imagenes">
-                <slot name="imagenes" />
-            </div>
         </main>
+        <Footer/>
     </body>
 </html>
