@@ -18,7 +18,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // 2. LISTA DE RUTAS DE AUTENTICACIÓN (Solo para invitados)
-  const authRoutes = ['/login', '/join'];
+  const authRoutes = ['/login', '/join', 'forgetPassword'];
   
   // Comprobamos si la URL actual ES EXACTAMENTE alguna de estas
   const isAuthRoute = authRoutes.includes(pathname);
