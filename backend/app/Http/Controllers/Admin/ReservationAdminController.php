@@ -118,6 +118,12 @@ class ReservationAdminController extends Controller
                         'updatedAt' => now()
                     ]);
 
+                    ViajeroParte::create([
+                        'idParte' => $parte->idParte,
+                        'idPersona' => $persona->idPersona,
+                        'rol' => $titular['rol'],
+                    ]);
+
                     // 5.- Enviar email de confirmación
                     Mail::to($reserva->persona->email)
                         ->send(new ReservaConfirmadaMail($reserva));
