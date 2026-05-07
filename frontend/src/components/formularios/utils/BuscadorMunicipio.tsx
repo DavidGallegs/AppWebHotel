@@ -47,6 +47,7 @@ export function BuscadorMunicipio({ name }: Props) {
             <input type="hidden" {...register(name as any)} />
 
             <input
+                className="buscador-municipio-input" /* <-- Nueva clase añadida aquí */
                 type="text"
                 placeholder="Escribe para buscar municipio..."
                 value={busqueda}

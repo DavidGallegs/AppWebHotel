@@ -11,9 +11,10 @@
 body {
     background-color: #f2ddb6; /* Tu color crema corporativo */
     min-height: 100vh;
-    padding-bottom: 3rem;
+
     position: relative; /* Súper importante para que la imagen portada no se vuelva loca */
 }
+
 
 /* Ya no necesitamos el @media con background-attachment: fixed porque la foto
    ya no está en el body, la sacamos a un div independiente (fondo-hero) */

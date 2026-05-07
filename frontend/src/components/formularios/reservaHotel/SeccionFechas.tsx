@@ -66,8 +66,8 @@ export function SeccionFechas() {
             <div className="input-group" style={{ marginBottom: '1.5rem' }}>
                 <label>Seleccione Habitación:</label>
                 <select {...register("habitacion")}>
-                    <option value="1">Habitación 1</option>
-                    <option value="2">Habitación 2</option>
+                    <option value="1">Habitación 1 Norte - 50€/noche</option>
+                    <option value="2">Habitación 2 Sur - 60€/noche</option>
                 </select>
             </div>
 

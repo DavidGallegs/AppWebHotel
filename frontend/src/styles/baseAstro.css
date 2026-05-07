@@ -79,15 +79,36 @@ h1{
 
 /* --- Imágenes comunes --- */
 .bloque-imagenes {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    /* Rompemos el ancho del texto */
+    width: 95vw; 
+    max-width: 1400px; /* Tope máximo para que en pantallas gigantes no se descontrole */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 3.5rem;
+    margin-bottom: 3.5rem;
+
+    /* LA MAGIA DE LA CUADRÍCULA */
+    display: grid;
+    /* Crea columnas automáticas. Si caben 3, pone 3. Si es móvil, pone 1. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
-.bloque-imagenes :global(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+/* Estilo individual de cada foto */
+.bloque-imagenes img {
+    width: 100%;
+    height: 300px; /* Obligamos a que todas tengan la misma altura */
+    object-fit: cover; /* Recorta lo sobrante sin deformar la foto (vital) */
+    border-radius: 4px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+/* Efecto 3D al pasar el ratón para darle "vida" */
+.bloque-imagenes img:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
 }
 
 /* --- Móviles --- */
