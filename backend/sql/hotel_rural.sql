@@ -27,7 +27,31 @@ CREATE TABLE `arrendador` (
 INSERT INTO `arrendador` (`codigo`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
 ('0000004794', 'ARRE', 'Elena', 'Serrano', 'Castro', 'DNI', '50093052H');
 
+CREATE TABLE `bloqueo_fechas` (
+  `idBloqueo` int NOT NULL AUTO_INCREMENT,
+  `idHabitacion` int DEFAULT NULL,
+  `codigoEstablecimiento` varchar(10) NOT NULL,
+  `fechaInicio` date NOT NULL,
+  `fechaFin` date NOT NULL,
+  `motivo` varchar(255) DEFAULT NULL,
+  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
 
+  PRIMARY KEY (`idBloqueo`),
+
+  KEY `fk_bloqueo_habitacion` (`idHabitacion`),
+  KEY `fk_bloqueo_establecimiento` (`codigoEstablecimiento`),
+
+  CONSTRAINT `fk_bloqueo_habitacion`
+    FOREIGN KEY (`idHabitacion`)
+    REFERENCES `habitacion` (`idHabitacion`)
+    ON DELETE CASCADE,
+
+  CONSTRAINT `fk_bloqueo_establecimiento`
+    FOREIGN KEY (`codigoEstablecimiento`)
+    REFERENCES `establecimiento` (`codigoEstablecimiento`)
+    ON DELETE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `comunicaciones_ses` (
   `idComunicacionSES` bigint NOT NULL,
