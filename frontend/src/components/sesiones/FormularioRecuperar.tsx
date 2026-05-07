@@ -31,8 +31,8 @@ export function FormularioRecuperar() {
 
     if (enviado) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem', background: '#f0fdf4', borderRadius: '8px', color: '#166534' }}>
-                ¡Enlace enviado! Revisa tu bandeja de entrada (y la carpeta de spam).
+            <div className='auth-msg-true'>
+                ¡Enlace enviado! Revisa tu bandeja de entrada o la carpeta de spam.
             </div>
         );
     }

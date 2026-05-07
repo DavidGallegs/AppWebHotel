@@ -24,7 +24,10 @@ export function FormularioResetFinal({ token, email }: Props) {
         try {
             const res = await fetch("http://localhost:8000/api/reset-password", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Accept": "application/json" 
+                },
                 body: JSON.stringify({
                     token,
                     email,
@@ -41,52 +44,39 @@ export function FormularioResetFinal({ token, email }: Props) {
                 alert(errorData.message || "Error al restablecer. El enlace podría haber caducado.");
             }
         } catch (error) {
-            alert("Error de conexión.");
+            alert("Error de conexión con el servidor.");
         } finally {
             setCargando(false);
         }
     };
 
     return (
-        <form onSubmit={manejarReset} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>Nueva Contraseña</label>
+        <form onSubmit={manejarReset} className="form-reset">
+            <div className="form-group">
+                <label htmlFor="password">Nueva Contraseña</label>
                 <input 
+                    id="password"
                     type="password" 
                     required 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Mínimo 8 caracteres"
-                    style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>Confirmar Contraseña</label>
+            <div className="form-group">
+                <label htmlFor="confirmar">Confirmar Contraseña</label>
                 <input 
+                    id="confirmar"
                     type="password" 
                     required 
                     value={confirmar}
                     onChange={(e) => setConfirmar(e.target.value)}
                     placeholder="Repite la contraseña"
-                    style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #ccc' }}
                 />
             </div>
 
-            <button 
-                type="submit" 
-                disabled={cargando}
-                style={{ 
-                    background: '#2563eb', 
-                    color: 'white', 
-                    padding: '1rem', 
-                    border: 'none', 
-                    borderRadius: '6px', 
-                    cursor: cargando ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    marginTop: '0.5rem'
-                }}
-            >
+            <button type="submit" disabled={cargando}className="btn-submit">
                 {cargando ? "Actualizando..." : "Actualizar Contraseña"}
             </button>
         </form>
