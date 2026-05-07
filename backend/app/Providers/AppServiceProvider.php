@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+
+    //MOdificado
     public function boot(): void
     {
         ResetPassword::createUrlUsing(function ($user, string $token) {

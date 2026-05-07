@@ -14,8 +14,10 @@ export interface FullReservation extends Reservation {
     nombre?: string;
     apellido1?: string;
     apellido2?: string;
+    fechaNacimiento?: string;
     tipoDocumento?: string;
     numeroDocumento?: string;
+    soporteDocumento?: string;
     telefono?: string;
     correo?: string;
     direccion?: string;

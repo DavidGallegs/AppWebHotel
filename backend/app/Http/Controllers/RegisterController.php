@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Persona;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -27,17 +28,22 @@ class RegisterController extends Controller
             ]);
 
             DB::beginTransaction();
+            // Normalización de datos
+            $nombre = Str::ucfirst(Str::lower($validated['name']));
+            $apellido1 = Str::ucfirst(Str::lower($validated['apellido1']));
+            $email = Str::lower($validated['email']);
+
             //1.- Crear persona (solo datos basicos)
             $persona = Persona::create([
-                'nombre' => $validated['name'],
-                'apellido1' => $validated['apellido1'], 
-                'email' => $validated['email'],
+                'nombre' => $nombre,
+                'apellido1' => $apellido1,
+                'email' => $email,
             ]);
 
             //2.- Crear usuario en la tabla users, relacionandolo con la persona creada
             User::create([
                 'idPersona' => $persona->idPersona,
-                'email' => $validated['email'],
+                'email' => $email,
                 'password' => Hash::make($validated['password']),
             ]);
 

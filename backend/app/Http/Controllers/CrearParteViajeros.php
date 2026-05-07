@@ -11,8 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str; 
 use App\Rules\DniValido;
 
-use App\Mail\ReservaConfirmadaMail;
-use Illuminate\Support\Facades\Mail;
+
 
 class CrearParteViajeros extends Controller
 {
@@ -22,8 +21,8 @@ class CrearParteViajeros extends Controller
         
         
         // IMPORTANTE: el frontend debe enviarme el idParte
-        //$idParte = $request->idParte;
-        $idParte = 1; // Solo prueba
+        $idParte = $request->reserva_id;
+   
 
         // 1. Unificar viajeros (titular + acompañantes)
         $viajeros = [];
@@ -113,27 +112,5 @@ class CrearParteViajeros extends Controller
         
     }
 
-    //Funcion para confirmar la reserva, crear el parte y enviar el email al titular.
-    //Es decir, cuando el arrendatario confirme la reserva, se actualiza el estado 
-    // de la reserva a "confirmada", se crea un nuevo parte con el estado "pendiente" 
-    // y se envia un email al titular de la reserva informandole de la confirmación.
-    public function confirmar($id)
-    {
-        $reserva = Reserva::with('titular')->findOrFail($id);
 
-        // Actualizar estado de la reserva a "confirmada"
-        $reserva->estado = 'confirmada';
-        $reserva->save(); // Guardamos los cambios en la base de datos.
-
-        //Enviamos el email al titular.
-        Mail::to($reserva->titular->correo)->send(
-            new ReservaConfirmadaMail($reserva)
-        );
-
-        //Respuesta JSON indicando que la reserva se ha confirmado y el email se ha enviado correctamente.
-        return response()->json([
-            'success' => true,
-            'message' => 'Reserva confirmada y email enviado'
-        ]);
-    }
 }

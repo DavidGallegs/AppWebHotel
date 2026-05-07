@@ -26,12 +26,14 @@ class ReservaController extends Controller
         $titular = $request->input('titular');
 
         // 2. Normalización básica
-        $titular['nombre'] = trim($titular['nombre']);
-        $titular['apellido1'] = trim($titular['apellido1']);
-        $titular['apellido2'] = trim($titular['apellido2'] ?? null);
+        $titular['nombre'] = Str::ucfirst(Str::lower(trim($titular['nombre'])));
+        $titular['apellido1'] = Str::ucfirst(Str::lower(trim($titular['apellido1'])));
+        $titular['apellido2'] = $titular['apellido2']
+            ? Str::ucfirst(Str::lower(trim($titular['apellido2'])))
+            : null;
         $titular['numeroDocumento'] = strtoupper(trim($titular['numeroDocumento']));
         $titular['cp'] = $titular['codigoPostal'];
-        $titular['correo'] = strtolower(trim($titular['correo']));
+        $titular['correo'] = strtolower(trim($titular['correo'] ?? ''));
 
 
         // 3. Validación
@@ -300,7 +302,7 @@ class ReservaController extends Controller
 
             $reservas = Reserva::join('reserva_habitacion as rh', 'reserva.idReserva', '=', 'rh.idReserva')
                 ->where('rh.idHabitacion', $habitacionId)
-                ->where('reserva.estado', '!=', 'cancelled')
+                ->where('reserva.estado', 'approved')
                 ->select('reserva.fechaEntrada', 'reserva.fechaSalida')
                 ->get();
 
@@ -375,12 +377,14 @@ class ReservaController extends Controller
                         'nombre' => $reserva->persona->nombre,
                         'apellido1' => $reserva->persona->apellido1,
                         'apellido2' => $reserva->persona->apellido2,
+                        'fechaNacimiento' => $reserva->persona->fechaNacimiento,
                         'tipoDocumento' => $reserva->persona->tipoDocumento,
                         'numeroDocumento' => $reserva->persona->documento,
+                        'soporteDocumento' => $reserva->persona->soporteDocumento,
                         'telefono' => $reserva->persona->telefono,
                         'correo' => $reserva->persona->email,
                         'direccion' => $reserva->persona->direccion,
-                        'codigoPostal' => $reserva->persona->codigoPostal,
+                        'codigoPostal' => $reserva->persona->cp,
                         'nombreMunicipio' => $reserva->persona->nombreMunicipio,
                         'codigoMunicipio' => $reserva->persona->codigoMunicipio,
                         'pais' => $reserva->persona->nacionalidad,
