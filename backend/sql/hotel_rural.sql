@@ -1,17 +1,8 @@
 
-
 CREATE DATABASE IF NOT EXISTS hotel_rural;
 USE hotel_rural;
 START TRANSACTION;
 
-
-
-CREATE TABLE `administrador` (
-  `idUsuario` int NOT NULL,
-  `userName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `passwordHash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `arrendador` (
   `codigo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -24,34 +15,28 @@ CREATE TABLE `arrendador` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
 INSERT INTO `arrendador` (`codigo`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
 ('0000004794', 'ARRE', 'Elena', 'Serrano', 'Castro', 'DNI', '50093052H');
 
+
+
 CREATE TABLE `bloqueo_fechas` (
-  `idBloqueo` int NOT NULL AUTO_INCREMENT,
+  `idBloqueo` int NOT NULL,
   `idHabitacion` int DEFAULT NULL,
-  `codigoEstablecimiento` varchar(10) NOT NULL,
+  `codigoEstablecimiento` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `fechaInicio` date NOT NULL,
   `fechaFin` date NOT NULL,
-  `motivo` varchar(255) DEFAULT NULL,
-  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
-
-  PRIMARY KEY (`idBloqueo`),
-
-  KEY `fk_bloqueo_habitacion` (`idHabitacion`),
-  KEY `fk_bloqueo_establecimiento` (`codigoEstablecimiento`),
-
-  CONSTRAINT `fk_bloqueo_habitacion`
-    FOREIGN KEY (`idHabitacion`)
-    REFERENCES `habitacion` (`idHabitacion`)
-    ON DELETE CASCADE,
-
-  CONSTRAINT `fk_bloqueo_establecimiento`
-    FOREIGN KEY (`codigoEstablecimiento`)
-    REFERENCES `establecimiento` (`codigoEstablecimiento`)
-    ON DELETE CASCADE
-
+  `motivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+INSERT INTO `bloqueo_fechas` (`idBloqueo`, `idHabitacion`, `codigoEstablecimiento`, `fechaInicio`, `fechaFin`, `motivo`, `createdAt`) VALUES
+(1, 1, '0000004063', '2026-05-25', '2026-05-28', 'Vacaciones', '2026-05-07 11:32:58');
+
+
 
 CREATE TABLE `comunicaciones_ses` (
   `idComunicacionSES` bigint NOT NULL,
@@ -79,7 +64,7 @@ CREATE TABLE `contrato` (
   `referencia` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `idReserva` int NOT NULL,
   `fechaContrato` datetime NOT NULL,
-  `estado` enum('activo','cancelado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'activo',
+  `estado` enum('activo','cancelado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'activo',
   `internet` tinyint(1) DEFAULT NULL,
   `tipoPago` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fechaPago` date DEFAULT NULL,
@@ -101,21 +86,25 @@ CREATE TABLE `establecimiento` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
 INSERT INTO `establecimiento` (`codigoEstablecimiento`, `codigoArrendador`, `tipo`, `nombre`, `direccion`, `codigoMunicipio`, `localidad`, `cp`, `pais`) VALUES
 ('0000004063', '0000004794', 'HOTEL', 'Hotel Rural ', 'Calle Mayor 10', '1001', 'Villahotel', '12345', 'ESP');
+
 
 
 CREATE TABLE `habitacion` (
   `idHabitacion` int NOT NULL,
   `codigoEstablecimiento` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacidadMaxima` int NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO habitacion (idHabitacion, codigoEstablecimiento, nombre, capacidadMaxima)
-VALUES
+
+
+INSERT INTO `habitacion` (`idHabitacion`, `codigoEstablecimiento`, `nombre`, `capacidadMaxima`) VALUES
 (1, '0000004063', 'Habitación 1', 3),
 (2, '0000004063', 'Habitación 2', 3);
+
 
 
 CREATE TABLE `migrations` (
@@ -141,6 +130,7 @@ CREATE TABLE `operaciones_ses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
 CREATE TABLE `parte` (
   `idParte` bigint NOT NULL,
   `referenciaContrato` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -151,6 +141,13 @@ CREATE TABLE `parte` (
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `persona` (
@@ -172,12 +169,6 @@ CREATE TABLE `persona` (
   `soporteDocumento` varchar(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `personal_access_tokens` (
@@ -203,11 +194,13 @@ CREATE TABLE `precio_habitacion` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+
 INSERT INTO `precio_habitacion` (`idPrecio`, `idHabitacion`, `idTemporada`, `precio`) VALUES
 (1, 1, 1, 80.00),
 (2, 1, 2, 75.00),
 (3, 2, 1, 70.00),
 (4, 2, 2, 65.00);
+
 
 
 CREATE TABLE `reserva` (
@@ -220,6 +213,7 @@ CREATE TABLE `reserva` (
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 CREATE TABLE `reserva_habitacion` (
@@ -238,10 +232,13 @@ CREATE TABLE `temporada` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+
 INSERT INTO `temporada` (`idTemporada`, `nombre`, `fechaInicio`, `fechaFin`) VALUES
 (1, 'TA', '2026-07-01', '2026-09-15'),
 (2, 'TB', '2026-01-01', '2026-06-30'),
 (3, 'TB', '2026-09-16', '2026-12-31');
+
+
 
 CREATE TABLE `users` (
   `id` bigint UNSIGNED NOT NULL,
@@ -250,7 +247,8 @@ CREATE TABLE `users` (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `rol` enum('user','admin') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -263,14 +261,16 @@ CREATE TABLE `viajero_parte` (
   `parentesco` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE `administrador`
-  ADD PRIMARY KEY (`idUsuario`),
-  ADD UNIQUE KEY `uk_administrador_userName` (`userName`),
-  ADD UNIQUE KEY `uk_administrador_email` (`email`);
 
 ALTER TABLE `arrendador`
   ADD PRIMARY KEY (`codigo`),
   ADD UNIQUE KEY `uk_arrendador_documento` (`documento`);
+
+
+ALTER TABLE `bloqueo_fechas`
+  ADD PRIMARY KEY (`idBloqueo`),
+  ADD KEY `fk_bloqueo_habitacion` (`idHabitacion`),
+  ADD KEY `fk_bloqueo_establecimiento` (`codigoEstablecimiento`);
 
 
 ALTER TABLE `comunicaciones_ses`
@@ -314,6 +314,10 @@ ALTER TABLE `parte`
   ADD KEY `idx_parte_contrato` (`referenciaContrato`);
 
 
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`email`);
+
+
 ALTER TABLE `persona`
   ADD PRIMARY KEY (`idPersona`),
   ADD KEY `idx_persona_documento` (`documento`);
@@ -333,7 +337,6 @@ ALTER TABLE `reserva`
   ADD PRIMARY KEY (`idReserva`),
   ADD KEY `idx_reserva_persona` (`idPersonaTitular`),
   ADD KEY `idx_reserva_establecimiento` (`codigoEstablecimiento`);
-
 
 
 ALTER TABLE `reserva_habitacion`
@@ -358,8 +361,8 @@ ALTER TABLE `viajero_parte`
   ADD KEY `idx_viajero_parte_persona` (`idPersona`);
 
 
-ALTER TABLE `administrador`
-  MODIFY `idUsuario` int NOT NULL AUTO_INCREMENT;
+ALTER TABLE `bloqueo_fechas`
+  MODIFY `idBloqueo` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 
 ALTER TABLE `comunicaciones_ses`
@@ -379,15 +382,15 @@ ALTER TABLE `operaciones_ses`
 
 
 ALTER TABLE `parte`
-  MODIFY `idParte` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idParte` bigint NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `persona`
-  MODIFY `idPersona` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `idPersona` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 
 ALTER TABLE `precio_habitacion`
@@ -395,7 +398,7 @@ ALTER TABLE `precio_habitacion`
 
 
 ALTER TABLE `reserva`
-  MODIFY `idReserva` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `idReserva` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 
 ALTER TABLE `temporada`
@@ -403,13 +406,16 @@ ALTER TABLE `temporada`
 
 
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 
 ALTER TABLE `viajero_parte`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 
+ALTER TABLE `bloqueo_fechas`
+  ADD CONSTRAINT `fk_bloqueo_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigoEstablecimiento`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_bloqueo_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`) ON DELETE CASCADE;
 
 
 ALTER TABLE `comunicaciones_ses`
@@ -460,7 +466,7 @@ ALTER TABLE `users`
 ALTER TABLE `viajero_parte`
   ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
+COMMIT;
 
 ALTER TABLE persona AUTO_INCREMENT = 1;
 ALTER TABLE users AUTO_INCREMENT = 1;
@@ -469,5 +475,3 @@ ALTER TABLE contrato AUTO_INCREMENT = 1;
 ALTER TABLE parte AUTO_INCREMENT = 1;
 ALTER TABLE viajero_parte AUTO_INCREMENT = 1;
 COMMIT;
-
-

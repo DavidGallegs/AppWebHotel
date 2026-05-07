@@ -15,7 +15,8 @@ use App\Http\Controllers\Auth\PasswordResetController;
 
 /*******************************Admin************************* */
 // Ruta para obtener todas las reservas (solo para admin)
-Route::get('/admin/reservations', [ReservationAdminController::class, 'indexAdmin']);
+Route::middleware('auth:sanctum')->get('/admin/reservations', [ReservationAdminController::class, 'indexAdmin']); //funciona
+
 
 // Ruta para aprobar una reserva (solo para admin)
 Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approve']);
