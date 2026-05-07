@@ -28,6 +28,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect('/');
   }
 
+  // Si intenta entrar al panel de admin...
+  if (pathname.startsWith('/admin')) {
+    // Sacamos el rol del usuario de la sesión
+    const userRole = (session as any)?.user?.role;
+    
+    // Si no es admin, patada al dashboard
+    if (userRole !== 'admin') {
+      return context.redirect('/');
+    }
+  }
+
   // 3. Si pasa todos los filtros, le mostramos la página normal
   return next();
 });
