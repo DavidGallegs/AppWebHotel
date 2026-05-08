@@ -297,6 +297,7 @@ class ReservaController extends Controller
     public function ocupacion(Request $request)
     {
         $habitacionId = $request->query('habitacion');
+        $excludeReservaId = $request->query('exclude_reserva');
 
         $diasOcupados = [];
 
@@ -308,15 +309,37 @@ class ReservaController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $reservas = Reserva::join(
+            $query = Reserva::join(
                     'reserva_habitacion as rh',
                     'reserva.idReserva',
                     '=',
                     'rh.idReserva'
                 )
                 ->where('rh.idHabitacion', $habitacionId)
-                ->where('reserva.estado', 'approved')
-                ->select('reserva.fechaEntrada', 'reserva.fechaSalida')
+
+                // Estados válidos
+                ->whereIn('reserva.estado', [
+                    'pending',
+                    'approved',
+                    'finished'
+                ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | EXCLUIR RESERVA ACTUAL (EDICIÓN)
+            |--------------------------------------------------------------------------
+            */
+
+            if ($excludeReservaId) {
+
+                $query->where('reserva.idReserva', '!=', $excludeReservaId);
+            }
+
+            $reservas = $query
+                ->select(
+                    'reserva.fechaEntrada',
+                    'reserva.fechaSalida'
+                )
                 ->get();
 
             foreach ($reservas as $reserva) {
@@ -365,6 +388,71 @@ class ReservaController extends Controller
             'diasOcupados' => $diasOcupados
         ]);
     }
+
+    /**
+     * Usuario solicita modificación
+     */
+    public function requestModification(Request $request, $id)
+    {
+        $request->validate([
+            'datos.fechaEntrada' => 'required|date',
+            'datos.fechaSalida'  => 'required|date|after:datos.fechaEntrada',
+        ]);
+
+        $reserva = Reserva::find($id);
+
+        if (!$reserva) {
+
+            return response()->json([
+                'error' => 'Reserva no encontrada'
+            ], 404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guardamos la solicitud pendiente
+        |--------------------------------------------------------------------------
+        */
+
+        $reserva->datos_modificacion = json_encode(
+            $request->input('datos')
+        );
+
+        $reserva->save();
+
+        return response()->json([
+            'message' => 'Solicitud de modificación registrada correctamente.'
+        ]);
+    }
+
+     /**
+     * Usuario solicita cancelación
+     */
+    public function requestCancellation($id)
+    {
+        $reserva = Reserva::find($id);
+
+        if (!$reserva) {
+
+            return response()->json([
+                'error' => 'Reserva no encontrada'
+            ], 404);
+        }
+
+        $reserva->solicitud_cancelacion = 1;
+
+        $reserva->save();
+
+        return response()->json([
+            'message' => 'Solicitud de cancelación registrada correctamente.'
+        ]);
+    }
+
+    /**
+     * Admin acepta o rechaza solicitudes
+     */
+    
+
 
     public function index(Request $request)
     {

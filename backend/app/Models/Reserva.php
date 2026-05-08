@@ -26,6 +26,8 @@ class Reserva extends Model
         'numPersonas',
         'numHabitaciones',
         'estado',
+        'solicitud_cancelacion',
+        'datos_modificacion',
         'createdAt',
         'updatedAt'
     ];

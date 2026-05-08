@@ -122,10 +122,20 @@ export function SeccionFechas({ reservaId }: Props) {
                     selected={range}
                     onSelect={handleRangeSelect}
                     locale={es}
-                    disabled={[
-                        { before: startOfToday() }, 
-                        isDateFullyDisabled             
-                    ]}
+                    disabled={(date) => {
+                        const d = startOfDay(date);
+
+                        // bloquear pasado
+                        if (d < startOfToday()) return true;
+
+                        // bloquear ocupados (INCLUYE extremos)
+                        return reservasConfirmadas.some(res => {
+                            const resIn = startOfDay(parseISO(res.fechaEntrada));
+                            const resOut = startOfDay(parseISO(res.fechaSalida));
+
+                            return d >= resIn && d <= resOut;
+                        });
+                    }}
                 />
             </div>
 

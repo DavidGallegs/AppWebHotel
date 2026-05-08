@@ -14,7 +14,6 @@ class BloqueoFecha extends Model
 
     protected $fillable = [
         'idHabitacion',
-        'codigoEstablecimiento',
         'fechaInicio',
         'fechaFin',
         'motivo'

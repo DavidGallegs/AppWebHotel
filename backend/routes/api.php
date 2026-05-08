@@ -5,6 +5,9 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CrearParteViajeros;
 use App\Http\Controllers\Admin\ReservationAdminController;
+use App\Http\Controllers\Admin\BloqueoController;
+use App\Http\Controllers\NotificacionController;
+ 
 use App\Http\Controllers\Auth\PasswordResetController;
 
 
@@ -19,10 +22,12 @@ Route::middleware('auth:sanctum')->get('/admin/reservations', [ReservationAdminC
 
 
 // Ruta para aprobar una reserva (solo para admin)
-Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approve']);
+Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approveReservation']);
 
 // Ruta para rechazar una reserva (solo para admin)
-Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'reject']);
+Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'rejectReservation']);
+
+Route::post('/admin/reservations/{id}/resolve',[ReservationAdminController::class, 'resolveRequest']);
 
 // Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
@@ -64,5 +69,26 @@ Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //funcoina
 Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);
 
 //Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
+
+
+
+
+// Rutas del Administrador
+/*
+Route::middleware(['auth:sanctum', 'admin'])->group(function () { // Ajusta el middleware 'admin' al tuyo
+    Route::post('/admin/reservations/{id}/resolve', [ReservaController::class, 'resolveRequest']);
+});
+*/
+
+// Rutas del Usuario (Panel de cliente)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'requestModification']);
+    Route::patch('/reservations/{id}/request-cancellation', [ReservaController::class, 'requestCancellation']);
+    
+    // Endpoint genérico para disparar correos
+    Route::post('/notificaciones/enviar', [NotificacionController::class, 'enviarNotificacion']);
+});
+
+
 
 ?>
