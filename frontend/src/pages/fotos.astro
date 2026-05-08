@@ -1,0 +1,71 @@
+---
+import BasePage from '../layouts/BasePage.astro';
+import '../styles/fotos.css'
+
+// 1. Definimos los datos de las galerías
+const galerias = [
+  {
+    titulo: "hotel Rural de Montaña",
+    fotos: [
+      "/fotos/armario.jpg",
+      "/fotos/arroz.jpg",
+      "/fotos/armario.jpg",
+
+    ]
+  },
+  {
+    titulo: "Bar",
+    fotos: [
+      "/fotos/armario.jpg",
+
+    ]
+  },
+  {
+    titulo: "Taranes",
+    fotos: [
+      "/fotos/armario.jpg",
+      "/fotos/armario.jpg",
+      "/fotos/arroz.jpg",
+      "/fotos/armario.jpg",
+      "/fotos/armario.jpg",
+      "/fotos/armario.jpg",
+
+    ]
+  },
+  {
+    titulo: "Concejo y Parque Natural de Ponga",
+    fotos: [
+      "/fotos/armario.jpg",
+      "/fotos/armario.jpg",
+      "/fotos/arroz.jpg",
+      "/fotos/armario.jpg",
+
+    ]
+  },
+  // Añade aquí Titulo 3, Titulo 4...
+];
+
+const tituloPage = "Galería de Fotos";
+import ImageBack from "../assets/background_Images/8_flor.jpg"
+---
+
+<BasePage tituloPage={tituloPage} imageBack={ImageBack.src} centrado={true}>
+  
+  <section class="galeria-container">
+    <h1 class="main-title">Fotos</h1>
+
+    {galerias.map((seccion) => (
+      <div class="seccion-galeria">
+        <h2 class="titulo-seccion">{seccion.titulo}</h2>
+        <div class="grid-fotos">
+          {seccion.fotos.map((src) => (
+            <div class="foto-card">
+              <img src={src} alt={seccion.titulo} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </section>
+
+</BasePage>

@@ -1,11 +1,15 @@
 ---
 import Navigation from "../components/BasePage/Navigation.astro";
-import Footer from "../components/BasePage/footer.astro"
+import Footer from "../components/BasePage/Footer.astro"
 import '../styles/global.css'; 
 import '../styles/baseAstro.css';
 
-// 1. Añadimos la variable "centrado" y le damos el valor "false" por defecto
-const { tituloPage, imageBack, centrado = false } = Astro.props;
+// MAGIA 2: Comprobamos si las variables vienen dentro de "frontmatter" (porque es un MDX) 
+// o si vienen directamente en Astro.props (porque es un archivo .astro)
+const props = Astro.props.frontmatter || Astro.props;
+
+// Ahora sí extraemos las variables de forma segura
+const { tituloPage, imageBack, centrado = false } = props;
 ---
 
 <html lang="es">
@@ -24,9 +28,12 @@ const { tituloPage, imageBack, centrado = false } = Astro.props;
         
         <!-- 2. MAGIA: Si centrado es true, pone la clase 'modo-centrado', si no, 'modo-derecha' -->
         <main class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
+    
             <div class="bloque-texto">
                 <slot />
             </div>
+
+            <slot name="contenido-libre" />
 
         </main>
         <Footer/>
