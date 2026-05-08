@@ -174,7 +174,7 @@ class ReservaController extends Controller
                 'numHabitaciones' => $reserva->numHabitaciones,
                 'fechaEntrada' => $reserva->fechaEntrada,
                 'fechaSalida' => $reserva->fechaSalida,
-                'estado' => $reserva->estado
+                'status' => $reserva->estado
             ];
 
             // Si tiene contrato
@@ -185,7 +185,7 @@ class ReservaController extends Controller
                     'tipoPago' => $reserva->contrato->tipoPago,
                     'fechaPago' => $reserva->contrato->fechaPago,
                     'precioTotal' => $reserva->contrato->precioTotal,
-                    'estado' => $reserva->contrato->estado
+                    'status' => $reserva->contrato->estado
                 ];
             }
         }

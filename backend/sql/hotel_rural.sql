@@ -32,8 +32,8 @@ CREATE TABLE `bloqueo_fechas` (
 
 
 
-INSERT INTO `bloqueo_fechas` (`idBloqueo`, `idHabitacion`, `codigoEstablecimiento`, `fechaInicio`, `fechaFin`, `motivo`, `createdAt`) VALUES
-(1, 1, '0000004063', '2026-05-25', '2026-05-28', 'Vacaciones', '2026-05-07 11:32:58');
+INSERT INTO `bloqueo_fechas` (`idBloqueo`, `idHabitacion`, `fechaInicio`, `fechaFin`, `motivo`, `createdAt`) VALUES
+(1, 1, '2026-05-25', '2026-05-28', 'Vacaciones', '2026-05-07 11:32:58');
 
 
 
@@ -414,7 +414,6 @@ ALTER TABLE `viajero_parte`
 
 
 ALTER TABLE `bloqueo_fechas`
-  ADD CONSTRAINT `fk_bloqueo_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigoEstablecimiento`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_bloqueo_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`) ON DELETE CASCADE;
 
 

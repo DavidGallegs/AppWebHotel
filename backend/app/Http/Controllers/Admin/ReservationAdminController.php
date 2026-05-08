@@ -10,6 +10,7 @@ use App\Models\Parte;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ReservaConfirmadaMail;
+use App\Mail\ReservaCanceladaMail;
 
 class ReservationAdminController extends Controller
 {
@@ -153,7 +154,7 @@ class ReservationAdminController extends Controller
         return response()->json($response, $status);
     }
 
-    public function reject($id)
+    public function rejectReservation($id)
     {
         $response = null;
         $status = 200;
