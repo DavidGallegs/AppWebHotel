@@ -1,62 +1,101 @@
 import { useState, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { DayPicker, type DateRange } from "react-day-picker";
-import "react-day-picker/dist/style.css"; // <-- Importación base del calendario
-import { format, startOfToday, parseISO } from "date-fns";
+import "react-day-picker/dist/style.css";
+import { format, startOfToday, parseISO, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { type TReserva } from "./esquemaReserva";
 
-export function SeccionFechas() {
+interface Props {
+    reservaId?: string | number; // Recibimos el ID para excluirlo de las ocupaciones
+}
+
+interface RangoReserva {
+    fechaEntrada: string;
+    fechaSalida: string;
+}
+
+export function SeccionFechas({ reservaId }: Props) {
     const { setValue, control, register } = useFormContext<TReserva>();
-    
-    // Observamos qué habitación está seleccionada
     const habitacionSeleccionada = useWatch({ control, name: "habitacion" });
     
-    // Estados para la lógica del calendario
-    const [range, setRange] = useState<DateRange | undefined>();
-    const [diasOcupados, setDiasOcupados] = useState<Date[]>([]);
+    // Si ya hay valores en el formulario (por ejemplo, al editar), los usamos para pintar el calendario inicial
+    const fechaEntradaActual = useWatch({ control, name: "fechaEntrada" });
+    const fechaSalidaActual = useWatch({ control, name: "fechaSalida" });
+
+    const [range, setRange] = useState<DateRange | undefined>(() => {
+        if (fechaEntradaActual && fechaSalidaActual) {
+            return { from: parseISO(fechaEntradaActual), to: parseISO(fechaSalidaActual) };
+        }
+        return undefined;
+    });
+
+    const [reservasConfirmadas, setReservasConfirmadas] = useState<RangoReserva[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Efecto para obtener días ocupados del backend cuando cambia la habitación
     useEffect(() => {
         const cargarOcupacion = async () => {
             setIsLoading(true);
             try {
-                // Fetch hacia tu backend
-                const res = await fetch(`http://localhost:8000/api/ocupacion?habitacion=${habitacionSeleccionada}`);
+                // Fetch hacia tu backend. Pasamos el reservaId para excluirlo de la respuesta.
+                const url = `http://localhost:8000/api/ocupacion?habitacion=${habitacionSeleccionada}${reservaId ? `&exclude_reserva=${reservaId}` : ''}`;
+                const res = await fetch(url);
                 const data = await res.json();
                 
-                // Convertimos los strings ISO en objetos Date de JS
-                const fechas = data.diasOcupados.map((fechaStr: string) => parseISO(fechaStr));
-                setDiasOcupados(fechas);
+                // Esperamos que el backend devuelva { reservas: [{ fechaEntrada: '...', fechaSalida: '...' }] }
+                setReservasConfirmadas(data.reservas || []);
             } catch (error) {
                 console.error("Error cargando ocupación:", error);
-                setDiasOcupados([]); 
+                setReservasConfirmadas([]); 
             } finally {
                 setIsLoading(false);
             }
         };
 
         cargarOcupacion();
-    }, [habitacionSeleccionada]);
+    }, [habitacionSeleccionada, reservaId]);
 
-    // Función que se ejecuta al hacer click en el calendario
     const handleRangeSelect = (newRange: DateRange | undefined) => {
+        // Lógica para detectar solapamientos si selecciona un rango completo
+        if (newRange?.from && newRange?.to) {
+            const solapa = reservasConfirmadas.some(res => {
+                const resIn = startOfDay(parseISO(res.fechaEntrada));
+                const resOut = startOfDay(parseISO(res.fechaSalida));
+                const myIn = startOfDay(newRange.from!);
+                const myOut = startOfDay(newRange.to!);
+
+                // Hay solapamiento si mi entrada es estrictamente ANTES de su salida, 
+                // Y mi salida es estrictamente DESPUÉS de su entrada.
+                return myIn < resOut && myOut > resIn;
+            });
+
+            if (solapa) {
+                alert("Las fechas seleccionadas abarcan días ya ocupados. Solo puedes coincidir en el día de entrada o salida.");
+                // Reseteamos el rango al primer clic para que vuelva a intentar
+                setRange({ from: newRange.from, to: undefined });
+                setValue("fechaEntrada", format(newRange.from, "yyyy-MM-dd"));
+                setValue("fechaSalida", "");
+                return;
+            }
+        }
+
         setRange(newRange);
         
-        // Si tenemos fecha de inicio, la guardamos en el formulario
-        if (newRange?.from) {
-            setValue("fechaEntrada", format(newRange.from, "yyyy-MM-dd"));
-        } else {
-            setValue("fechaEntrada", "");
-        }
+        if (newRange?.from) setValue("fechaEntrada", format(newRange.from, "yyyy-MM-dd"));
+        else setValue("fechaEntrada", "");
 
-        // Si tenemos fecha de fin, la guardamos
-        if (newRange?.to) {
-            setValue("fechaSalida", format(newRange.to, "yyyy-MM-dd"));
-        } else {
-            setValue("fechaSalida", "");
-        }
+        if (newRange?.to) setValue("fechaSalida", format(newRange.to, "yyyy-MM-dd"));
+        else setValue("fechaSalida", "");
+    };
+
+    // Deshabilita SOLO las noches intermedias, dejando clicables los días de check-in y check-out
+    const isDateFullyDisabled = (date: Date) => {
+        const d = startOfDay(date);
+        return reservasConfirmadas.some(res => {
+            const resIn = startOfDay(parseISO(res.fechaEntrada));
+            const resOut = startOfDay(parseISO(res.fechaSalida));
+            return d > resIn && d < resOut;
+        });
     };
 
     return (
@@ -71,16 +110,7 @@ export function SeccionFechas() {
                 </select>
             </div>
 
-            <div 
-                className="calendario-container" 
-                style={{ 
-                    position: 'relative',
-                    opacity: isLoading ? 0.5 : 1, 
-                    pointerEvents: isLoading ? 'none' : 'auto', 
-                    transition: 'opacity 0.2s ease-in-out' 
-                }}
-            >
-                {/* Un pequeño cartel de "Cargando" flotante encima del calendario */}
+            <div className="calendario-container" style={{ position: 'relative', opacity: isLoading ? 0.5 : 1, pointerEvents: isLoading ? 'none' : 'auto', transition: 'opacity 0.2s ease-in-out' }}>
                 {isLoading && (
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600, color: '#2563eb', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                         Actualizando fechas...
@@ -94,7 +124,7 @@ export function SeccionFechas() {
                     locale={es}
                     disabled={[
                         { before: startOfToday() }, 
-                        ...diasOcupados             
+                        isDateFullyDisabled             
                     ]}
                 />
             </div>

@@ -2,13 +2,17 @@ import { useForm, FormProvider, useFieldArray, type SubmitHandler } from "react-
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { SeccionViajero } from "./SeccionViajero";
 import { esquemaParteViajeros, type TParteViajeros } from "./esquemaViajeros"; 
+// Importamos useQueryClient para poder refrescar los datos automáticamente
+import { useQueryClient } from "@tanstack/react-query";
 
-// 1. Añadimos la interfaz para que acepte el ID de la reserva opcionalmente
 interface Props {
     reservaId?: string | number;
 }
 
 export default function ParteViajeros({ reservaId }: Props) {
+    // Inicializamos el cliente de React Query
+    const queryClient = useQueryClient();
+
     const methods = useForm<TParteViajeros>({
         resolver: zodResolver(esquemaParteViajeros),
         defaultValues: { viajeros: [] }
@@ -22,6 +26,7 @@ export default function ParteViajeros({ reservaId }: Props) {
     const enviar: SubmitHandler<TParteViajeros> = async (data) => {
         const payloadLimpio = structuredClone(data);
 
+        // Limpieza de datos geográficos según el país
         if (payloadLimpio.viajeros && payloadLimpio.viajeros.length > 0) {
             payloadLimpio.viajeros = payloadLimpio.viajeros.map(viajero => {
                 if (viajero.pais === "ESP") delete viajero.nombreMunicipio;
@@ -30,7 +35,7 @@ export default function ParteViajeros({ reservaId }: Props) {
             });
         }
 
-        // 2. Empaquetamos los datos limpios JUNTO con el ID de la reserva
+        // Empaquetamos los datos limpios JUNTO con el ID de la reserva
         const payloadFinal = {
             ...payloadLimpio,
             reserva_id: reservaId 
@@ -40,15 +45,18 @@ export default function ParteViajeros({ reservaId }: Props) {
             const respuesta = await fetch("http://localhost:8000/api/viajeros", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                // 3. Enviamos el payload final
                 body: JSON.stringify(payloadFinal)
             });
 
             if (!respuesta.ok) throw new Error(`Error: ${respuesta.status}`);
             alert("Parte de viajeros enviado correctamente.");
 
-            // Opcional: limpiar el formulario tras enviarlo con éxito
+            // Limpiamos el formulario tras enviarlo con éxito
             methods.reset();
+
+            // AVISO A REACT QUERY: Invalida las cachés para que las tablas se recarguen solas
+            queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+            queryClient.invalidateQueries({ queryKey: ['user-reservations'] });
 
         } catch (error) {
             console.error("Fallo al conectar con el backend:", error);

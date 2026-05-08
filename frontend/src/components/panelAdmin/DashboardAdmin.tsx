@@ -6,7 +6,7 @@ import { DayPicker, type DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css'; 
 import { api } from '../dashboard/api'; 
 import type { FullReservation } from '../dashboard/ReservationList'; 
-import { Calendar, ClipboardList, Ban, ArrowLeft } from 'lucide-react';
+import { Calendar, ClipboardList, Ban, ArrowLeft, Check, X } from 'lucide-react';
 import { QueryProvider } from '../dashboard/QueryProvider';
 
 import '../../styles/dashboardAdmin.css';
@@ -22,12 +22,8 @@ const fetchAllReservations = async (): Promise<FullReservation[]> => {
 const AdminContent = () => {
   const queryClient = useQueryClient();
   
-  // 1. Quitamos 'checkin' de aquí
   const [pestañaActiva, setPestañaActiva] = useState<'reservas' | 'nuevaReserva' | 'vacaciones'>('reservas');
-  
-  // 2. Nuevo estado: Guarda la reserva a la que le estamos haciendo el check-in
   const [reservaParaCheckin, setReservaParaCheckin] = useState<FullReservation | null>(null);
-  
   const [rangoVacaciones, setRangoVacaciones] = useState<DateRange | undefined>();
 
   const { data: reservas, isLoading } = useQuery({
@@ -53,6 +49,17 @@ const AdminContent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
       alert("Reserva anulada.");
+    }
+  });
+
+  // NUEVO: Mutación para resolver las solicitudes de los usuarios
+  const resolverSolicitud = useMutation({
+    mutationFn: async ({ id, accion, tipo }: { id: string | number, accion: 'accept' | 'reject', tipo: 'mod' | 'cancel' }) => {
+      await api.post(`/admin/reservations/${id}/resolve`, { accion, tipo });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+      alert("Solicitud procesada correctamente.");
     }
   });
 
@@ -124,7 +131,7 @@ const AdminContent = () => {
               </p>
             </div>
 
-            <ParteViajeros />
+            <ParteViajeros reservaId={reservaParaCheckin.id} />
           </div>
         )}
 
@@ -152,9 +159,38 @@ const AdminContent = () => {
                       <tr key={res.id}>
                         <td>{res.id}</td>
                         <td>
-                          {res.status === 'approved' && <span className="badge badge-success">Confirmada</span>}
                           {res.status === 'pending' && <span className="badge badge-warning">Pendiente</span>}
                           {res.status === 'cancelled' && <span className="badge badge-danger">Cancelada</span>}
+                          {res.status === 'finished' && <span className="badge badge-success" style={{ background: '#059669' }}>Finalizada</span>}
+                          
+                          {/* LÓGICA NUEVA: ESTADOS APROBADOS CON SOLICITUDES */}
+                          {res.status === 'approved' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              {!res.solicitud_cancelacion && !res.datos_modificacion && (
+                                <span className="badge badge-success">Confirmada</span>
+                              )}
+                              
+                              {res.solicitud_cancelacion === 1 && (
+                                <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '0.4rem', borderRadius: '4px', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <span style={{ fontWeight: 'bold' }}>⚠️ Pide Cancelar</span>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} style={{ background: '#b91c1c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Aceptar</button>
+                                    <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'cancel' })} style={{ background: 'white', color: '#b91c1c', border: '1px solid #b91c1c', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Denegar</button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {res.datos_modificacion && (
+                                <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.4rem', borderRadius: '4px', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <span style={{ fontWeight: 'bold' }}>📅 Pide Cambio</span>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'mod' })} style={{ background: '#0369a1', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Aceptar</button>
+                                    <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'mod' })} style={{ background: 'white', color: '#0369a1', border: '1px solid #0369a1', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Denegar</button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td>{formatearFecha(res.fechaEntrada)}</td>
                         <td>{formatearFecha(res.fechaSalida)}</td>
@@ -174,6 +210,8 @@ const AdminContent = () => {
                                 Registrar en SES
                               </button>
                             </div>
+                          ) : res.status === 'finished' ? (
+                            <span style={{ color: '#059669', fontSize: '0.85rem', fontWeight: 'bold' }}>Realizado</span>
                           ) : (
                             <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>Sin check-in</span>
                           )}
@@ -189,8 +227,12 @@ const AdminContent = () => {
                             ) : res.status === 'approved' ? (
                               <>
                                 <button className="btn-outline btn-blue">Editar contrato</button>
-                                <button className="btn-outline btn-grey" disabled>Confirmada</button>
                                 <button className="btn-outline btn-red" onClick={() => rechazarReserva.mutate(res.id)}>Anular</button>
+                              </>
+                            ) : res.status === 'finished' ? (
+                              <>
+                                <button className="btn-outline btn-grey">Ver Datos</button>
+                                <button className="btn-outline btn-red" onClick={() => rechazarReserva.mutate(res.id)}>Anular Check-in</button>
                               </>
                             ) : (
                               <span className="badge badge-neutral">Archivada</span>
@@ -217,7 +259,6 @@ const AdminContent = () => {
         {/* PESTAÑA: VACACIONES */}
         {pestañaActiva === 'vacaciones' && !reservaParaCheckin && (
           <div>
-            {/* (Aquí va el código de las vacaciones del paso anterior) */}
             <h2 className="admin-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Ban size={24} color="#ef4444" /> Bloqueo Manual de Fechas
             </h2>
@@ -230,10 +271,11 @@ const AdminContent = () => {
                   disabled={[{ before: new Date() }]} 
                 />
               </div>
+              <br />
               <button 
                   onClick={() => bloquearFechas.mutate()}
                   disabled={!rangoVacaciones?.from || !rangoVacaciones?.to}
-                  style={{ marginTop: '1.5rem', background: '#ef4444', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px' }}
+                  style={{ marginTop: '1.5rem', background: '#ef4444', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer' }}
                 >
                   Confirmar Bloqueo
               </button>
