@@ -37,7 +37,6 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
 <nav class="navigation">
     <div class="nav-container">
         
-        <!-- Enlaces Fijos (Iconos) -->
         <div class="nav-icons">
             <a href="/" class="icon-link">
                 <img src={isHome ? imgHomeMarron : imgHomeNegra} alt="Inicio" class="nav-icon-img" />
@@ -47,16 +46,13 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
             </a>
         </div>
 
-        <!-- Botón Hamburguesa (Oculto en PC, visible en móvil) -->
         <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <!-- Contenedor colapsable: Agrupa texto y sesión -->
         <div class="nav-menu" id="nav-menu">
-            <!-- Enlaces Dinámicos (.mdx) -->
             <ul class="nav-links">
                 {enlacesTexto.map((page) => {
                     const nombreArchivo = page.file.split('/').pop()!.replace('.mdx', '');
@@ -71,9 +67,14 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
                         </li>
                     );
                 })}
+                
+                <li>
+                    <a href="/fotos" class={`nav-item ${currentPath === '/fotos' || currentPath === '/fotos/' ? 'active' : ''}`}>
+                        Fotos
+                    </a>
+                </li>
             </ul>
 
-            <!-- Zona de Sesión -->
             <ul class="nav-auth">
                 {session ? (
                     <>
@@ -92,7 +93,6 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
     </div>
 </nav>
 
-<!-- Lógica del Menú Hamburguesa -->
 <script>
     const btn = document.getElementById('hamburger-btn');
     const menu = document.getElementById('nav-menu');
