@@ -2,31 +2,29 @@
 // src/pages/[slug].astro
 import BaseLayout from '../layouts/BasePage.astro';
 
-// 1. Astro lee la URL en la que estás (ej: si entras a /taranes, slug vale "taranes")
 const { slug } = Astro.params;
-
-// 2. Leemos todos los archivos MDX usando el buscador infalible
 const archivos = Object.values(import.meta.glob('../md_pages/*.mdx', { eager: true })) as any[];
 
-// 3. Buscamos el archivo exacto que coincida con la URL
 const pagina = archivos.find((archivo) => {
   const nombre = archivo.file.split('/').pop()!.replace('.mdx', '');
   return nombre === slug;
 });
 
-// 4. Protección: Si alguien escribe una ruta que no existe (ej: /inventado), lanzamos error 404
 if (!pagina) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Página no encontrada'
-  });
+  return new Response(null, { status: 404, statusText: 'Página no encontrada' });
 }
 
-// 5. Extraemos el contenido de la página encontrada
-const { Content, frontmatter } = pagina;
+// 1. Extraemos tu nuevo componente "SeccionImagenes" junto con el Content
+const { Content, frontmatter, SeccionImagenes } = pagina;
 ---
 
 <!-- 6. Usamos tu layout pasándole las variables -->
 <BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
-  <Content />
+    
+    <Content />
+
+    {SeccionImagenes && (
+        <SeccionImagenes slot="contenido-libre" />
+    )}
+
 </BaseLayout>

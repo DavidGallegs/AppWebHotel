@@ -34,7 +34,8 @@ h1{
 .modo-derecha .bloque-imagenes {
     width: 55%; 
 }
-.modo-derecha .bloque-texto {
+.modo-derecha .bloque-texto,
+.modo-derecha .bloque-imagenes-situacion {
 
     padding: 0 2.5rem 2.5rem 2.5rem ;
     border-radius: 12px;
@@ -63,7 +64,7 @@ h1{
     font-size: 1.15rem; 
     line-height: 1.6;
     color: #111; 
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .bloque-texto :global(h1) {
@@ -77,47 +78,19 @@ h1{
     margin-top: 1.5rem;
 }
 
-/* --- Imágenes comunes --- */
-.bloque-imagenes {
-    /* Rompemos el ancho del texto */
-    width: 95vw; 
-    max-width: 1400px; /* Tope máximo para que en pantallas gigantes no se descontrole */
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 3.5rem;
-    margin-bottom: 3.5rem;
+/* --- Bloques paginas --- */
+.bloque-imagenes-situacion{
+    padding: 0 0 2rem 0;
 
-    /* LA MAGIA DE LA CUADRÍCULA */
-    display: grid;
-    /* Crea columnas automáticas. Si caben 3, pone 3. Si es móvil, pone 1. */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
 }
 
-/* Estilo individual de cada foto */
-.bloque-imagenes img {
-    width: 100%;
-    height: 300px; /* Obligamos a que todas tengan la misma altura */
-    object-fit: cover; /* Recorta lo sobrante sin deformar la foto (vital) */
-    border-radius: 4px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-}
-
-/* Efecto 3D al pasar el ratón para darle "vida" */
-.bloque-imagenes img:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
-}
 
 /* --- Móviles --- */
 @media (max-width: 850px) {
     .contenedor-torre {
         align-items: center; 
     }
-    .modo-derecha .bloque-texto, 
-    .modo-derecha .bloque-imagenes {
+    .modo-derecha .bloque-texto {
         width: 100%; 
         background-color: rgba(255, 255, 255, 0.70); 
     }
