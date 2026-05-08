@@ -166,14 +166,13 @@ INSERT INTO `precio_habitacion` (`idPrecio`, `idHabitacion`, `idTemporada`, `pre
 (3, 2, 1, 70.00),
 (4, 2, 2, 65.00);
 
--- ESTA ES LA TABLA CON LOS NUEVOS CAMBIOS PARA EL FLUJO
 CREATE TABLE `reserva` (
   `idReserva` int NOT NULL,
   `idPersonaTitular` int NOT NULL,
   `codigoEstablecimiento` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fechaEntrada` date NOT NULL,
   `fechaSalida` date NOT NULL,
-  `estado` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `estado` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `solicitud_cancelacion` tinyint(1) NOT NULL DEFAULT '0',
   `datos_modificacion` json DEFAULT NULL,
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -217,7 +216,6 @@ CREATE TABLE `viajero_parte` (
   `parentesco` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- INDEXES & CONSTRAINTS
 
 ALTER TABLE `arrendador`
   ADD PRIMARY KEY (`codigo`),
@@ -300,22 +298,7 @@ ALTER TABLE `viajero_parte`
   ADD KEY `idx_viajero_parte_parte` (`idParte`),
   ADD KEY `idx_viajero_parte_persona` (`idPersona`);
 
--- AUTO-INCREMENTS
-ALTER TABLE `bloqueo_fechas` MODIFY `idBloqueo` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-ALTER TABLE `comunicaciones_ses` MODIFY `idComunicacionSES` bigint NOT NULL AUTO_INCREMENT;
-ALTER TABLE `habitacion` MODIFY `idHabitacion` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-ALTER TABLE `migrations` MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-ALTER TABLE `operaciones_ses` MODIFY `idOperacion` bigint NOT NULL AUTO_INCREMENT;
-ALTER TABLE `parte` MODIFY `idParte` bigint NOT NULL AUTO_INCREMENT;
-ALTER TABLE `persona` MODIFY `idPersona` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-ALTER TABLE `personal_access_tokens` MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-ALTER TABLE `precio_habitacion` MODIFY `idPrecio` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-ALTER TABLE `reserva` MODIFY `idReserva` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-ALTER TABLE `temporada` MODIFY `idTemporada` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-ALTER TABLE `users` MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-ALTER TABLE `viajero_parte` MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
--- FOREIGN KEYS
 ALTER TABLE `bloqueo_fechas`
   ADD CONSTRAINT `fk_bloqueo_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigoEstablecimiento`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_bloqueo_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`) ON DELETE CASCADE;
@@ -358,13 +341,4 @@ ALTER TABLE `users`
 ALTER TABLE `viajero_parte`
   ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
-COMMIT;
-
-ALTER TABLE persona AUTO_INCREMENT = 1;
-ALTER TABLE users AUTO_INCREMENT = 1;
-ALTER TABLE reserva AUTO_INCREMENT = 1;
-ALTER TABLE contrato AUTO_INCREMENT = 1;
-ALTER TABLE parte AUTO_INCREMENT = 1;
-ALTER TABLE viajero_parte AUTO_INCREMENT = 1;
 COMMIT;
