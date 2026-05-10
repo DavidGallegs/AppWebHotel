@@ -2,24 +2,18 @@ import { useState, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { format, startOfToday, parseISO, startOfDay } from "date-fns";
+import { format, startOfToday, parseISO, startOfDay, isWithinInterval } from "date-fns";
 import { es } from "date-fns/locale";
 import { type TReserva } from "./esquemaReserva";
 
 interface Props {
-    reservaId?: string | number; // Recibimos el ID para excluirlo de las ocupaciones
-}
-
-interface RangoReserva {
-    fechaEntrada: string;
-    fechaSalida: string;
+    reservaId?: string | number;
 }
 
 export function SeccionFechas({ reservaId }: Props) {
     const { setValue, control, register } = useFormContext<TReserva>();
     const habitacionSeleccionada = useWatch({ control, name: "habitacion" });
     
-    // Si ya hay valores en el formulario (por ejemplo, al editar), los usamos para pintar el calendario inicial
     const fechaEntradaActual = useWatch({ control, name: "fechaEntrada" });
     const fechaSalidaActual = useWatch({ control, name: "fechaSalida" });
 
@@ -30,48 +24,49 @@ export function SeccionFechas({ reservaId }: Props) {
         return undefined;
     });
 
-    const [reservasConfirmadas, setReservasConfirmadas] = useState<RangoReserva[]>([]);
+    // Cambiamos el estado para guardar directamente fechas (Date)
+    const [diasBloqueados, setDiasBloqueados] = useState<Date[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const cargarOcupacion = async () => {
             setIsLoading(true);
             try {
-                // Fetch hacia tu backend. Pasamos el reservaId para excluirlo de la respuesta.
                 const url = `http://localhost:8000/api/ocupacion?habitacion=${habitacionSeleccionada}${reservaId ? `&exclude_reserva=${reservaId}` : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
-                // Esperamos que el backend devuelva { reservas: [{ fechaEntrada: '...', fechaSalida: '...' }] }
-                setReservasConfirmadas(data.reservas || []);
+                // Mapeamos el array diasOcupados a objetos Date de JavaScript
+                if (data.diasOcupados && Array.isArray(data.diasOcupados)) {
+                    const fechas = data.diasOcupados.map((fechaString: string) => startOfDay(parseISO(fechaString)));
+                    setDiasBloqueados(fechas);
+                } else {
+                    setDiasBloqueados([]);
+                }
+
             } catch (error) {
                 console.error("Error cargando ocupación:", error);
-                setReservasConfirmadas([]); 
+                setDiasBloqueados([]); 
             } finally {
                 setIsLoading(false);
             }
         };
 
-        cargarOcupacion();
+        if (habitacionSeleccionada) {
+            cargarOcupacion();
+        }
     }, [habitacionSeleccionada, reservaId]);
 
     const handleRangeSelect = (newRange: DateRange | undefined) => {
-        // Lógica para detectar solapamientos si selecciona un rango completo
+        // Validación: Comprobar si en el rango seleccionado hay algún día bloqueado
         if (newRange?.from && newRange?.to) {
-            const solapa = reservasConfirmadas.some(res => {
-                const resIn = startOfDay(parseISO(res.fechaEntrada));
-                const resOut = startOfDay(parseISO(res.fechaSalida));
-                const myIn = startOfDay(newRange.from!);
-                const myOut = startOfDay(newRange.to!);
-
-                // Hay solapamiento si mi entrada es estrictamente ANTES de su salida, 
-                // Y mi salida es estrictamente DESPUÉS de su entrada.
-                return myIn < resOut && myOut > resIn;
+            const solapa = diasBloqueados.some(diaBloqueado => {
+                // Comprobamos si el día bloqueado cae estrictamente dentro del rango seleccionado
+                return diaBloqueado > startOfDay(newRange.from!) && diaBloqueado < startOfDay(newRange.to!);
             });
 
             if (solapa) {
-                alert("Las fechas seleccionadas abarcan días ya ocupados. Solo puedes coincidir en el día de entrada o salida.");
-                // Reseteamos el rango al primer clic para que vuelva a intentar
+                alert("Has seleccionado un rango que incluye días ya ocupados. Por favor, elige otras fechas.");
                 setRange({ from: newRange.from, to: undefined });
                 setValue("fechaEntrada", format(newRange.from, "yyyy-MM-dd"));
                 setValue("fechaSalida", "");
@@ -88,16 +83,6 @@ export function SeccionFechas({ reservaId }: Props) {
         else setValue("fechaSalida", "");
     };
 
-    // Deshabilita SOLO las noches intermedias, dejando clicables los días de check-in y check-out
-    const isDateFullyDisabled = (date: Date) => {
-        const d = startOfDay(date);
-        return reservasConfirmadas.some(res => {
-            const resIn = startOfDay(parseISO(res.fechaEntrada));
-            const resOut = startOfDay(parseISO(res.fechaSalida));
-            return d > resIn && d < resOut;
-        });
-    };
-
     return (
         <fieldset className="seccion-fechas">
             <legend>Reserva de Habitación</legend>
@@ -110,10 +95,10 @@ export function SeccionFechas({ reservaId }: Props) {
                 </select>
             </div>
 
-            <div className="calendario-container" style={{ position: 'relative', opacity: isLoading ? 0.5 : 1, pointerEvents: isLoading ? 'none' : 'auto', transition: 'opacity 0.2s ease-in-out' }}>
+            <div className="calendario-container" style={{ position: 'relative', opacity: isLoading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
                 {isLoading && (
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600, color: '#2563eb', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                        Actualizando fechas...
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '8px', zIndex: 10 }}>
+                        Cargando disponibilidad...
                     </div>
                 )}
                 
@@ -122,19 +107,20 @@ export function SeccionFechas({ reservaId }: Props) {
                     selected={range}
                     onSelect={handleRangeSelect}
                     locale={es}
-                    disabled={(date) => {
-                        const d = startOfDay(date);
-
-                        // bloquear pasado
-                        if (d < startOfToday()) return true;
-
-                        // bloquear ocupados (INCLUYE extremos)
-                        return reservasConfirmadas.some(res => {
-                            const resIn = startOfDay(parseISO(res.fechaEntrada));
-                            const resOut = startOfDay(parseISO(res.fechaSalida));
-
-                            return d >= resIn && d <= resOut;
-                        });
+                    // Le pasamos directamente el array de fechas bloqueadas
+                    disabled={[
+                        { before: startOfToday() }, 
+                        ...diasBloqueados             
+                    ]}
+                    // Aplicamos el estilo rojo a las fechas bloqueadas
+                    modifiers={{ ocupado: diasBloqueados }}
+                    modifiersStyles={{
+                        ocupado: { 
+                            color: '#ef4444', 
+                            backgroundColor: '#fee2e2',
+                            textDecoration: 'line-through',
+                            fontWeight: 'bold'
+                        }
                     }}
                 />
             </div>
