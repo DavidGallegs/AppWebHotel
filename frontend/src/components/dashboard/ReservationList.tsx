@@ -6,7 +6,6 @@ import {
   useRequestCancellation 
 } from './useReservations';
 import { format, differenceInHours } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { 
   Clock, CheckCircle2, XCircle, CalendarCheck, 
   CalendarDays, Eye, Edit, Trash2, Users, AlertCircle, X
