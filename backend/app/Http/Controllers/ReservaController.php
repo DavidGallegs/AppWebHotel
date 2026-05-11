@@ -17,6 +17,7 @@ use App\Models\BloqueoFecha;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SolicitudModificacionReservaMail;
 use App\Mail\ReservaCanceladaMail;
+use App\Mail\ReservaPendientePagoMail;
 
 
 
@@ -117,39 +118,20 @@ class ReservaController extends Controller
         ]);
         
         /*
-        //.- Generamos la referencia del contrato
-        $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
-
-        //.- Creamos un contrato asociado a la reserva.
-        Contrato::create([
-            'referencia' => $referencia, 
-            'idReserva' => $reserva->idReserva,
-            'fechaContrato' => $request->input('fechaContrato'),
-            'estado' => 'activo',
-            'internet' => false,
-            'tipoPago' => null, 
-            'fechaPago' => null,
-            'precioTotal' => null
-        ]);
-
-        //.- Creamos un parte asociado al contrato, con estado "pendiente".
-        $parte = Parte::create([
-            'referenciaContrato' => $referencia,
-            'estado' => 'pending',
-            'fechaCreacion' => now(),
-            'fechaEnvio' => null,
-            'createdAt' => now(),
-            'updatedAt' => now()
-        ]);
-
-
-        ViajeroParte::create([
-            'idParte' => $parte->idParte,
-            'idPersona' => $persona->idPersona,
-            'rol' => $titular['rol'],
-        ]);
-
+        |--------------------------------------------------------------------------
+        | ENVIAR EMAIL DE PAGO
+        |--------------------------------------------------------------------------
         */
+
+        $precio = 150; // aquí luego puedes calcularlo dinámicamente
+
+        Mail::to($persona->email)->send(
+            new ReservaPendientePagoMail(
+                $reserva,
+                $persona,
+                $precio
+            )
+        );
 
 
         return response()->json([
@@ -630,6 +612,136 @@ class ReservaController extends Controller
                     ]
                 ];
             });
+        }
+
+        return response()->json($response, $status);
+    }
+
+    public function notificarPago($id)
+    {
+        try {
+
+            $reserva = Reserva::findOrFail($id);
+
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDACIONES
+            |--------------------------------------------------------------------------
+            */
+
+            if ($reserva->estado_pago !== 'pendiente') {
+
+                return response()->json([
+
+                    'error' => 'La reserva no está pendiente de pago'
+
+                ], 400);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR ESTADO PAGO
+            |--------------------------------------------------------------------------
+            */
+
+            $reserva->estado_pago = 'notificado';
+            $reserva->updatedAt = now();
+
+            $reserva->save();
+
+            return response()->json([
+
+                'success' => true,
+                'message' => 'Pago notificado correctamente'
+
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            return response()->json([
+
+                'error' => 'Reserva no encontrada'
+
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'error' => $e->getMessage()
+
+            ], 500);
+        }
+    }
+
+    public function solicitarDevolucion($id)
+    {
+        $response = null;
+        $status = 200;
+
+        try {
+
+            $reserva = Reserva::findOrFail($id);
+
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDACIONES
+            |--------------------------------------------------------------------------
+            */
+
+            if ($reserva->estado_pago !== 'pagado') {
+
+                $response = [
+
+                    'error' => 'Solo se pueden solicitar devoluciones de reservas pagadas'
+
+                ];
+
+                $status = 400;
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | ACTUALIZAR
+                |--------------------------------------------------------------------------
+                */
+
+                $reserva->estado_pago = 'devolucion_solicitada';
+
+                $reserva->solicitud_cancelacion = 1;
+
+                $reserva->updatedAt = now();
+
+                $reserva->save();
+
+                $response = [
+
+                    'success' => true,
+                    'message' => 'Solicitud de devolución enviada correctamente'
+
+                ];
+            }
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            $response = [
+
+                'error' => 'Reserva no encontrada'
+
+            ];
+
+            $status = 404;
+
+        } catch (\Exception $e) {
+
+            $response = [
+
+                'error' => $e->getMessage()
+
+            ];
+
+            $status = 500;
         }
 
         return response()->json($response, $status);

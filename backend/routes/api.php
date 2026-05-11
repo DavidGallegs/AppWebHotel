@@ -7,6 +7,8 @@ use App\Http\Controllers\CrearParteViajeros;
 use App\Http\Controllers\Admin\ReservationAdminController;
 use App\Http\Controllers\Admin\BloqueoController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\Admin\CheckInController;
+use App\Http\Controllers\Admin\AdminReservaController;
  
 use App\Http\Controllers\Auth\PasswordResetController;
 
@@ -30,6 +32,14 @@ Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::cla
 // Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
 
+// Ruta para realizar check-in de walk-in (solo para admin)
+Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
+
+// Ruta para confirmar pago de una reserva (solo para admin)
+Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
+
+//Ruta para confirmar el pago de una reserva (solo para admin)
+Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
 
 /****************************Viajeros***************************** */
 
@@ -40,6 +50,9 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 // Ruta para registro de usuarios
 Route::post('/register', [RegisterController::class, 'registrarUsuario']);
+
+// Ruta para pre-login (enviar OTP)
+Route::post('/pre-login', [LoginController::class, 'preLogin']);
 
 // Ruta para login de usuarios
 Route::post('/login', [LoginController::class, 'login']);
@@ -74,6 +87,11 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Endpoint genérico para disparar correos
     Route::post('/notificaciones/enviar', [NotificacionController::class, 'enviarNotificacion']);
+
+    Route::post('/reservations/{id}/notificar-pago',[ReservaController::class, 'notificarPago']);
+
+
+    Route::post('/reservations/{id}/solicitar-devolucion',[ReservaController::class, 'solicitarDevolucion']);
 });
 
 

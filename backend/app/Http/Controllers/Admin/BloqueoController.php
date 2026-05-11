@@ -16,8 +16,7 @@ class BloqueoController extends Controller
         ]);
 
         $bloqueo = BloqueoFecha::create([
-            'idHabitacion' => $request->idHabitacion,
-            'codigoEstablecimiento' => $request->codigoEstablecimiento,
+            'idHabitacion' => $request->habitacion_id,
             'fechaInicio' => $request->fechaInicio,
             'fechaFin' => $request->fechaFin
         ]);

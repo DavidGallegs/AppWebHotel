@@ -29,6 +29,7 @@ class Reserva extends Model
         'solicitud_cancelacion',
         'solicitud_modificacion',
         'datos_modificacion',
+        'estado_pago',
         'createdAt',
         'updatedAt'
     ];
