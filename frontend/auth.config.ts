@@ -15,13 +15,14 @@ export default defineConfig({
       name: 'Credentials',
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        otp: { label: "Código 2FA", type: "text" } // <-- 1. AÑADIMOS EL CAMPO OTP
       },
-      // 2. Corazón del login
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
+          // El backend de docker interno
           const response = await fetch("http://backend:80/api/login", {
             method: "POST",
             headers: { 
@@ -31,13 +32,13 @@ export default defineConfig({
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
+              otp: credentials.otp, // <-- 2. SE LO ENVIAMOS A LARAVEL
             }),
           });
 
           const data = await response.json();
-          console.log(" RESPUESTA DE LARAVEL:", data);
+          console.log("RESPUESTA DE LARAVEL:", data);
 
-          // Si Laravel dice que ok, devolvemos el objeto usuario
           if (response.ok && data.user) {
             return {
               id: data.user.id.toString(), 
@@ -56,7 +57,6 @@ export default defineConfig({
       }
     })
   ],
-  // 3. Los Callbacks
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

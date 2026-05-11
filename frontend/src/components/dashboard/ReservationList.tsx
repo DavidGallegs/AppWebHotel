@@ -1,29 +1,28 @@
 import { useState } from 'react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { 
   useReservations, 
   useCancelReservation, 
-  useRequestModification, 
-  useRequestCancellation 
+  useRequestModification 
 } from './useReservations';
 import { format, differenceInHours } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { 
   Clock, CheckCircle2, XCircle, CalendarCheck, 
-  CalendarDays, Eye, Edit, Trash2, Users, AlertCircle, X
+  CalendarDays, Eye, Edit, Trash2, Users, AlertCircle, X, Check, Euro
 } from 'lucide-react';
 import type { Reservation } from './reservation';
 import { QueryProvider } from './QueryProvider'; 
 import { FormularioModificar } from './FormularioModificar';
+import { api } from './api'; 
 
-// Extendemos la interfaz con el objeto titular y contrato para evitar errores de tipo
 export interface FullReservation extends Reservation {
   habitacion?: string;
   numPersonas?: number;
   numHabitaciones?: number;
-  
-  // Opción B: Sin signos de interrogación para que coincidan con la base
-  solicitud_cancelacion: number; 
-  datos_modificacion: string | null; 
-  
+  solicitud_cancelacion: number;
+  datos_modificacion: string | null;
+  estado_pago?: 'pendiente' | 'notificado' | 'pagado' | 'devolucion_solicitada'; 
   contrato?: {
     fechaContrato: string;
     internet: boolean;
@@ -33,7 +32,6 @@ export interface FullReservation extends Reservation {
     estado: string;
   };
   titular?: {
-    // ... todos los datos del titular
     nombre?: string;
     apellido1?: string;
     apellido2?: string;
@@ -59,13 +57,30 @@ const statusConfig = {
 };
 
 const ReservationListContent = () => {
+  const queryClient = useQueryClient();
   const { data: reservations, isLoading, isError } = useReservations();
   const { mutate: cancelarDirecto } = useCancelReservation();
   const { mutate: solicitarMod } = useRequestModification();
-  const { mutate: solicitarCancel } = useRequestCancellation();
 
   const [reservaDetalle, setReservaDetalle] = useState<FullReservation | null>(null);
   const [reservaEditando, setReservaEditando] = useState<FullReservation | null>(null);
+
+  // MUTACIONES PARA PAGOS Y DEVOLUCIONES
+  const notificarPago = useMutation({
+    mutationFn: async (id: string | number) => await api.post(`/reservations/${id}/notificar-pago`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      alert("¡Gracias! Hemos notificado al administrador.");
+    }
+  });
+
+  const solicitarDevolucion = useMutation({
+    mutationFn: async (id: string | number) => await api.post(`/reservations/${id}/solicitar-devolucion`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      alert("Solicitud de anulación y devolución enviada correctamente.");
+    }
+  });
 
   if (isLoading) return <div className="p-4">Cargando tus reservas...</div>;
   if (isError) return <div className="p-4 text-red-500">Error al conectar con el servidor.</div>;
@@ -84,7 +99,6 @@ const ReservationListContent = () => {
   return (
     <div className="reserva-list-container">
       {reservations?.map((res: FullReservation) => {
-        // Usamos 'status' como clave de configuración
         const estadoActual = res.status || 'pending';
         const config = statusConfig[estadoActual as keyof typeof statusConfig] || statusConfig.pending;
         const StatusIcon = config.icon;
@@ -97,7 +111,6 @@ const ReservationListContent = () => {
         const tieneSolicitudCancel = res.solicitud_cancelacion === 1;
         const puedeHacerCheckin = esAprobada && verificarVentanaCheckin(res.fechaEntrada);
 
-        // Lógica para mostrar el nombre: Prioriza el objeto titular anidado
         const nombreAMostrar = res.titular?.nombre || res.nombre || 'Reserva';
         const apellidoAMostrar = res.titular?.apellido1 || res.apellido1 || '';
 
@@ -124,14 +137,38 @@ const ReservationListContent = () => {
               </div>
             </div>
 
-            {(tieneSolicitudMod || tieneSolicitudCancel) && (
-              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff7ed', border: '1px solid #ffedd5', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', color: '#9a3412', fontSize: '0.85rem' }}>
-                <AlertCircle size={16} />
-                <span>Tu solicitud de {tieneSolicitudCancel ? 'anulación' : 'modificación'} está siendo revisada por el administrador.</span>
+            {/* ALERTAS DE PAGOS */}
+            {esPendiente && res.estado_pago === 'pendiente' && (
+              <div style={{ marginTop: '1rem', padding: '1rem', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontSize: '0.9rem' }}>
+                  <AlertCircle size={18} />
+                  <span><strong>Acción requerida:</strong> Por favor, realiza la transferencia bancaria (ver instrucciones en tu email).</span>
+                </div>
+                <button 
+                  onClick={() => { if(confirm('¿Confirmas que ya has realizado la transferencia?')) notificarPago.mutate(res.id) }}
+                  disabled={notificarPago.isPending}
+                  style={{ background: '#b45309', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap' }}
+                >
+                  {notificarPago.isPending ? 'Notificando...' : 'Ya he pagado'}
+                </button>
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6' }}>
+            {esPendiente && res.estado_pago === 'notificado' && (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#eff6ff', border: '1px solid #dbeafe', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', color: '#1d4ed8', fontSize: '0.85rem' }}>
+                <Check size={16} />
+                <span>Pago notificado. Estamos verificando la transferencia para confirmar tu reserva en breve.</span>
+              </div>
+            )}
+
+            {(tieneSolicitudMod || tieneSolicitudCancel || res.estado_pago === 'devolucion_solicitada') && (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff7ed', border: '1px solid #ffedd5', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', color: '#9a3412', fontSize: '0.85rem' }}>
+                <AlertCircle size={16} />
+                <span>Tu solicitud {res.estado_pago === 'devolucion_solicitada' ? 'de anulación y devolución' : 'de modificación'} está siendo revisada por el administrador.</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
               <button 
                 className="btn btn-ver" 
                 onClick={() => setReservaDetalle(res)} 
@@ -145,21 +182,30 @@ const ReservationListContent = () => {
                   <button className="btn btn-modificar" onClick={() => setReservaEditando(res)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
                     <Edit size={16} /> Modificar
                   </button>
-                  <button className="btn btn-cancelar" onClick={() => { if(confirm('¿Seguro que quieres cancelar la reserva?')) cancelarDirecto(res.id) }} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
-                    <Trash2 size={16} /> Cancelar
-                  </button>
+                  {/* Si no ha pagado, cancelación normal */}
+                  {(res.estado_pago === 'pendiente' || !res.estado_pago) && (
+                    <button className="btn btn-cancelar" onClick={() => { if(confirm('¿Seguro que quieres cancelar la reserva?')) cancelarDirecto(res.id) }} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
+                      <Trash2 size={16} /> Cancelar
+                    </button>
+                  )}
+                  {/* Si ya notificó el pago, pide devolución */}
+                  {res.estado_pago === 'notificado' && !tieneSolicitudCancel && (
+                    <button onClick={() => { if(confirm('Se enviará una solicitud de anulación y devolución al administrador. ¿Continuar?')) solicitarDevolucion.mutate(res.id) }} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
+                      <Euro size={16} style={{display: 'inline', marginBottom: '-3px'}}/> Anular y Pedir Devolución
+                    </button>
+                  )}
                 </>
               )}
 
-              {esAprobada && !tieneSolicitudMod && !tieneSolicitudCancel && (
+              {esAprobada && !tieneSolicitudMod && !tieneSolicitudCancel && res.estado_pago !== 'devolucion_solicitada' && (
                 <>
                   {!puedeHacerCheckin ? (
                     <>
                       <button className="btn btn-modificar" onClick={() => setReservaEditando(res)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
                         Solicitar Cambio
                       </button>
-                      <button className="btn btn-cancelar" onClick={() => { if(confirm('Se enviará una solicitud de anulación al administrador. ¿Continuar?')) solicitarCancel(res.id) }} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
-                        Solicitar Anulación
+                      <button onClick={() => { if(confirm('Se enviará una solicitud de anulación y devolución de tu dinero. ¿Continuar?')) solicitarDevolucion.mutate(res.id) }} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
+                        <Euro size={16} style={{display: 'inline', marginBottom: '-3px'}}/> Anular y Pedir Devolución
                       </button>
                     </>
                   ) : (
@@ -180,6 +226,7 @@ const ReservationListContent = () => {
         );
       })}
 
+      {/* MODAL DE EDICIÓN */}
       {reservaEditando && (
         <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
           <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -190,7 +237,8 @@ const ReservationListContent = () => {
               onCancelar={() => setReservaEditando(null)}
               onGuardar={(data) => {
                 if(reservaEditando.status === 'pending') {
-                  // Lógica específica si se requiere guardar directamente
+                  // Si tienes endpoint de editar directo para pendientes ponlo aquí, sino usa solicitarMod
+                  solicitarMod({ id: reservaEditando.id, data });
                 } else {
                   solicitarMod({ id: reservaEditando.id, data });
                 }
@@ -201,6 +249,7 @@ const ReservationListContent = () => {
         </div>
       )}
 
+      {/* MODAL DE DETALLES */}
       {reservaDetalle && (
         <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
           <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>

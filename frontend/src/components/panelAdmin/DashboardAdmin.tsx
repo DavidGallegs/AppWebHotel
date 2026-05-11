@@ -7,7 +7,7 @@ import 'react-day-picker/dist/style.css';
 import '../../styles/dashboardAdmin.css'; 
 import { api } from '../dashboard/api'; 
 import type { FullReservation } from '../dashboard/ReservationList'; 
-import { Calendar, ClipboardList, Ban, Users, ArrowLeft, Loader2 } from 'lucide-react';
+import { Calendar, ClipboardList, Ban, Users, ArrowLeft, Loader2, Euro } from 'lucide-react';
 import { QueryProvider } from '../dashboard/QueryProvider';
 
 // Importación de componentes hijos
@@ -27,8 +27,6 @@ const AdminContent = () => {
   const [habitacionBloqueo, setHabitacionBloqueo] = useState<string>("1");
 
   // --- QUERIES ---
-
-  // 1. Obtener todas las reservas
   const { data: reservas } = useQuery({
     queryKey: ['admin-reservations'],
     queryFn: async () => {
@@ -37,7 +35,6 @@ const AdminContent = () => {
     },
   });
 
-  // 2. Obtener ocupación reactiva para el calendario de bloqueos
   const { data: ocupacion, isLoading: cargandoOcupacion } = useQuery({
     queryKey: ['admin-occupancy', habitacionBloqueo],
     queryFn: async () => {
@@ -51,10 +48,17 @@ const AdminContent = () => {
   });
 
   // --- MUTACIONES ---
-
   const aprobarReserva = useMutation({
     mutationFn: async (id: string | number) => await api.patch(`/admin/reservations/${id}/approve`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reservations'] })
+  });
+
+  const confirmarIngresoYAprobar = useMutation({
+    mutationFn: async (id: string | number) => await api.post(`/admin/reservations/${id}/confirmar-pago`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+      alert("Pago verificado y reserva aprobada correctamente.");
+    }
   });
 
   const resolverSolicitud = useMutation({
@@ -74,9 +78,9 @@ const AdminContent = () => {
       });
     },
     onSuccess: () => {
-      // Refresco inmediato del calendario de bloqueos
       queryClient.invalidateQueries({ queryKey: ['admin-occupancy', habitacionBloqueo] });
       setRangoVacaciones(undefined);
+      alert("Fechas bloqueadas correctamente.");
     }
   });
 
@@ -124,20 +128,20 @@ const AdminContent = () => {
       {/* ÁREA PRINCIPAL */}
       <main className="admin-main">
         
-        {/* MODO CHECK-IN (Desde la tabla de reservas) */}
+        {/* MODO CHECK-IN */}
         {reservaParaCheckin && (
           <div className="fade-in">
             <button onClick={() => setReservaParaCheckin(null)} className="admin-back-btn">
               <ArrowLeft size={16} /> Volver al listado
             </button>
             <div className="admin-card">
-               <h3 style={{ marginBottom: '1.5rem' }}>Check-in: {reservaParaCheckin.nombre}</h3>
+               <h3 style={{ marginBottom: '1.5rem' }}>Check-in: {reservaParaCheckin.titular?.nombre || reservaParaCheckin.nombre}</h3>
                <ParteViajeros reservaId={reservaParaCheckin.id} />
             </div>
           </div>
         )}
 
-        {/* PESTAÑA: LISTADO DE RESERVAS */}
+        {/* PESTAÑA: RESERVAS */}
         {pestañaActiva === 'reservas' && !reservaParaCheckin && (
           <div className="fade-in">
             <h2 style={{ marginBottom: '1.5rem', fontWeight: 700 }}>Gestión de Reservas</h2>
@@ -163,9 +167,25 @@ const AdminContent = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           <span className={`badge badge-${res.status}`}>{res.status}</span>
                           
-                          {res.solicitud_cancelacion === 1 && (
+                          {/* ESTADO DEL PAGO */}
+                          {res.status === 'pending' && res.estado_pago === 'pendiente' && (
+                             <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>⏳ Faltan los fondos</span>
+                          )}
+
+                          {/* ALERTAS */}
+                          {res.estado_pago === 'devolucion_solicitada' && (
+                            <div className="alert-box alert-cancel" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                              <div className="alert-title">🚨 ANULACIÓN + DEVOLUCIÓN</div>
+                              <div style={{ fontSize: '0.7rem', marginBottom: '4px' }}>El cliente canceló y pide su dinero.</div>
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} className="btn-small accept-cancel">Aceptar y Marcar Devuelto</button>
+                              </div>
+                            </div>
+                          )}
+
+                          {res.solicitud_cancelacion === 1 && res.estado_pago !== 'devolucion_solicitada' && (
                             <div className="alert-box alert-cancel">
-                              <div className="alert-title">⚠️ Pide Anulación</div>
+                              <div className="alert-title">⚠️ Pide Anulación (Sin fondos)</div>
                               <div style={{ display: 'flex', gap: '4px' }}>
                                 <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} className="btn-small accept-cancel">Aceptar</button>
                                 <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'cancel' })} className="btn-small reject-cancel">No</button>
@@ -185,10 +205,25 @@ const AdminContent = () => {
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          {res.status === 'pending' && (
-                             <button onClick={() => aprobarReserva.mutate(res.id)} className="btn-action btn-approve">Aprobar</button>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                          
+                          {/* Lógica del Botón Aprobar según pago */}
+                          {res.status === 'pending' && (res.estado_pago === 'pendiente' || !res.estado_pago) && (
+                             <button disabled style={{ background: '#e5e7eb', color: '#9ca3af', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'not-allowed', fontSize: '0.85rem', fontWeight: 500 }}>
+                               Aprobar (Falta Pago)
+                             </button>
                           )}
+
+                          {res.status === 'pending' && res.estado_pago === 'notificado' && (
+                             <button 
+                               onClick={() => { if(confirm('¿Has verificado el ingreso en la cuenta del banco? Al aceptar, la reserva se aprobará.')) confirmarIngresoYAprobar.mutate(res.id) }} 
+                               className="btn-action btn-approve"
+                               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                             >
+                               <Euro size={16} /> Verificar Ingreso y Aprobar
+                             </button>
+                          )}
+
                           {res.status === 'approved' && (
                              <button onClick={() => setReservaParaCheckin(res)} className="btn-action btn-checkin">Hacer Check-in</button>
                           )}
@@ -202,12 +237,12 @@ const AdminContent = () => {
           </div>
         )}
 
-        {/* PESTAÑA: CHECK-IN DIRECTO (WALK-IN) */}
+        {/* PESTAÑA: WALK-IN */}
         {pestañaActiva === 'walkin' && (
           <CheckinWalkIn />
         )}
 
-        {/* PESTAÑA: BLOQUEO DE VACACIONES */}
+        {/* PESTAÑA: BLOQUEO POR HABITACIÓN */}
         {pestañaActiva === 'vacaciones' && (
           <div className="fade-in">
             <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -242,9 +277,7 @@ const AdminContent = () => {
                     locale={es}
                     disabled={[{ before: new Date() }, ...(ocupacion || [])]}
                     modifiers={{ ocupado: ocupacion || [] }}
-                    modifiersClassNames={{
-                      ocupado: 'day-picker-occupied'
-                    }}
+                    modifiersClassNames={{ ocupado: 'day-picker-occupied' }}
                   />
                 </div>
               </div>
