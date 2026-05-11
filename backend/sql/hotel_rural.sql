@@ -210,6 +210,7 @@ CREATE TABLE `reserva` (
   `fechaSalida` date NOT NULL,
   `estado` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `solicitud_cancelacion` tinyint(1) NOT NULL DEFAULT '0',
+  `solicitud_modificacion` tinyint(1) NOT NULL DEFAULT '0',
   `datos_modificacion` json DEFAULT NULL,
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime DEFAULT NULL
@@ -362,7 +363,7 @@ ALTER TABLE `viajero_parte`
 
 
 ALTER TABLE `bloqueo_fechas`
-  MODIFY `idBloqueo` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idBloqueo` int NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `comunicaciones_ses`
@@ -370,11 +371,11 @@ ALTER TABLE `comunicaciones_ses`
 
 
 ALTER TABLE `habitacion`
-  MODIFY `idHabitacion` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idHabitacion` int NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `operaciones_ses`

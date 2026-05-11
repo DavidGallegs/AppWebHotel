@@ -27,8 +27,6 @@ Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::cl
 // Ruta para rechazar una reserva (solo para admin)
 Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'rejectReservation']);
 
-Route::post('/admin/reservations/{id}/resolve',[ReservationAdminController::class, 'resolveRequest']);
-
 // Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
 
@@ -51,15 +49,12 @@ Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::clas
 
 // Ruta para crear reserva 
 Route::post('/reservas', [ReservaController::class, 'crearReserva']); 
-// Ruta para cancelar reserva
-// PATCH solo modifica parcialmente un recurso (solo el estado)
-Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']); //ver si funciona
 
 // Ruta para obtener detalles de una reserva especifica
 Route::get('/reservas/{id}', [ReservaController::class, 'show']); //funciona
 
 // Ruta para actualizar una reserva (por ejemplo, cambiar fechas o numero de personas)
-Route::put('/reservations/{id}', [ReservaController::class, 'update']);
+//Route::put('/reservations/{id}', [ReservaController::class, 'update']);
 
 // Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
 Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //funcoina
@@ -68,22 +63,14 @@ Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //funcoina
 // Ruta para crear parte de viajeros
 Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);
 
-//Route::any('/reservas/{id}/confirmar', [CrearParteViajeros::class, 'confirmar']);
 
 
-
-
-// Rutas del Administrador
-/*
-Route::middleware(['auth:sanctum', 'admin'])->group(function () { // Ajusta el middleware 'admin' al tuyo
-    Route::post('/admin/reservations/{id}/resolve', [ReservaController::class, 'resolveRequest']);
-});
-*/
 
 // Rutas del Usuario (Panel de cliente)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'requestModification']);
-    Route::patch('/reservations/{id}/request-cancellation', [ReservaController::class, 'requestCancellation']);
+    Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'solicitarModificacion']);
+    Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']);
+    Route::patch('/reservations/{id}/request-cancellation', [ReservaController::class, 'solicitarCancelacion']);
     
     // Endpoint genérico para disparar correos
     Route::post('/notificaciones/enviar', [NotificacionController::class, 'enviarNotificacion']);

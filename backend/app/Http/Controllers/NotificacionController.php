@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\SolicitudModificacionReservaMail;
+use App\Mail\SolicitudCancelacionReservaMail;
 
 use App\Models\Reserva;
 
-use App\Mail\SolicitudModificacionAdminMail;
-use App\Mail\SolicitudCancelacionAdminMail;
-use App\Mail\ResolucionSolicitudUsuarioMail;
 
 class NotificacionController extends Controller
 {
@@ -22,6 +21,7 @@ class NotificacionController extends Controller
 
         $tipo = $request->tipo;
         $reservaId = $request->reservaId;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -55,9 +55,10 @@ class NotificacionController extends Controller
                     Mail::to(config('mail.admin_address'))
 
                         // Cola
-                        ->queue(
-                            new SolicitudModificacionAdminMail(
-                                $reserva
+                        ->send(
+                            new SolicitudModificacionReservaMail(
+                                $reserva,
+                                $datos = $reserva->datos_modificacion // Aquí puedes pasar los datos que necesites al correo
                             )
                         );
 
@@ -67,44 +68,24 @@ class NotificacionController extends Controller
 
                     Mail::to(config('mail.admin_address'))
 
-                        ->queue(
-                            new SolicitudCancelacionAdminMail(
+                        ->send(
+                            new SolicitudCancelacionReservaMail(
                                 $reserva
                             )
                         );
 
                     break;
 
-                /*
-                |--------------------------------------------------------------------------
-                | ADMIN -> USUARIO
-                |--------------------------------------------------------------------------
-                */
-
-                case 'resolucion_mod_user':
-
-                case 'resolucion_cancel_user':
-
-                    if ($reserva->titular?->email) {
-
-                        Mail::to(
-                            $reserva->titular->email
-                        )
-
-                        ->queue(
-                            new ResolucionSolicitudUsuarioMail(
-                                $reserva,
-                                $tipo
-                            )
-                        );
-                    }
+                
+                
 
                     break;
 
                 default:
 
                     return response()->json([
-                        'error' => 'Tipo de notificación inválido'
+                        'error' => 'Tipo de notificación inválido',
+                        
                     ], 400);
             }
 
@@ -116,7 +97,8 @@ class NotificacionController extends Controller
 
             return response()->json([
                 'error' => 'Error enviando la notificación',
-                'detalle' => $e->getMessage()
+                'detalle' => $e->getMessage(),
+                'admin_address' => env('MAIL_ADMIN_ADDRESS')
             ], 500);
         }
     }

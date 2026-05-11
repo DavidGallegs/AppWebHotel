@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\ReservaHabitacion;
 use App\Models\BloqueoFecha;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SolicitudModificacionReservaMail;
+use App\Mail\ReservaCanceladaMail;
+
 
 
 
@@ -193,6 +197,40 @@ class ReservaController extends Controller
         return response()->json($data, $status);
     }
 
+    public function solicitarCancelacion($id)
+    {
+        try {
+
+            $reserva = Reserva::findOrFail($id);
+
+            if ($reserva->estado !== 'approved') {
+                return response()->json([
+                    'error' => 'Solo reservas aprobadas'
+                ], 400);
+            }
+
+            if ($reserva->solicitud_cancelacion) {
+                return response()->json([
+                    'error' => 'Ya existe una solicitud'
+                ], 400);
+            }
+
+            $reserva->solicitud_cancelacion = true;
+            $reserva->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Solicitud enviada'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function cancelarReserva($id)
     {
         $response = null;
@@ -202,20 +240,29 @@ class ReservaController extends Controller
 
             $reserva = Reserva::findOrFail($id);
 
+            // Ya cancelada
             if ($reserva->estado === 'cancelled') {
+
                 $response = [
                     'error' => 'La reserva ya está cancelada'
                 ];
                 $status = 400;
+
+            // Solo se pueden cancelar directamente las pending
+            } elseif ($reserva->estado !== 'pending') {
+
+                $response = [
+                    'error' => 'Solo las reservas pendientes pueden cancelarse directamente'
+                ];
+                $status = 400;
+
             } else {
 
                 DB::transaction(function () use ($reserva) {
 
-                    // Cancelar reserva
                     $reserva->estado = 'cancelled';
                     $reserva->save();
 
-                    // Cancelar contrato si existe
                     $contrato = Contrato::where('idReserva', $reserva->idReserva)->first();
 
                     if ($contrato) {
@@ -223,6 +270,17 @@ class ReservaController extends Controller
                         $contrato->save();
                     }
                 });
+
+                // Obtener email del viajero
+                $persona = Persona::find($reserva->idPersonaTitular);
+
+                if ($persona && $persona->email) {
+
+                    Mail::to($persona->email)->send(
+                        new ReservaCanceladaMail($reserva, $persona)
+                    );
+                }
+
 
                 $response = [
                     'success' => true,
@@ -293,6 +351,7 @@ class ReservaController extends Controller
 
         return response()->json($response, $status);
     }
+    
 
     public function ocupacion(Request $request)
     {
@@ -392,37 +451,97 @@ class ReservaController extends Controller
     /**
      * Usuario solicita modificación
      */
-    public function requestModification(Request $request, $id)
+    public function solicitarModificacion(Request $request, $id)
     {
-        $request->validate([
-            'datos.fechaEntrada' => 'required|date',
-            'datos.fechaSalida'  => 'required|date|after:datos.fechaEntrada',
-        ]);
+        $response = null;
+        $status = 200;
 
-        $reserva = Reserva::find($id);
+        try {
 
-        if (!$reserva) {
+            $reserva = Reserva::findOrFail($id);
 
-            return response()->json([
+            // Solo reservas aprobadas
+            if ($reserva->estado !== 'approved') {
+
+                $response = [
+                    'error' => 'Solo se pueden modificar reservas aprobadas'
+                ];
+
+                $status = 400;
+
+            // Ya existe solicitud
+            } elseif ($reserva->solicitud_modificacion) {
+
+                $response = [
+                    'error' => 'Ya existe una solicitud de modificación pendiente'
+                ];
+
+                $status = 400;
+
+            } else {
+
+                // Datos enviados desde frontend
+                $datos = $request->input('datos');
+
+                if (!$datos) {
+
+                    $response = [
+                        'error' => 'No se enviaron datos de modificación'
+                    ];
+
+                    $status = 400;
+
+                } else {
+
+                    DB::transaction(function () use ($reserva, $datos) {
+
+                        $reserva->solicitud_modificacion = true;
+
+                        // Guardar JSON
+                        $reserva->datos_modificacion = $datos;
+
+                        $reserva->save();
+                    });
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Enviar correo al administrador
+                    |--------------------------------------------------------------------------
+                    */
+                    /*
+                    $adminEmail = config('mail.admin_address');
+
+                    if ($adminEmail) {
+                        Mail::to($adminEmail)->send(
+                            new SolicitudModificacionReservaMail($reserva, $datos)
+                        );
+                    }
+                    */
+                    $response = [
+                        'success' => true,
+                        'message' => 'Solicitud de modificación enviada correctamente'
+                    ];
+                }
+            }
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            $response = [
                 'error' => 'Reserva no encontrada'
-            ], 404);
+            ];
+
+            $status = 404;
+
+        } catch (\Exception $e) {
+
+            $response = [
+                'error' => $e->getMessage()
+            ];
+
+            $status = 500;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Guardamos la solicitud pendiente
-        |--------------------------------------------------------------------------
-        */
-
-        $reserva->datos_modificacion = json_encode(
-            $request->input('datos')
-        );
-
-        $reserva->save();
-
-        return response()->json([
-            'message' => 'Solicitud de modificación registrada correctamente.'
-        ]);
+        return response()->json($response, $status);
     }
 
      /**

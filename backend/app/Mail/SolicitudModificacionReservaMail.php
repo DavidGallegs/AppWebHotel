@@ -10,25 +10,24 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 
-class ReservaCanceladaMail extends Mailable
+class SolicitudModificacionReservaMail extends Mailable
 {
     use Queueable, SerializesModels;
     public $reserva;
-    public $persona;
+    public $datos;
     /**
      * Create a new message instance.
      */
-    public function __construct($reserva, $persona)
+    public function __construct($reserva, $datos)
     {
         $this->reserva = $reserva;
-        $this->persona = $persona;
+        $this->datos = $datos;
     }
 
     public function build()
     {
-        return $this->subject('Cancelación de tu reserva')
-                    ->view('emails.reserva_cancelada');
+        return $this->subject('Solicitud de modificación de reserva')
+                    ->view('emails.solicitud_modificacion');
     }
 
-    
 }
