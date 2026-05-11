@@ -1,124 +1,244 @@
+/* =========================================
+   LAYOUT PRINCIPAL
+========================================= */
 .admin-layout {
   display: flex;
-  gap: 2rem;
-  min-height: 80vh;
-  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  font-family: sans-serif;
 }
 
-/* --- BARRA LATERAL --- */
 .admin-sidebar {
   width: 260px;
-  background: white;
+  background-color: #111827;
+  color: white;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.admin-nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border: none;
-  background: transparent;
-  color: #4b5563;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  text-align: left;
-  transition: all 0.2s ease;
+.admin-logo {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #3b82f6;
+  font-weight: 800;
 }
 
-.admin-nav-btn:hover { background: #f3f4f6; }
-.admin-nav-btn.active { background: #eff6ff; color: #1d4ed8; }
-
-/* --- ÁREA PRINCIPAL --- */
 .admin-main {
   flex: 1;
-  background: white;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* =========================================
+   NAVEGACIÓN Y BOTONES
+========================================= */
+.admin-nav-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0.75rem;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s;
+}
+
+.admin-nav-btn:hover {
+  background-color: #374151;
+}
+
+.admin-nav-btn.active {
+  background-color: #1f2937;
+}
+
+.admin-back-btn {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.admin-back-btn:hover {
+  background-color: #f9fafb;
+}
+
+/* =========================================
+   TARJETAS Y TABLAS
+========================================= */
+.admin-card {
+  background-color: white;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  overflow-x: auto; /* Por si la tabla es muy ancha */
+  border: 1px solid #e5e7eb;
 }
 
-.admin-title {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: #111827;
-  font-size: 1.5rem;
+.admin-table-container {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-/* --- TABLA DE RESERVAS --- */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-  font-size: 0.9rem;
+}
+
+.admin-table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .admin-table th {
-  background-color: #f9fafb;
-  color: #374151;
-  font-weight: 700;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #6b7280;
   padding: 1rem;
-  border-bottom: 2px solid #e5e7eb;
 }
 
 .admin-table td {
   padding: 1rem;
   border-bottom: 1px solid #f3f4f6;
-  color: #1f2937;
-  vertical-align: middle;
 }
 
-.admin-table tbody tr:hover {
-  background-color: #f9fafb;
-}
-
-/* --- ETIQUETAS DE ESTADO (Badges) --- */
+/* =========================================
+   ETIQUETAS Y ESTADOS (BADGES)
+========================================= */
 .badge {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.badge-success { background: #d1fae5; color: #065f46; } /* Verde suave */
-.badge-warning { background: #fef3c7; color: #92400e; } /* Amarillo suave */
-.badge-danger  { background: #fee2e2; color: #991b1b; } /* Rojo suave */
-.badge-neutral { background: #f3f4f6; color: #4b5563; } /* Gris */
-
-/* --- BOTONES DE ACCIÓN (Estilo Outline como en la foto) --- */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-outline {
-  background: transparent;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  align-self: flex-start;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  text-transform: capitalize;
 }
 
-.btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+.badge-pending { color: #b45309; background-color: #fef3c7; }
+.badge-approved { color: #1d4ed8; background-color: #dbeafe; }
+.badge-finished { color: #047857; background-color: #d1fae5; }
 
-.btn-blue { border: 1px solid #3b82f6; color: #3b82f6; }
-.btn-blue:hover:not(:disabled) { background: #eff6ff; }
+/* =========================================
+   BOTONES DE ACCIÓN
+========================================= */
+.btn-action {
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
 
-.btn-red { border: 1px solid #ef4444; color: #ef4444; }
-.btn-red:hover:not(:disabled) { background: #fef2f2; }
+.btn-action:hover { opacity: 0.9; }
+.btn-approve { background-color: #10b981; }
+.btn-checkin { background-color: #3b82f6; }
+.btn-danger { background-color: #ef4444; width: 100%; padding: 0.75rem; font-weight: 600; }
+.btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-green { border: 1px solid #10b981; color: #10b981; }
-.btn-green:hover:not(:disabled) { background: #ecfdf5; }
+/* Botones pequeños para solicitudes */
+.btn-small { padding: 2px 6px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.75rem;}
+.btn-small.accept-cancel { background-color: #b91c1c; color: white; }
+.btn-small.reject-cancel { background-color: white; border: 1px solid #b91c1c; color: #b91c1c; }
+.btn-small.accept-mod { background-color: #0369a1; color: white; }
+.btn-small.reject-mod { background-color: white; border: 1px solid #0369a1; color: #0369a1; }
 
-.btn-grey { border: 1px solid #d1d5db; color: #9ca3af; cursor: default; }
+/* =========================================
+   ALERTAS DE SOLICITUDES
+========================================= */
+.alert-box {
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  margin-top: 4px;
+}
+.alert-cancel { background-color: #fee2e2; color: #b91c1c; }
+.alert-mod { background-color: #e0f2fe; color: #0369a1; }
+.alert-title { font-weight: bold; margin-bottom: 4px; }
+
+/* =========================================
+   BLOQUEO DE FECHAS Y CALENDARIO
+========================================= */
+.bloqueo-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+.calendar-wrapper {
+  position: relative;
+}
+
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-card {
+  background-color: #111827;
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.summary-text {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+/* Modificador de React Day Picker para días ocupados */
+.day-picker-occupied {
+  color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  font-weight: bold !important;
+  text-decoration: line-through !important;
+}
+
+/* =========================================
+   ANIMACIONES
+========================================= */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,31 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css'; 
+import '../../styles/dashboardAdmin.css'; 
 import { api } from '../dashboard/api'; 
 import type { FullReservation } from '../dashboard/ReservationList'; 
-import { Calendar, ClipboardList, Ban, ArrowLeft, Check, X } from 'lucide-react';
+import { Calendar, ClipboardList, Ban, Users, ArrowLeft, Loader2, Euro } from 'lucide-react';
 import { QueryProvider } from '../dashboard/QueryProvider';
 
-// Importamos tus formularios externos
+// Importación de componentes hijos
 import ReservaHotel from '../formularios/reservaHotel/ReservaHotel';
 import ParteViajeros from '../formularios/parteViajeros/ParteViajeros';
+import CheckinWalkIn from './CheckinWalkIn';
 
 const AdminContent = () => {
   const queryClient = useQueryClient();
   
   // ESTADOS DE NAVEGACIÓN
-  const [pestañaActiva, setPestañaActiva] = useState<'reservas' | 'nuevaReserva' | 'vacaciones'>('reservas');
+  const [pestañaActiva, setPestañaActiva] = useState<'reservas' | 'nuevaReserva' | 'vacaciones' | 'walkin'>('reservas');
   const [reservaParaCheckin, setReservaParaCheckin] = useState<FullReservation | null>(null);
   
-  // ESTADOS PARA BLOQUEO DE FECHAS
+  // ESTADOS PARA BLOQUEO DE FECHAS (VACACIONES)
   const [rangoVacaciones, setRangoVacaciones] = useState<DateRange | undefined>();
-  const [diasOcupadosAdmin, setDiasOcupadosAdmin] = useState<Date[]>([]);
+  const [habitacionBloqueo, setHabitacionBloqueo] = useState<string>("1");
 
-  // 1. CARGA DE TODAS LAS RESERVAS
-  const { data: reservas, isLoading } = useQuery({
+  // --- QUERIES ---
+  const { data: reservas } = useQuery({
     queryKey: ['admin-reservations'],
     queryFn: async () => {
         const res = await api.get('/admin/reservations');
@@ -33,42 +35,29 @@ const AdminContent = () => {
     },
   });
 
-  // 2. CARGA DE OCUPACIÓN PARA EL CALENDARIO DE VACACIONES
-  useEffect(() => {
-    if (pestañaActiva === 'vacaciones') {
-      const cargarOcupacionGlobal = async () => {
-        try {
-          const res = await api.get('/ocupacion?habitacion=1'); 
-          if (res.data.diasOcupados) {
-            const fechas = res.data.diasOcupados.map((f: string) => startOfDay(parseISO(f)));
-            setDiasOcupadosAdmin(fechas);
-          }
-        } catch (error) {
-          console.error("Error al cargar ocupación para admin:", error);
-        }
-      };
-      cargarOcupacionGlobal();
-    }
-  }, [pestañaActiva]);
-
-  // MUTACIONES DE ACCIÓN
-  const aprobarReserva = useMutation({
-    mutationFn: async (id: string | number) => {
-      await api.patch(`/admin/reservations/${id}/approve`);
+  const { data: ocupacion, isLoading: cargandoOcupacion } = useQuery({
+    queryKey: ['admin-occupancy', habitacionBloqueo],
+    queryFn: async () => {
+      const res = await api.get(`/ocupacion?habitacion=${habitacionBloqueo}`);
+      if (res.data.diasOcupados) {
+        return res.data.diasOcupados.map((f: string) => startOfDay(parseISO(f)));
+      }
+      return [];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-      alert("Reserva aprobada.");
-    }
+    enabled: pestañaActiva === 'vacaciones', 
   });
 
-  const rechazarReserva = useMutation({
-    mutationFn: async (id: string | number) => {
-      await api.patch(`/admin/reservations/${id}/reject`);
-    },
+  // --- MUTACIONES ---
+  const aprobarReserva = useMutation({
+    mutationFn: async (id: string | number) => await api.patch(`/admin/reservations/${id}/approve`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reservations'] })
+  });
+
+  const confirmarIngresoYAprobar = useMutation({
+    mutationFn: async (id: string | number) => await api.post(`/admin/reservations/${id}/confirmar-pago`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-      alert("Acción realizada.");
+      alert("Pago verificado y reserva aprobada correctamente.");
     }
   });
 
@@ -76,23 +65,22 @@ const AdminContent = () => {
     mutationFn: async ({ id, accion, tipo }: { id: string | number, accion: 'accept' | 'reject', tipo: 'mod' | 'cancel' }) => {
       await api.post(`/admin/reservations/${id}/resolve`, { accion, tipo });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-      alert("Solicitud procesada correctamente.");
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reservations'] })
   });
 
   const bloquearFechas = useMutation({
     mutationFn: async () => {
       if (!rangoVacaciones?.from || !rangoVacaciones?.to) return;
       await api.post('/admin/bloqueos', {
+        habitacion_id: habitacionBloqueo,
         fechaInicio: format(rangoVacaciones.from, 'yyyy-MM-dd'),
         fechaFin: format(rangoVacaciones.to, 'yyyy-MM-dd')
       });
     },
     onSuccess: () => {
-      alert("Fechas bloqueadas correctamente.");
+      queryClient.invalidateQueries({ queryKey: ['admin-occupancy', habitacionBloqueo] });
       setRangoVacaciones(undefined);
+      alert("Fechas bloqueadas correctamente.");
     }
   });
 
@@ -102,110 +90,144 @@ const AdminContent = () => {
   };
 
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: '#f3f4f6' }}>
+    <div className="admin-layout">
       
       {/* BARRA LATERAL */}
-      <aside style={{ width: '260px', background: '#111827', color: 'white', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '2rem', color: '#3b82f6', fontWeight: 800 }}>Admin Rural</h2>
+      <aside className="admin-sidebar">
+        <h2 className="admin-logo">Admin Rural</h2>
         
         <button 
           onClick={() => { setPestañaActiva('reservas'); setReservaParaCheckin(null); }}
-          style={{ background: pestañaActiva === 'reservas' ? '#1f2937' : 'transparent', border: 'none', color: 'white', padding: '0.75rem', textAlign: 'left', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+          className={`admin-nav-btn ${pestañaActiva === 'reservas' ? 'active' : ''}`}
         >
           <ClipboardList size={20} /> Listado de Reservas
         </button>
 
         <button 
+          onClick={() => { setPestañaActiva('walkin'); setReservaParaCheckin(null); }}
+          className={`admin-nav-btn ${pestañaActiva === 'walkin' ? 'active' : ''}`}
+        >
+          <Users size={20} /> Check-in Directo
+        </button>
+
+        <button 
           onClick={() => { setPestañaActiva('nuevaReserva'); setReservaParaCheckin(null); }}
-          style={{ background: pestañaActiva === 'nuevaReserva' ? '#1f2937' : 'transparent', border: 'none', color: 'white', padding: '0.75rem', textAlign: 'left', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+          className={`admin-nav-btn ${pestañaActiva === 'nuevaReserva' ? 'active' : ''}`}
         >
           <Calendar size={20} /> Reserva Manual
         </button>
 
         <button 
           onClick={() => { setPestañaActiva('vacaciones'); setReservaParaCheckin(null); }}
-          style={{ background: pestañaActiva === 'vacaciones' ? '#1f2937' : 'transparent', border: 'none', color: 'white', padding: '0.75rem', textAlign: 'left', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+          className={`admin-nav-btn ${pestañaActiva === 'vacaciones' ? 'active' : ''}`}
         >
           <Ban size={20} /> Bloquear Fechas
         </button>
       </aside>
 
       {/* ÁREA PRINCIPAL */}
-      <main style={{ flex: 1, padding: '2rem' }}>
+      <main className="admin-main">
         
-        {/* MODO CHECK-IN ACTIVO */}
+        {/* MODO CHECK-IN */}
         {reservaParaCheckin && (
-          <div>
-            <button onClick={() => setReservaParaCheckin(null)} style={{ background: 'none', border: '1px solid #d1d5db', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
-              <ArrowLeft size={16} /> Volver
+          <div className="fade-in">
+            <button onClick={() => setReservaParaCheckin(null)} className="admin-back-btn">
+              <ArrowLeft size={16} /> Volver al listado
             </button>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-               <h3 style={{ marginBottom: '1rem' }}>Check-in: {reservaParaCheckin.titular?.nombre || reservaParaCheckin.nombre}</h3>
+            <div className="admin-card">
+               <h3 style={{ marginBottom: '1.5rem' }}>Check-in: {reservaParaCheckin.titular?.nombre || reservaParaCheckin.nombre}</h3>
                <ParteViajeros reservaId={reservaParaCheckin.id} />
             </div>
           </div>
         )}
 
-        {/* LISTADO DE RESERVAS */}
+        {/* PESTAÑA: RESERVAS */}
         {pestañaActiva === 'reservas' && !reservaParaCheckin && (
-          <div>
-            <h2 style={{ marginBottom: '1.5rem' }}>Gestión de Reservas</h2>
-            <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                  <tr style={{ textAlign: 'left', fontSize: '0.85rem', color: '#6b7280' }}>
-                    <th style={{ padding: '1rem' }}>ID</th>
-                    <th style={{ padding: '1rem' }}>Titular</th>
-                    <th style={{ padding: '1rem' }}>Fechas</th>
-                    <th style={{ padding: '1rem' }}>Estado / Solicitudes</th>
-                    <th style={{ padding: '1rem' }}>Acciones</th>
+          <div className="fade-in">
+            <h2 style={{ marginBottom: '1.5rem', fontWeight: 700 }}>Gestión de Reservas</h2>
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID / Titular</th>
+                    <th>Fechas</th>
+                    <th>Estado / Solicitudes</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody style={{ fontSize: '0.9rem' }}>
+                <tbody>
                   {reservas?.map((res: FullReservation) => (
-                    <tr key={res.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td style={{ padding: '1rem' }}>#{res.id}</td>
-                      <td style={{ padding: '1rem' }}>
+                    <tr key={res.id}>
+                      <td>
                         <div style={{ fontWeight: 600 }}>{res.titular?.nombre || res.nombre} {res.titular?.apellido1 || res.apellido1}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Hab: {res.habitacion || '1'}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>ID: #{res.id} | Hab: {res.habitacion || '1'}</div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        {formatearFecha(res.fechaEntrada)} - {formatearFecha(res.fechaSalida)}
-                      </td>
-                      <td style={{ padding: '1rem' }}>
+                      <td>{formatearFecha(res.fechaEntrada)} - {formatearFecha(res.fechaSalida)}</td>
+                      <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          {res.status === 'pending' && <span style={{ color: '#b45309', background: '#fef3c7', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', alignSelf: 'start' }}>Pendiente</span>}
-                          {res.status === 'approved' && <span style={{ color: '#1d4ed8', background: '#dbeafe', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', alignSelf: 'start' }}>Confirmada</span>}
-                          {res.status === 'finished' && <span style={{ color: '#047857', background: '#d1fae5', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', alignSelf: 'start' }}>Finalizada</span>}
+                          <span className={`badge badge-${res.status}`}>{res.status}</span>
                           
-                          {/* Alertas de solicitud */}
-                          {res.solicitud_cancelacion === 1 && (
-                            <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '6px', borderRadius: '6px', fontSize: '0.7rem', marginTop: '4px' }}>
-                              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>⚠️ Pide Anular</div>
+                          {/* ESTADO DEL PAGO */}
+                          {res.status === 'pending' && res.estado_pago === 'pendiente' && (
+                             <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>⏳ Faltan los fondos</span>
+                          )}
+
+                          {/* ALERTAS */}
+                          {res.estado_pago === 'devolucion_solicitada' && (
+                            <div className="alert-box alert-cancel" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                              <div className="alert-title">🚨 ANULACIÓN + DEVOLUCIÓN</div>
+                              <div style={{ fontSize: '0.7rem', marginBottom: '4px' }}>El cliente canceló y pide su dinero.</div>
                               <div style={{ display: 'flex', gap: '4px' }}>
-                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} style={{ background: '#b91c1c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px' }}>Aceptar</button>
-                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'cancel' })} style={{ background: 'white', border: '1px solid #b91c1c', color: '#b91c1c', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px' }}>No</button>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} className="btn-small accept-cancel">Aceptar y Marcar Devuelto</button>
                               </div>
                             </div>
                           )}
-                          {res.datos_modificacion && (
-                            <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '6px', borderRadius: '6px', fontSize: '0.7rem', marginTop: '4px' }}>
-                              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>📅 Pide Cambio</div>
+
+                          {res.solicitud_cancelacion === 1 && res.estado_pago !== 'devolucion_solicitada' && (
+                            <div className="alert-box alert-cancel">
+                              <div className="alert-title">⚠️ Pide Anulación (Sin fondos)</div>
                               <div style={{ display: 'flex', gap: '4px' }}>
-                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'mod' })} style={{ background: '#0369a1', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px' }}>Aceptar</button>
-                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'mod' })} style={{ background: 'white', border: '1px solid #0369a1', color: '#0369a1', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px' }}>No</button>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} className="btn-small accept-cancel">Aceptar</button>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'cancel' })} className="btn-small reject-cancel">No</button>
+                              </div>
+                            </div>
+                          )}
+
+                          {res.datos_modificacion && (
+                            <div className="alert-box alert-mod">
+                              <div className="alert-title">📅 Pide Cambio de Fecha</div>
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'mod' })} className="btn-small accept-mod">Aceptar</button>
+                                <button onClick={() => resolverSolicitud.mutate({ id: res.id, accion: 'reject', tipo: 'mod' })} className="btn-small reject-mod">No</button>
                               </div>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '1rem' }}>
-                        {res.status === 'pending' && (
-                          <button onClick={() => aprobarReserva.mutate(res.id)} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer' }}>Aprobar</button>
-                        )}
-                        {res.status === 'approved' && (
-                          <button onClick={() => setReservaParaCheckin(res)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer' }}>Hacer Check-in</button>
-                        )}
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                          
+                          {/* Lógica del Botón Aprobar según pago */}
+                          {res.status === 'pending' && (res.estado_pago === 'pendiente' || !res.estado_pago) && (
+                             <button disabled style={{ background: '#e5e7eb', color: '#9ca3af', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'not-allowed', fontSize: '0.85rem', fontWeight: 500 }}>
+                               Aprobar (Falta Pago)
+                             </button>
+                          )}
+
+                          {res.status === 'pending' && res.estado_pago === 'notificado' && (
+                             <button 
+                               onClick={() => { if(confirm('¿Has verificado el ingreso en la cuenta del banco? Al aceptar, la reserva se aprobará.')) confirmarIngresoYAprobar.mutate(res.id) }} 
+                               className="btn-action btn-approve"
+                               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                             >
+                               <Euro size={16} /> Verificar Ingreso y Aprobar
+                             </button>
+                          )}
+
+                          {res.status === 'approved' && (
+                             <button onClick={() => setReservaParaCheckin(res)} className="btn-action btn-checkin">Hacer Check-in</button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -215,53 +237,74 @@ const AdminContent = () => {
           </div>
         )}
 
-        {/* PESTAÑA: BLOQUEO DE FECHAS (VACACIONES) */}
-        {pestañaActiva === 'vacaciones' && !reservaParaCheckin && (
-          <div>
-            <h2 style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Ban color="#ef4444" /> Bloqueo de Vacaciones
+        {/* PESTAÑA: WALK-IN */}
+        {pestañaActiva === 'walkin' && (
+          <CheckinWalkIn />
+        )}
+
+        {/* PESTAÑA: BLOQUEO POR HABITACIÓN */}
+        {pestañaActiva === 'vacaciones' && (
+          <div className="fade-in">
+            <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Ban color="#ef4444" /> Bloqueo de Fechas por Habitación
             </h2>
-            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Las fechas en rojo ya tienen reservas de clientes.</p>
-            
-            <div style={{ display: 'inline-block', background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                <DayPicker
-                  mode="range"
-                  selected={rangoVacaciones}
-                  onSelect={setRangoVacaciones}
-                  locale={es}
-                  disabled={[
-                    { before: new Date() },
-                    ...diasOcupadosAdmin // Bloqueamos los días reservados
-                  ]}
-                  modifiers={{ ocupado: diasOcupadosAdmin }}
-                  modifiersStyles={{
-                    ocupado: { 
-                      color: '#ef4444', 
-                      backgroundColor: '#fee2e2',
-                      fontWeight: 'bold',
-                      textDecoration: 'line-through'
-                    }
-                  }}
-                />
-            </div>
-            
-            <div style={{ marginTop: '1.5rem' }}>
-              <button 
-                onClick={() => bloquearFechas.mutate()}
-                disabled={!rangoVacaciones?.from || !rangoVacaciones?.to}
-                style={{ background: '#ef4444', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, opacity: (!rangoVacaciones?.from || !rangoVacaciones?.to) ? 0.5 : 1 }}
-              >
-                Confirmar Bloqueo Manual
-              </button>
+
+            <div className="bloqueo-grid">
+              <div className="admin-card">
+                <div className="form-group">
+                  <label className="form-label">1. Selecciona Habitación:</label>
+                  <select 
+                    value={habitacionBloqueo} 
+                    onChange={(e) => setHabitacionBloqueo(e.target.value)}
+                    className="form-select"
+                  >
+                    <option value="1">Habitación 1 (Norte)</option>
+                    <option value="2">Habitación 2 (Sur)</option>
+                  </select>
+                </div>
+
+                <label className="form-label">2. Selecciona rango de fechas a cerrar:</label>
+                <div className="calendar-wrapper">
+                  {cargandoOcupacion && (
+                    <div className="loader-overlay">
+                      <Loader2 className="animate-spin" />
+                    </div>
+                  )}
+                  <DayPicker
+                    mode="range"
+                    selected={rangoVacaciones}
+                    onSelect={setRangoVacaciones}
+                    locale={es}
+                    disabled={[{ before: new Date() }, ...(ocupacion || [])]}
+                    modifiers={{ ocupado: ocupacion || [] }}
+                    modifiersClassNames={{ ocupado: 'day-picker-occupied' }}
+                  />
+                </div>
+              </div>
+
+              <div className="summary-card">
+                <h4 style={{ margin: '0 0 1rem 0' }}>Resumen del Bloqueo</h4>
+                <p className="summary-text">Habitación: <span style={{ color: 'white' }}>{habitacionBloqueo}</span></p>
+                <p className="summary-text">Inicio: <span style={{ color: 'white' }}>{rangoVacaciones?.from ? format(rangoVacaciones.from, 'dd/MM/yyyy') : '-'}</span></p>
+                <p className="summary-text">Fin: <span style={{ color: 'white' }}>{rangoVacaciones?.to ? format(rangoVacaciones.to, 'dd/MM/yyyy') : '-'}</span></p>
+                
+                <button 
+                  onClick={() => bloquearFechas.mutate()}
+                  disabled={!rangoVacaciones?.from || !rangoVacaciones?.to || bloquearFechas.isPending}
+                  className="btn-action btn-danger"
+                >
+                  {bloquearFechas.isPending ? 'Bloqueando...' : 'Confirmar Bloqueo Manual'}
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* PESTAÑA: RESERVA MANUAL */}
-        {pestañaActiva === 'nuevaReserva' && !reservaParaCheckin && (
-          <div>
-            <h2 style={{ marginBottom: '1.5rem' }}>Crear Reserva Interna</h2>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+        {pestañaActiva === 'nuevaReserva' && (
+          <div className="fade-in">
+            <h2 style={{ marginBottom: '1.5rem' }}>Crear Reserva Manual</h2>
+            <div className="admin-card">
               <ReservaHotel />
             </div>
           </div>
