@@ -48,6 +48,7 @@ class ReservationAdminController extends Controller
                     'habitacion' => $reserva->habitaciones->pluck('idHabitacion')->first(),
 
                     'numPersonas' => $reserva->habitaciones->first()?->pivot->numPersonas,
+                    'estado_pago' => $reserva->estado_pago,
 
                     'titular' => [
                         'nombre' => $reserva->persona->nombre,
@@ -69,7 +70,7 @@ class ReservationAdminController extends Controller
 
         return response()->json($response, $status);
     }
-
+    /*
     public function approveReservation($id)
     {
         $response = null;
@@ -118,13 +119,13 @@ class ReservationAdminController extends Controller
                         'createdAt' => now(),
                         'updatedAt' => now()
                     ]);
-                    /*
+                    
                     ViajeroParte::create([
                         'idParte' => $parte->idParte,
                         'idPersona' => $persona->idPersona,
                         'rol' => $titular['rol'],
                     ]);
-                    */
+                    
                     // 5.- Enviar email de confirmación
                     Mail::to($reserva->persona->email)
                         ->send(new ReservaConfirmadaMail($reserva));
@@ -153,7 +154,7 @@ class ReservationAdminController extends Controller
 
         return response()->json($response, $status);
     }
-
+    */
     public function rejectReservation($id)
     {
         $response = null;

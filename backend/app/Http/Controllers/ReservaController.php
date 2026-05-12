@@ -593,6 +593,7 @@ class ReservaController extends Controller
                     'habitacion' => $reserva->habitaciones->pluck('idHabitacion')->first(),
 
                     'numPersonas' => $reserva->habitaciones->first()?->pivot->numPersonas,
+                    'estado_pago' => $reserva->estado_pago,
 
                     'titular' => [
                         'nombre' => $reserva->persona->nombre,

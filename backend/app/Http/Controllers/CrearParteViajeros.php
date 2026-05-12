@@ -90,7 +90,7 @@ class CrearParteViajeros extends Controller
             $validatedViajeros[$index] = $viajero;
             $personas[$index] = $persona;
         }
-
+        
         // 3. Insertar en viajero_parte
         foreach ($personas as $index => $persona) {
             $viajero = $validatedViajeros[$index];
@@ -103,6 +103,17 @@ class CrearParteViajeros extends Controller
             ]);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR RESERVA A FINISHED
+        |--------------------------------------------------------------------------
+        */
+
+        $reserva = Reserva::findOrFail($request->reserva_id);
+
+        $reserva->estado = 'finished';
+        $reserva->updatedAt = now();
+        $reserva->save();
         
 
         // Responder al frontend con JSON indicando que la reserva se ha creado correctamente.

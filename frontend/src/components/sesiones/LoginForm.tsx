@@ -117,7 +117,7 @@ export default function LoginForm() {
                 type="text" 
                 id="otp" 
                 maxLength={6}
-                placeholder="123456" 
+                placeholder="_ _ _ _ _ _" 
                 value={codigoOTP}
                 onChange={(e) => setCodigoOTP(e.target.value)}
                 style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '1.2rem', fontWeight: 'bold' }}

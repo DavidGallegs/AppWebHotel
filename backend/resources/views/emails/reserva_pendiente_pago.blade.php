@@ -44,7 +44,7 @@
 
         <p style="text-align:center; margin-top:30px;">
 
-            <a href="http://tuweb.com/dashboard"
+            <a href="http://localhost:4321/dashboard"
                style="
                     background:#2c7a7b;
                     color:white;

@@ -20,11 +20,17 @@ use App\Http\Controllers\Auth\PasswordResetController;
 
 /*******************************Admin************************* */
 // Ruta para obtener todas las reservas (solo para admin)
-Route::middleware('auth:sanctum')->get('/admin/reservations', [ReservationAdminController::class, 'indexAdmin']); //funciona
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
+    // Ruta para obtener todas las reservas (solo para admin)
+    Route::get('/reservations', [ReservationAdminController::class, 'indexAdmin']);
+
+    // Ruta para dar de alta a los viajeros en el parte de viajeros (solo para admin)
+    Route::post('/reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
+});
 
 // Ruta para aprobar una reserva (solo para admin)
-Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approveReservation']);
+//Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approveReservation']); //inutilizada
 
 // Ruta para rechazar una reserva (solo para admin)
 Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'rejectReservation']);
@@ -38,8 +44,10 @@ Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
 // Ruta para confirmar pago de una reserva (solo para admin)
 Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
 
-//Ruta para confirmar el pago de una reserva (solo para admin)
-Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
+
+//Route::post('admin/reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
+
+
 
 /****************************Viajeros***************************** */
 
@@ -74,7 +82,7 @@ Route::get('/ocupacion', [ReservaController::class, 'ocupacion']); //funcoina
 
 
 // Ruta para crear parte de viajeros
-Route::post('/viajeros', [CrearParteViajeros::class, 'parteViajeros']);
+//Route::post('reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
 
 
 
