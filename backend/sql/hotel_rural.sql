@@ -3,7 +3,6 @@ CREATE DATABASE IF NOT EXISTS hotel_rural;
 USE hotel_rural;
 START TRANSACTION;
 
-
 CREATE TABLE `arrendador` (
   `codigo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tipo` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -13,7 +12,6 @@ CREATE TABLE `arrendador` (
   `tipoDocumento` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `documento` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 INSERT INTO `arrendador` (`codigo`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
@@ -26,14 +24,9 @@ CREATE TABLE `bloqueo_fechas` (
   `idHabitacion` int DEFAULT NULL,
   `fechaInicio` date NOT NULL,
   `fechaFin` date NOT NULL,
-  `motivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `motivo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
-INSERT INTO `bloqueo_fechas` (`idBloqueo`, `idHabitacion`, `fechaInicio`, `fechaFin`, `motivo`, `createdAt`) VALUES
-(1, 1, '2026-05-25', '2026-05-28', 'Vacaciones', '2026-05-07 11:32:58');
 
 
 
@@ -69,6 +62,8 @@ CREATE TABLE `contrato` (
   `fechaPago` date DEFAULT NULL,
   `precioTotal` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 
 
 
@@ -143,10 +138,11 @@ CREATE TABLE `parte` (
 
 
 CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 CREATE TABLE `persona` (
@@ -208,10 +204,11 @@ CREATE TABLE `reserva` (
   `codigoEstablecimiento` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fechaEntrada` date NOT NULL,
   `fechaSalida` date NOT NULL,
-  `estado` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estado` enum('pending','approved','cancelled','finished') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `solicitud_cancelacion` tinyint(1) NOT NULL DEFAULT '0',
   `solicitud_modificacion` tinyint(1) NOT NULL DEFAULT '0',
   `datos_modificacion` json DEFAULT NULL,
+  `estado_pago` enum('pendiente','notificado','pagado','devolucion_solicitada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pendiente',
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -250,7 +247,7 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `rol` enum('user','admin') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user'
+  `rol` enum('user','admin') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -467,5 +464,4 @@ ALTER TABLE `viajero_parte`
   ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;
-
 
