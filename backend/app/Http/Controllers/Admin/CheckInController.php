@@ -75,6 +75,7 @@ class CheckInController extends Controller
                     'fechaEntrada' => $request->fecha_entrada,
                     'fechaSalida' => $request->fecha_salida,
                     'estado' => 'finished',
+                    'estado_pago' => 'pagado',
                 ]);
 
                 /*
@@ -83,7 +84,8 @@ class CheckInController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $referenciaContrato = 'WALKIN-' . time();
+            
+                $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
 
                 $contrato = Contrato::create([
 

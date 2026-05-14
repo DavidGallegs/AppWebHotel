@@ -70,6 +70,8 @@ class ReservationAdminController extends Controller
 
         return response()->json($response, $status);
     }
+
+
     /*
     public function approveReservation($id)
     {
@@ -183,13 +185,16 @@ class ReservationAdminController extends Controller
                     $contrato = Contrato::where('idReserva', $reserva->idReserva)->first();
 
                     if ($contrato) {
-                        $contrato->estado = 'cancelled';
+                        $contrato->estado = 'cancelado';
                         $contrato->save();
                     }
 
                     // 3. Enviar email de cancelación
                     Mail::to($reserva->persona->email)
-                        ->send(new ReservaCanceladaMail($reserva));
+                            ->send(new ReservaCanceladaMail(
+                                $reserva,
+                                $reserva->persona
+                            ));
                 });
 
                 $response = [

@@ -236,12 +236,24 @@ const ReservationListContent = () => {
               isPending={false}
               onCancelar={() => setReservaEditando(null)}
               onGuardar={(data) => {
+                
+                // --- LA MAGIA (VERSIÓN TYPESCRIPT) ---
+                // Extraemos "habitacion" por un lado, y guardamos todo lo demás en "restoDatos"
+                const { habitacion, ...restoDatos } = data;
+                
+                // Creamos un objeto completamente nuevo para el backend
+                const payloadAlBackend = {
+                  ...restoDatos,             // Metemos fechas, titular, etc.
+                  idHabitacion: habitacion   // Le damos a la habitación el nombre que pide el back
+                };
+
+                // Enviamos los datos ya transformados
                 if(reservaEditando.status === 'pending') {
-                  // Si tienes endpoint de editar directo para pendientes ponlo aquí, sino usa solicitarMod
-                  solicitarMod({ id: reservaEditando.id, data });
+                  solicitarMod({ id: reservaEditando.id, data: payloadAlBackend });
                 } else {
-                  solicitarMod({ id: reservaEditando.id, data });
+                  solicitarMod({ id: reservaEditando.id, data: payloadAlBackend });
                 }
+                
                 setReservaEditando(null);
               }}
             />

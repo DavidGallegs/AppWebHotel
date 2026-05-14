@@ -22,84 +22,110 @@ class NotificacionController extends Controller
         $tipo = $request->tipo;
         $reservaId = $request->reservaId;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CARGAR RESERVA
-        |--------------------------------------------------------------------------
-        */
-
-        $reserva = Reserva::with('titular')
-            ->where('idReserva', $reservaId)
-            ->first();
-
-        if (!$reserva) {
-
-            return response()->json([
-                'error' => 'Reserva no encontrada'
-            ], 404);
-        }
+        $response = null;
+        $status = 200;
 
         try {
 
-            switch ($tipo) {
+            $reserva = Reserva::with('persona')
+                ->where('idReserva', $reservaId)
+                ->first();
+
+            if (!$reserva) {
+
+                $response = [
+                    'error' => 'Reserva no encontrada'
+                ];
+
+                $status = 404;
+
+            } else {
 
                 /*
                 |--------------------------------------------------------------------------
-                | USUARIO -> ADMIN
+                | REGLA DE NEGOCIO
                 |--------------------------------------------------------------------------
                 */
 
-                case 'solicitud_modificacion_admin':
+                if ($tipo === 'solicitud_modificacion_admin') {
 
-                    Mail::to(config('mail.admin_address'))
+                    // 🔴 pending → no email
+                    if ($reserva->estado === 'pending') {
 
-                        // Cola
-                        ->send(
-                            new SolicitudModificacionReservaMail(
-                                $reserva,
-                                $datos = $reserva->datos_modificacion // Aquí puedes pasar los datos que necesites al correo
-                            )
-                        );
+                        $response = [
+                            'success' => true,
+                            'message' => 'Reserva en pendiente: no requiere notificación'
+                        ];
 
-                    break;
+                    } else {
 
-                case 'solicitud_cancelacion_admin':
+                        // 🟡 approved → email admin
+                        $datos = $reserva->datos_modificacion;
 
-                    Mail::to(config('mail.admin_address'))
+                        if (is_string($datos)) {
+                            $datos = json_decode($datos, true);
+                        }
 
-                        ->send(
-                            new SolicitudCancelacionReservaMail(
-                                $reserva
-                            )
-                        );
+                        Mail::to(config('mail.admin_address'))
+                            ->send(
+                                new SolicitudModificacionReservaMail(
+                                    $reserva,
+                                    $datos ?? [
+                                        'reserva' => [],
+                                        'titular' => []
+                                    ]
+                                )
+                            );
 
-                    break;
+                        $response = [
+                            'success' => true,
+                            'message' => 'Notificación de modificación enviada correctamente'
+                        ];
+                    }
 
-                
-                
+                } elseif ($tipo === 'solicitud_cancelacion_admin') {
 
-                    break;
+                    if ($reserva->estado === 'pending') {
 
-                default:
+                        $response = [
+                            'success' => true,
+                            'message' => 'Cancelación en pendiente: sin notificación'
+                        ];
 
-                    return response()->json([
-                        'error' => 'Tipo de notificación inválido',
-                        
-                    ], 400);
+                    } else {
+
+                        Mail::to(config('mail.admin_address'))
+                            ->send(
+                                new SolicitudCancelacionReservaMail($reserva)
+                            );
+
+                        $response = [
+                            'success' => true,
+                            'message' => 'Notificación de cancelación enviada correctamente'
+                        ];
+                    }
+
+                } else {
+
+                    $response = [
+                        'error' => 'Tipo de notificación inválido'
+                    ];
+
+                    $status = 400;
+                }
             }
-
-            return response()->json([
-                'message' => 'Notificación enviada correctamente.'
-            ]);
 
         } catch (\Exception $e) {
 
-            return response()->json([
+            $response = [
                 'error' => 'Error enviando la notificación',
                 'detalle' => $e->getMessage(),
                 'admin_address' => env('MAIL_ADMIN_ADDRESS')
-            ], 500);
+            ];
+
+            $status = 500;
         }
+
+        return response()->json($response, $status);
     }
 }

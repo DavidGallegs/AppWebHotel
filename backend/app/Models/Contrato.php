@@ -9,7 +9,13 @@ class Contrato extends Model
 {
     // Nombre exacto de la tabla
     protected $table = 'contrato';
-    
+
+    protected $primaryKey = 'referencia';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     public $timestamps = false;
 
     protected $fillable = [

@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 //Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approveReservation']); //inutilizada
 
 // Ruta para rechazar una reserva (solo para admin)
-Route::patch('/admin/reservations/{id}/reject', [ReservationAdminController::class, 'rejectReservation']);
+Route::delete('/admin/reservations/{id}', [ReservationAdminController::class, 'rejectReservation']);
 
 // Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);

@@ -440,29 +440,24 @@ class ReservaController extends Controller
 
         try {
 
-            $reserva = Reserva::findOrFail($id);
+            $reserva = Reserva::with('persona')->findOrFail($id);
 
-            // Solo reservas aprobadas
-            if ($reserva->estado !== 'approved') {
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDAR ESTADO
+            |--------------------------------------------------------------------------
+            */
 
-                $response = [
-                    'error' => 'Solo se pueden modificar reservas aprobadas'
-                ];
-
-                $status = 400;
-
-            // Ya existe solicitud
-            } elseif ($reserva->solicitud_modificacion) {
+            if (in_array($reserva->estado, ['cancelled', 'finished'])) {
 
                 $response = [
-                    'error' => 'Ya existe una solicitud de modificación pendiente'
+                    'error' => 'La reserva no puede modificarse'
                 ];
 
                 $status = 400;
 
             } else {
 
-                // Datos enviados desde frontend
                 $datos = $request->input('datos');
 
                 if (!$datos) {
@@ -477,31 +472,71 @@ class ReservaController extends Controller
 
                     DB::transaction(function () use ($reserva, $datos) {
 
-                        $reserva->solicitud_modificacion = true;
+                        $titular = $datos['titular'] ?? null;
+                        unset($datos['titular']);
 
-                        // Guardar JSON
-                        $reserva->datos_modificacion = $datos;
+                        /*
+                        |--------------------------------------------------------------------------
+                        | RESERVA PENDING -> MODIFICACIÓN DIRECTA
+                        |--------------------------------------------------------------------------
+                        */
 
+                        if ($reserva->estado === 'pending') {
+
+                            // actualizar reserva base
+                            $reserva->fechaEntrada = $datos['fechaEntrada'] ?? $reserva->fechaEntrada;
+                            $reserva->fechaSalida  = $datos['fechaSalida'] ?? $reserva->fechaSalida;
+
+                            // actualizar titular (persona)
+                            if ($titular) {
+                                $reserva->persona->update($titular);
+                            }
+
+                            // actualizar reserva_habitacion
+                            if (isset($datos['idHabitacion'], $datos['numPersonas'])) {
+
+                                DB::table('reserva_habitacion')
+                                    ->where('idReserva', $reserva->idReserva)
+                                    ->where('idHabitacion', $datos['idHabitacion'])
+                                    ->update([
+                                        'numPersonas' => $datos['numPersonas']
+                                    ]);
+                            }
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | RESERVA APROBADA -> SOLICITUD MODIFICACIÓN
+                        |--------------------------------------------------------------------------
+                        */
+
+                        } else {
+
+                            if ($reserva->solicitud_modificacion) {
+                                throw new \Exception('Ya existe una solicitud de modificación pendiente');
+                            }
+
+                            $reserva->solicitud_modificacion = 1;
+
+                            $reserva->datos_modificacion = [
+                                'reserva' => [
+                                    'fechaEntrada' => $datos['fechaEntrada'] ?? null,
+                                    'fechaSalida'  => $datos['fechaSalida'] ?? null,
+                                    'idHabitacion' => $datos['idHabitacion'] ?? null,
+                                    'numPersonas'  => $datos['numPersonas'] ?? null,
+                                ],
+                                'titular' => $titular
+                            ];
+                        }
+
+                        $reserva->updatedAt = now();
                         $reserva->save();
                     });
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Enviar correo al administrador
-                    |--------------------------------------------------------------------------
-                    */
-                    /*
-                    $adminEmail = config('mail.admin_address');
-
-                    if ($adminEmail) {
-                        Mail::to($adminEmail)->send(
-                            new SolicitudModificacionReservaMail($reserva, $datos)
-                        );
-                    }
-                    */
                     $response = [
                         'success' => true,
-                        'message' => 'Solicitud de modificación enviada correctamente'
+                        'message' => $reserva->estado === 'pending'
+                            ? 'Reserva modificada correctamente'
+                            : 'Solicitud de modificación enviada correctamente'
                     ];
                 }
             }

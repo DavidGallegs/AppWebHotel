@@ -34,7 +34,7 @@ class AdminReservaController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if ($reserva->estado_pago !== 'notificado') {
+            if (!in_array($reserva->estado_pago, ['pendiente', 'notificado'])) { 
 
                 $response = [
                     'error' => 'El pago aún no ha sido notificado'
