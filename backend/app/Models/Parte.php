@@ -20,4 +20,24 @@ class Parte extends Model
         'createdAt',
         'updatedAt'
     ];
+
+    public function contrato()
+    {
+        return $this->belongsTo(
+            Contrato::class,
+            'referenciaContrato',
+            'referencia'
+        );
+    }
+
+    public function viajeros()
+    {
+        return $this->belongsToMany(
+            Persona::class,
+            'viajero_parte',
+            'idParte',
+            'idPersona'
+        )
+        ->withPivot('rol', 'parentesco');
+    }
 }
