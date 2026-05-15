@@ -1,20 +1,17 @@
-import { useState } from 'react';
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Users, Save, Loader2, AlertTriangle, Info } from "lucide-react";
 
-import { esquemaParteViajeros, type TParteViajeros } from "../formularios/parteViajeros/esquemaViajeros"; 
+import { esquemaWalkIn, type TWalkIn } from "./esquemaWalkIn"; 
 import { SeccionViajero } from "../formularios/parteViajeros/SeccionViajero";
 import { SeccionFechas } from "../formularios/reservaHotel/SeccionFechas"; 
-
-import { api } from "../dashboard/api";
-import { Users, Save, Loader2, AlertTriangle } from "lucide-react";
+import { useAdmin } from "./useAdmin";
 
 export default function CheckinWalkIn() {
-    const [enviando, setEnviando] = useState(false);
+    const { mutations } = useAdmin();
 
-    const methods = useForm<any>({
-        // Mantenemos el resolver de viajeros, pero permitimos campos extra como fechas
-        resolver: zodResolver(esquemaParteViajeros),
+    const methods = useForm<TWalkIn>({
+        resolver: zodResolver(esquemaWalkIn),
         defaultValues: {
             habitacion: "1",
             fechaEntrada: "",
@@ -28,64 +25,43 @@ export default function CheckinWalkIn() {
         name: "viajeros"
     });
 
-    const onSubmit = async (data: any) => {
-        // DEPUREMOS: Mira la consola (F12) al dar al botón para ver qué nombres de campos llegan
-        console.log("Datos del formulario recibidos:", data);
+    const onSubmit = (data: TWalkIn) => {
+        const payload = {
+            habitacion_id: data.habitacion,
+            fecha_entrada: data.fechaEntrada,
+            fecha_salida: data.fechaSalida,
+            numPersonas: data.viajeros.length,
+            viajeros: data.viajeros.map((v) => {
+                const viajero = { ...v };
+                if (viajero.pais === "ESP") delete (viajero as any).nombreMunicipio;
+                else delete (viajero as any).codigoMunicipio;
+                return viajero;
+            })
+        };
 
-        // Buscamos los valores por si acaso SeccionFechas usa guiones bajos o camelCase
-        const h_id = data.habitacion || data.habitacion_id || "1";
-        const f_in = data.fechaEntrada || data.fecha_entrada;
-        const f_out = data.fechaSalida || data.fecha_salida;
-
-        if (!f_in || !f_out) {
-            alert("⚠️ Error: No se han capturado las fechas. Asegúrate de seleccionarlas en el calendario del Bloque 1.");
-            return;
-        }
-
-        setEnviando(true);
-        try {
-            // Mapeamos exactamente a lo que el backend de Laravel espera recibir
-            const payload = {
-                habitacion_id: h_id,
-                fecha_entrada: f_in,
-                fecha_salida: f_out,
-                numPersonas: data.viajeros.length,
-                viajeros: data.viajeros.map((v: any) => {
-                    const viajero = { ...v };
-                    if (viajero.pais === "ESP") delete viajero.nombreMunicipio;
-                    else delete viajero.codigoMunicipio;
-                    return viajero;
-                })
-            };
-
-            await api.post('/admin/walk-in', payload);
-            alert("✅ Check-in directo realizado con éxito. Reserva creada y finalizada.");
-            methods.reset();
-        } catch (error) {
-            console.error("Error en la petición Walk-in:", error);
-            alert("Error en el servidor. Revisa que el backend acepte 'habitacion_id', 'fecha_entrada' y 'fecha_salida'.");
-        } finally {
-            setEnviando(false);
-        }
+        mutations.crearWalkIn.mutate(payload, {
+            onSuccess: () => methods.reset()
+        });
     };
 
     return (
         <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)} className="admin-card fade-in">
+            <form onSubmit={methods.handleSubmit(onSubmit)} className="fade-in">
+                
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
                     <Users size={28} color="#3b82f6" />
-                    <h2 style={{ margin: 0 }}>Check-in Directo (Walk-in)</h2>
+                    <h2 className="admin-text-semibold" style={{ margin: 0 }}>Check-in Directo (Walk-in)</h2>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div className="flex-column-gap" style={{ gap: '2rem' }}>
                     
-                    {/* BLOQUE 1: Estancia - Aquí se eligen fechas y habitación */}
-                    <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+                    {/* BLOQUE 1: Estancia */}
+                    <div className="admin-card">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h4 style={{ margin: 0, color: '#111827' }}>1. Datos de la Estancia</h4>
-                            {!methods.watch("fechaEntrada") && (
-                                <span style={{ color: '#ef4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <AlertTriangle size={14} /> Fechas requeridas
+                            <h4 className="modal-section-title">1. Datos de la Estancia</h4>
+                            {(methods.formState.errors.fechaEntrada || methods.formState.errors.fechaSalida) && (
+                                <span className="admin-alert-waiting" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ef4444' }}>
+                                    <AlertTriangle size={14} /> Seleccione fechas
                                 </span>
                             )}
                         </div>
@@ -93,52 +69,58 @@ export default function CheckinWalkIn() {
                     </div>
 
                     {/* BLOQUE 2: Huéspedes */}
-                    <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                        <h4 style={{ marginTop: 0, marginBottom: '0.5rem', color: '#111827' }}>2. Huéspedes</h4>
-                        <p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1.5rem' }}>
-                            Añade a los viajeros presentes. El primero será el titular.
+                    <div className="admin-card">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 className="modal-section-title" style={{ margin: 0 }}>2. Huéspedes</h4>
+                            <span className="admin-text-muted" style={{ fontWeight: 600 }}>
+                                {fields.length} / 3 Viajeros
+                            </span>
+                        </div>
+                        <p className="admin-text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.85rem' }}>
+                            Añade a los viajeros. El primero será el titular de la estancia. (Máximo 3 personas).
                         </p>
-                        <button 
-                            type="button" 
-                            className="btn-action btn-checkin"
-                            onClick={() => append({ rol: "VI", nombre: "", pais: "ESP" })}
-                            style={{ width: '100%', padding: '0.75rem', fontWeight: 600, border: 'none' }}
-                        >
-                            + Añadir Viajero
-                        </button>
+                        
+                        {/* LÓGICA DE LÍMITE VISUAL */}
+                        {fields.length < 3 ? (
+                            <button 
+                                type="button" 
+                                className="btn-action btn-checkin"
+                                onClick={() => append({ 
+                                    rol: "VI", nombre: "", apellido1: "", apellido2: "", 
+                                    tipoDocumento: "", numeroDocumento: "", soporteDocumento: "", 
+                                    fechaNacimiento: "", parentesco: "", direccion: "", 
+                                    codigoPostal: "", pais: "ESP", 
+                                    codigoMunicipio: "", nombreMunicipio: ""
+                                } as any)}
+                                style={{ width: '100%', padding: '0.75rem', fontWeight: 600, border: 'none', justifyContent: 'center' }}
+                            >
+                                + Añadir Viajero
+                            </button>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#d97706', background: '#fef3c7', padding: '0.75rem', borderRadius: '6px', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <Info size={16} /> Capacidad máxima de la habitación alcanzada.
+                            </div>
+                        )}
                     </div>
 
-                    {/* LISTA DINÁMICA DE VIAJEROS */}
-                    <div className="viajeros-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {/* LISTA DINÁMICA */}
+                    <div className="flex-column-gap">
                         {fields.map((field, index) => (
-                            <SeccionViajero 
-                                key={field.id} 
-                                index={index} 
-                                remover={() => remove(index)} 
-                            />
+                            <SeccionViajero key={field.id} index={index} remover={() => remove(index)} />
                         ))}
                     </div>
 
-                    {/* BOTÓN FINAL */}
+                    {/* ENVÍO */}
                     {fields.length > 0 && (
                         <div style={{ marginTop: '1rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
                             <button 
                                 type="submit" 
-                                disabled={enviando}
+                                disabled={mutations.crearWalkIn.isPending}
                                 className="btn-action btn-approve"
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '1rem', 
-                                    fontSize: '1.1rem', 
-                                    display: 'flex', 
-                                    justifyContent: 'center', 
-                                    alignItems: 'center', 
-                                    gap: '10px',
-                                    cursor: enviando ? 'not-allowed' : 'pointer'
-                                }}
+                                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
                             >
-                                {enviando ? <Loader2 className="animate-spin" /> : <Save size={20} />}
-                                {enviando ? 'Procesando...' : 'Finalizar Check-in y Crear Reserva'}
+                                {mutations.crearWalkIn.isPending ? <Loader2 className="animate-spin" /> : <Save size={20} />}
+                                {mutations.crearWalkIn.isPending ? 'Procesando...' : 'Finalizar y Crear Reserva'}
                             </button>
                         </div>
                     )}

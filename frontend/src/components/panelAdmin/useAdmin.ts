@@ -3,13 +3,12 @@ import { format, startOfDay, parseISO } from 'date-fns';
 import { api } from '../dashboard/api';
 
 /**
- * Hook personalizado para centralizar toda la lógica del administrador.
- * @param habitacionId Opcional, para filtrar la ocupación en el calendario.
+ * Hook central de administración con reactividad automática (Sin F5).
  */
 export const useAdmin = (habitacionId?: string) => {
   const queryClient = useQueryClient();
 
-  // OBTENER RESERVAS: Se actualiza automáticamente cuando invalidamos su clave
+  // --- QUERIES ---
   const reservasQuery = useQuery({
     queryKey: ['admin-reservations'],
     queryFn: async () => {
@@ -18,7 +17,6 @@ export const useAdmin = (habitacionId?: string) => {
     },
   });
 
-  // OBTENER OCUPACIÓN: Se recarga cuando cambia la habitación o cuando bloqueamos fechas
   const ocupacionQuery = useQuery({
     queryKey: ['admin-occupancy', habitacionId],
     queryFn: async () => {
@@ -31,27 +29,22 @@ export const useAdmin = (habitacionId?: string) => {
     enabled: !!habitacionId,
   });
 
-  // MUTACIÓN: Confirmar pago y aprobar
+  // --- MUTATIONS ---
   const confirmarPagoYAprobar = useMutation({
     mutationFn: async (id: string | number) => await api.post(`/admin/reservations/${id}/confirmar-pago`),
     onSuccess: () => {
-      // Al invalidar, React Query vuelve a pedir las reservas automáticamente
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
       alert("Pago verificado y reserva aprobada.");
     }
   });
 
-  // MUTACIÓN: Resolver solicitudes (Cambios de fecha o cancelaciones del cliente)
   const resolverSolicitud = useMutation({
     mutationFn: async ({ id, accion, tipo }: { id: string | number, accion: 'accept' | 'reject', tipo: 'mod' | 'cancel' }) => {
       await api.post(`/admin/reservations/${id}/resolve`, { accion, tipo });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reservations'] })
   });
 
-  // MUTACIÓN: Anulación directa por el Admin
   const cancelarReservaAdmin = useMutation({
     mutationFn: async (id: string | number) => await api.delete(`/admin/reservations/${id}`),
     onSuccess: () => {
@@ -60,15 +53,27 @@ export const useAdmin = (habitacionId?: string) => {
     }
   });
 
-  // MUTACIÓN: Bloqueo de calendario (Vacaciones)
   const bloquearFechas = useMutation({
     mutationFn: async (data: { habitacion_id: string, fechaInicio: string, fechaFin: string }) => {
       await api.post('/admin/bloqueos', data);
     },
     onSuccess: (_, variables) => {
-      // Invalidamos la ocupación de esa habitación específica para que el calendario se pinte de rojo
       queryClient.invalidateQueries({ queryKey: ['admin-occupancy', variables.habitacion_id] });
       alert("Fechas bloqueadas correctamente.");
+    }
+  });
+
+  // NUEVA MUTACIÓN PARA WALK-IN
+  const crearWalkIn = useMutation({
+    mutationFn: async (payload: any) => await api.post('/admin/walk-in', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-occupancy'] });
+      alert("✅ Check-in directo realizado con éxito.");
+    },
+    onError: (error) => {
+      console.error("Error Walk-in:", error);
+      alert("Error al crear el check-in directo.");
     }
   });
 
@@ -80,7 +85,8 @@ export const useAdmin = (habitacionId?: string) => {
       confirmarPagoYAprobar,
       resolverSolicitud,
       cancelarReservaAdmin,
-      bloquearFechas
+      bloquearFechas,
+      crearWalkIn // Exportada correctamente
     }
   };
 };

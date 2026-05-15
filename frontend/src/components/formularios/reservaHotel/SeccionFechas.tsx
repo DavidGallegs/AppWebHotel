@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { format, startOfToday, parseISO, startOfDay, isWithinInterval } from "date-fns";
+import { format, startOfToday, parseISO, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
-import { type TReserva } from "./esquemaReserva";
 
 interface Props {
     reservaId?: string | number;
 }
 
 export function SeccionFechas({ reservaId }: Props) {
-    const { setValue, control, register } = useFormContext<TReserva>();
-    const habitacionSeleccionada = useWatch({ control, name: "habitacion" });
+    // CAMBIO CLAVE: Usamos <any> para que sea agnóstico y funcione en cualquier formulario
+    const { setValue, control, register } = useFormContext<any>();
     
+    const habitacionSeleccionada = useWatch({ control, name: "habitacion" });
     const fechaEntradaActual = useWatch({ control, name: "fechaEntrada" });
     const fechaSalidaActual = useWatch({ control, name: "fechaSalida" });
 
@@ -24,7 +24,6 @@ export function SeccionFechas({ reservaId }: Props) {
         return undefined;
     });
 
-    // Cambiamos el estado para guardar directamente fechas (Date)
     const [diasBloqueados, setDiasBloqueados] = useState<Date[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -36,14 +35,12 @@ export function SeccionFechas({ reservaId }: Props) {
                 const res = await fetch(url);
                 const data = await res.json();
                 
-                // Mapeamos el array diasOcupados a objetos Date de JavaScript
                 if (data.diasOcupados && Array.isArray(data.diasOcupados)) {
                     const fechas = data.diasOcupados.map((fechaString: string) => startOfDay(parseISO(fechaString)));
                     setDiasBloqueados(fechas);
                 } else {
                     setDiasBloqueados([]);
                 }
-
             } catch (error) {
                 console.error("Error cargando ocupación:", error);
                 setDiasBloqueados([]); 
@@ -58,10 +55,8 @@ export function SeccionFechas({ reservaId }: Props) {
     }, [habitacionSeleccionada, reservaId]);
 
     const handleRangeSelect = (newRange: DateRange | undefined) => {
-        // Validación: Comprobar si en el rango seleccionado hay algún día bloqueado
         if (newRange?.from && newRange?.to) {
             const solapa = diasBloqueados.some(diaBloqueado => {
-                // Comprobamos si el día bloqueado cae estrictamente dentro del rango seleccionado
                 return diaBloqueado > startOfDay(newRange.from!) && diaBloqueado < startOfDay(newRange.to!);
             });
 
@@ -107,12 +102,7 @@ export function SeccionFechas({ reservaId }: Props) {
                     selected={range}
                     onSelect={handleRangeSelect}
                     locale={es}
-                    // Le pasamos directamente el array de fechas bloqueadas
-                    disabled={[
-                        { before: startOfToday() }, 
-                        ...diasBloqueados             
-                    ]}
-                    // Aplicamos el estilo rojo a las fechas bloqueadas
+                    disabled={[{ before: startOfToday() }, ...diasBloqueados]}
                     modifiers={{ ocupado: diasBloqueados }}
                     modifiersStyles={{
                         ocupado: { 
