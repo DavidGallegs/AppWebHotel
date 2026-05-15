@@ -242,3 +242,146 @@
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- DISEÑO GENERAL Y LAYOUT --- */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* --- TABLAS Y TEXTO --- */
+.admin-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-text-semibold { font-weight: 600; }
+.admin-text-muted { font-size: 0.75rem; color: #9ca3af; }
+.admin-text-accent { color: #3b82f6; }
+
+/* --- ALERTAS Y ESTADOS --- */
+.admin-alert-waiting {
+  font-size: 0.7rem;
+  color: #b45309;
+  font-weight: 600;
+}
+
+.alert-box {
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.alert-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* --- MODAL (EXTRACTO COMPLETO) --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.modal-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.modal-section-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal-info-box {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.modal-footer-btn {
+  background: #111827;
+  color: white;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+/* --- CALENDARIO Y BLOQUEOS --- */
+.calendar-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card {
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
