@@ -30,6 +30,7 @@ const AdminTabFechas = () => {
       </div>
 
       <div className="bloqueo-grid">
+        {/* COLUMNA IZQUIERDA: Formulario y Calendario */}
         <div className="admin-card">
           <label className="form-label">Seleccionar Habitación:</label>
           <select value={habitacionId} onChange={(e) => setHabitacionId(e.target.value)} className="form-select mb-4">
@@ -53,16 +54,20 @@ const AdminTabFechas = () => {
           </div>
         </div>
 
-        <div className="summary-card">
-          <h4 className="modal-section-title">Resumen</h4>
-          <div className="flex-column-gap mb-4">
-            <p><strong>Desde:</strong> {rango?.from ? format(rango.from, 'dd/MM/yyyy') : '-'}</p>
-            <p><strong>Hasta:</strong> {rango?.to ? format(rango.to, 'dd/MM/yyyy') : '-'}</p>
+        {/* COLUMNA DERECHA: Resumen en forma de torre */}
+        <div className="summary-card tower-layout">
+          <div>
+            <h4 className="modal-section-title">Resumen</h4>
+            <div className="flex-column-gap" style={{ marginTop: '1.5rem' }}>
+              <p><strong>Desde:</strong> {rango?.from ? format(rango.from, 'dd/MM/yyyy') : '-'}</p>
+              <p><strong>Hasta:</strong> {rango?.to ? format(rango.to, 'dd/MM/yyyy') : '-'}</p>
+            </div>
           </div>
+          
           <button 
             onClick={handleBloquear} 
             disabled={!rango?.from || mutations.bloquearFechas.isPending} 
-            className="btn-action btn-danger btn-full"
+            className="btn-action btn-danger btn-tower"
           >
             {mutations.bloquearFechas.isPending ? 'Procesando...' : 'Confirmar Bloqueo'}
           </button>
