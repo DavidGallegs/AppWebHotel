@@ -27,7 +27,12 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
     // Ruta para dar de alta a los viajeros en el parte de viajeros (solo para admin)
     Route::post('/reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
+
+    // Ruta para realizar check-in de walk-in (solo para admin)
+    Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
 });
+
+Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
 
 // Ruta para aprobar una reserva (solo para admin)
 //Route::patch('/admin/reservations/{id}/approve', [ReservationAdminController::class, 'approveReservation']); //inutilizada
@@ -38,8 +43,7 @@ Route::delete('/admin/reservations/{id}', [ReservationAdminController::class, 'r
 // Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
 
-// Ruta para realizar check-in de walk-in (solo para admin)
-Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
+
 
 // Ruta para confirmar pago de una reserva (solo para admin)
 Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
