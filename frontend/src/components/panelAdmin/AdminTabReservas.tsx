@@ -12,7 +12,9 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
 
   return (
     <div className="fade-in">
-      <h2 className="admin-text-semibold" style={{ marginBottom: '1.5rem' }}>Gestión de Reservas</h2>
+      <div className="admin-page-title">
+        <h2>Gestión de Reservas</h2>
+      </div>
       
       <div className="admin-table-container">
         <table className="admin-table">

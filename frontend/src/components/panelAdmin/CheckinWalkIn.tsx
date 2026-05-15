@@ -48,19 +48,19 @@ export default function CheckinWalkIn() {
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)} className="fade-in">
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                <div className="admin-page-title">
                     <Users size={28} color="#3b82f6" />
-                    <h2 className="admin-text-semibold" style={{ margin: 0 }}>Check-in Directo (Walk-in)</h2>
+                    <h2>Check-in Directo (Walk-in)</h2>
                 </div>
 
-                <div className="flex-column-gap" style={{ gap: '2rem' }}>
+                <div className="form-blocks-container">
                     
                     {/* BLOQUE 1: Estancia */}
                     <div className="admin-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div className="section-header">
                             <h4 className="modal-section-title">1. Datos de la Estancia</h4>
                             {(methods.formState.errors.fechaEntrada || methods.formState.errors.fechaSalida) && (
-                                <span className="admin-alert-waiting" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ef4444' }}>
+                                <span className="alert-text-error">
                                     <AlertTriangle size={14} /> Seleccione fechas
                                 </span>
                             )}
@@ -70,21 +70,20 @@ export default function CheckinWalkIn() {
 
                     {/* BLOQUE 2: Huéspedes */}
                     <div className="admin-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h4 className="modal-section-title" style={{ margin: 0 }}>2. Huéspedes</h4>
-                            <span className="admin-text-muted" style={{ fontWeight: 600 }}>
+                        <div className="section-header-sm">
+                            <h4 className="modal-section-title">2. Huéspedes</h4>
+                            <span className="admin-text-semibold">
                                 {fields.length} / 3 Viajeros
                             </span>
                         </div>
-                        <p className="admin-text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.85rem' }}>
+                        <p className="admin-text-muted mb-4">
                             Añade a los viajeros. El primero será el titular de la estancia. (Máximo 3 personas).
                         </p>
                         
-                        {/* LÓGICA DE LÍMITE VISUAL */}
                         {fields.length < 3 ? (
                             <button 
                                 type="button" 
-                                className="btn-action btn-checkin"
+                                className="btn-action btn-checkin btn-full"
                                 onClick={() => append({ 
                                     rol: "VI", nombre: "", apellido1: "", apellido2: "", 
                                     tipoDocumento: "", numeroDocumento: "", soporteDocumento: "", 
@@ -92,12 +91,11 @@ export default function CheckinWalkIn() {
                                     codigoPostal: "", pais: "ESP", 
                                     codigoMunicipio: "", nombreMunicipio: ""
                                 } as any)}
-                                style={{ width: '100%', padding: '0.75rem', fontWeight: 600, border: 'none', justifyContent: 'center' }}
                             >
                                 + Añadir Viajero
                             </button>
                         ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#d97706', background: '#fef3c7', padding: '0.75rem', borderRadius: '6px', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                            <div className="alert-box alert-warning">
                                 <Info size={16} /> Capacidad máxima de la habitación alcanzada.
                             </div>
                         )}
@@ -112,12 +110,11 @@ export default function CheckinWalkIn() {
 
                     {/* ENVÍO */}
                     {fields.length > 0 && (
-                        <div style={{ marginTop: '1rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
+                        <div className="form-footer">
                             <button 
                                 type="submit" 
                                 disabled={mutations.crearWalkIn.isPending}
-                                className="btn-action btn-approve"
-                                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
+                                className="btn-action btn-approve btn-large"
                             >
                                 {mutations.crearWalkIn.isPending ? <Loader2 className="animate-spin" /> : <Save size={20} />}
                                 {mutations.crearWalkIn.isPending ? 'Procesando...' : 'Finalizar y Crear Reserva'}

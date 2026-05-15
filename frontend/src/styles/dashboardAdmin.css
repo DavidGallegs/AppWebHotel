@@ -1,5 +1,5 @@
 /* =========================================
-   LAYOUT PRINCIPAL
+   1. LAYOUT PRINCIPAL Y NAVEGACIÓN
 ========================================= */
 .admin-layout {
   display: flex;
@@ -27,13 +27,10 @@
 
 .admin-main {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
   overflow-y: auto;
 }
 
-/* =========================================
-   NAVEGACIÓN Y BOTONES
-========================================= */
 .admin-nav-btn {
   background: transparent;
   border: none;
@@ -48,33 +45,46 @@
   transition: background-color 0.2s;
 }
 
-.admin-nav-btn:hover {
-  background-color: #374151;
-}
-
-.admin-nav-btn.active {
-  background-color: #1f2937;
-}
-
-.admin-back-btn {
-  background-color: white;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 1.5rem;
-  transition: background-color 0.2s;
-}
-
-.admin-back-btn:hover {
-  background-color: #f9fafb;
-}
+.admin-nav-btn:hover { background-color: #374151; }
+.admin-nav-btn.active { background-color: #1f2937; }
 
 /* =========================================
-   TARJETAS Y TABLAS
+   2. TIPOGRAFÍA Y ENCABEZADOS
+========================================= */
+.admin-page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.admin-page-title h2, 
+.admin-page-title h3 {
+  margin: 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header-sm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-text-semibold { font-weight: 600; }
+.admin-text-muted { font-size: 0.85rem; color: #6b7280; }
+.admin-text-accent { color: #3b82f6; }
+
+/* =========================================
+   3. TARJETAS, TABLAS Y ESTRUCTURAS
 ========================================= */
 .admin-card {
   background-color: white;
@@ -87,7 +97,7 @@
 .admin-table-container {
   background-color: white;
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
@@ -113,8 +123,61 @@
   border-bottom: 1px solid #f3f4f6;
 }
 
+.grid-2-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 /* =========================================
-   ETIQUETAS Y ESTADOS (BADGES)
+   4. BOTONES
+========================================= */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.5rem 0.8rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-action:hover { opacity: 0.9; }
+.btn-action:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-approve { background-color: #10b981; }
+.btn-checkin { background-color: #3b82f6; }
+.btn-danger { background-color: #ef4444; }
+.btn-danger-soft { background-color: #fee2e2; color: #ef4444; }
+.btn-outline { background-color: white; color: #374151; border: 1px solid #d1d5db; }
+
+.btn-full { width: 100%; justify-content: center; padding: 0.75rem; font-weight: 600; }
+.btn-large { width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem; }
+
+.admin-back-btn {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.admin-back-btn:hover { background-color: #f9fafb; }
+
+/* Botones pequeños tabla */
+.btn-small { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.75rem;}
+.accept-cancel { background-color: #b91c1c; color: white; }
+
+/* =========================================
+   5. ALERTAS Y BADGES
 ========================================= */
 .badge {
   padding: 2px 8px;
@@ -127,59 +190,52 @@
 
 .badge-pending { color: #b45309; background-color: #fef3c7; }
 .badge-approved { color: #1d4ed8; background-color: #dbeafe; }
-.badge-finished { color: #047857; background-color: #d1fae5; }
 
-/* =========================================
-   BOTONES DE ACCIÓN
-========================================= */
-.btn-action {
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  padding: 0.4rem 0.8rem;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-
-.btn-action:hover { opacity: 0.9; }
-.btn-approve { background-color: #10b981; }
-.btn-checkin { background-color: #3b82f6; }
-.btn-danger { background-color: #ef4444; width: 100%; padding: 0.75rem; font-weight: 600; }
-.btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* Botones pequeños para solicitudes */
-.btn-small { padding: 2px 6px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.75rem;}
-.btn-small.accept-cancel { background-color: #b91c1c; color: white; }
-.btn-small.reject-cancel { background-color: white; border: 1px solid #b91c1c; color: #b91c1c; }
-.btn-small.accept-mod { background-color: #0369a1; color: white; }
-.btn-small.reject-mod { background-color: white; border: 1px solid #0369a1; color: #0369a1; }
-
-/* =========================================
-   ALERTAS DE SOLICITUDES
-========================================= */
-.alert-box {
-  padding: 6px;
-  border-radius: 6px;
+.admin-alert-waiting {
   font-size: 0.7rem;
-  margin-top: 4px;
+  color: #b45309;
+  font-weight: 600;
 }
-.alert-cancel { background-color: #fee2e2; color: #b91c1c; }
-.alert-mod { background-color: #e0f2fe; color: #0369a1; }
-.alert-title { font-weight: bold; margin-bottom: 4px; }
+
+.alert-text-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.alert-box {
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.alert-cancel { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.alert-warning { background-color: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
+.alert-title { font-weight: bold; margin-bottom: 4px; font-size: 0.75rem; }
 
 /* =========================================
-   BLOQUEO DE FECHAS Y CALENDARIO
+   6. FORMULARIOS Y CALENDARIO
 ========================================= */
+.form-blocks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-footer {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+}
+
 .bloqueo-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: start;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
 }
 
 .form-label {
@@ -198,6 +254,8 @@
 
 .calendar-wrapper {
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .loader-overlay {
@@ -208,22 +266,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
 }
 
 .summary-card {
-  background-color: #111827;
-  color: white;
-  padding: 1rem;
-  border-radius: 12px;
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
-.summary-text {
-  font-size: 0.9rem;
-  color: #9ca3af;
-  margin-bottom: 0.5rem;
-}
-
-/* Modificador de React Day Picker para días ocupados */
 .day-picker-occupied {
   color: #ef4444 !important;
   background-color: #fee2e2 !important;
@@ -232,67 +284,8 @@
 }
 
 /* =========================================
-   ANIMACIONES
+   7. MODAL DETALLES
 ========================================= */
-.fade-in {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- DISEÑO GENERAL Y LAYOUT --- */
-.admin-layout {
-  display: flex;
-  min-height: 100vh;
-  background-color: #f3f4f6;
-}
-
-.admin-main {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-/* --- TABLAS Y TEXTO --- */
-.admin-table-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.admin-text-semibold { font-weight: 600; }
-.admin-text-muted { font-size: 0.75rem; color: #9ca3af; }
-.admin-text-accent { color: #3b82f6; }
-
-/* --- ALERTAS Y ESTADOS --- */
-.admin-alert-waiting {
-  font-size: 0.7rem;
-  color: #b45309;
-  font-weight: 600;
-}
-
-.alert-box {
-  padding: 8px;
-  border-radius: 6px;
-  margin-top: 8px;
-}
-
-.alert-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-/* --- MODAL (EXTRACTO COMPLETO) --- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -362,26 +355,15 @@
   border: none;
 }
 
-/* --- CALENDARIO Y BLOQUEOS --- */
-.calendar-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
+/* =========================================
+   8. UTILIDADES Y ANIMACIONES
+========================================= */
+.flex-column-gap { display: flex; flex-direction: column; gap: 8px; }
+.mb-4 { margin-bottom: 1.5rem; }
 
-.loader-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.7);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.fade-in { animation: fadeIn 0.3s ease-in; }
 
-.summary-card {
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

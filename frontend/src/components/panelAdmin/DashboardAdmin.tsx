@@ -3,7 +3,7 @@ import { QueryProvider } from '../dashboard/QueryProvider';
 import { ArrowLeft } from 'lucide-react';
 import type { FullReservation } from '../dashboard/ReservationList';
 
-// Importaciones de los nuevos archivos fragmentados
+// Importaciones de los archivos fragmentados
 import AdminSidebar from './AdminSidebar';
 import AdminTabReservas from './AdminTabReservas';
 import AdminTabFechas from './AdminTabFechas';
@@ -28,7 +28,9 @@ const AdminContent = () => {
               <ArrowLeft size={16} /> Volver al listado
             </button>
             <div className="admin-card">
-               <h3 style={{ marginBottom: '1.5rem' }}>Check-in: {reservaCheckin.titular?.nombre}</h3>
+               <div className="admin-page-title">
+                 <h3>Check-in: {reservaCheckin.titular?.nombre}</h3>
+               </div>
                <ParteViajeros reservaId={reservaCheckin.id} isAdmin={true} />
             </div>
           </div>
@@ -39,7 +41,9 @@ const AdminContent = () => {
             {pestaña === 'walkin' && <CheckinWalkIn />}
             {pestaña === 'nuevaReserva' && (
               <div className="fade-in">
-                <h2 className="admin-text-semibold" style={{ marginBottom: '1.5rem' }}>Reserva Manual</h2>
+                <div className="admin-page-title">
+                  <h2>Reserva Manual</h2>
+                </div>
                 <div className="admin-card"><ReservaHotel /></div>
               </div>
             )}
