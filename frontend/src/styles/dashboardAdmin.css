@@ -1,11 +1,11 @@
 /* =========================================
-   1. LAYOUT PRINCIPAL Y NAVEGACIÓN
+   1. ESTRUCTURA Y NAVEGACIÓN
 ========================================= */
 .admin-layout {
   display: flex;
   min-height: 100vh;
   background-color: #f3f4f6;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .admin-sidebar {
@@ -34,7 +34,7 @@
 .admin-nav-btn {
   background: transparent;
   border: none;
-  color: white;
+  color: #9ca3af;
   padding: 0.75rem;
   text-align: left;
   border-radius: 8px;
@@ -42,41 +42,50 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: all 0.2s;
+}
+
+.admin-nav-btn:hover { background-color: #374151; color: white; }
+.admin-nav-btn.active { background-color: #1f2937; color: white; font-weight: 600; }
+
+.admin-back-btn {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
   transition: background-color 0.2s;
 }
 
-.admin-nav-btn:hover { background-color: #374151; }
-.admin-nav-btn.active { background-color: #1f2937; }
+.admin-back-btn:hover { background-color: #f9fafb; }
 
 /* =========================================
-   2. TIPOGRAFÍA Y ENCABEZADOS
+   2. ENCABEZADOS Y TEXTO
 ========================================= */
 .admin-page-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  font-size: 1.5rem;
+  gap: 12px;
+  margin-bottom: 2rem;
 }
 
 .admin-page-title h2, 
-.admin-page-title h3 {
-  margin: 0;
+.admin-page-title h3 { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 700; 
+  color: #111827; 
 }
 
-.section-header {
+.section-header, .section-header-sm {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-}
-
-.section-header-sm {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
 }
 
 .admin-text-semibold { font-weight: 600; }
@@ -84,14 +93,14 @@
 .admin-text-accent { color: #3b82f6; }
 
 /* =========================================
-   3. TARJETAS, TABLAS Y ESTRUCTURAS
+   3. BLOQUES, TARJETAS Y TABLAS
 ========================================= */
 .admin-card {
   background-color: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .admin-table-container {
@@ -129,55 +138,54 @@
   gap: 10px;
 }
 
+.form-blocks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.flex-column-gap { display: flex; flex-direction: column; gap: 12px; }
+.mb-4 { margin-bottom: 1rem; }
+
 /* =========================================
-   4. BOTONES
+   4. COMPONENTES DE ACCIÓN (BOTONES)
 ========================================= */
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  gap: 8px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: transform 0.1s, opacity 0.2s;
   padding: 0.5rem 0.8rem;
-  font-weight: 500;
-  transition: opacity 0.2s;
 }
 
-.btn-action:hover { opacity: 0.9; }
-.btn-action:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-action:active { transform: scale(0.98); }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-approve { background-color: #10b981; }
-.btn-checkin { background-color: #3b82f6; }
-.btn-danger { background-color: #ef4444; }
+.btn-approve { background-color: #10b981; color: white; }
+.btn-checkin { background-color: #3b82f6; color: white; }
+.btn-danger { background-color: #ef4444; color: white; }
 .btn-danger-soft { background-color: #fee2e2; color: #ef4444; }
 .btn-outline { background-color: white; color: #374151; border: 1px solid #d1d5db; }
 
-.btn-full { width: 100%; justify-content: center; padding: 0.75rem; font-weight: 600; }
-.btn-large { width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem; }
+.btn-full { width: 100%; justify-content: center; padding: 0.8rem; }
+.btn-large { width: 100%; justify-content: center; padding: 1.2rem; font-size: 1.1rem; }
 
-.admin-back-btn {
-  background-color: white;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 1.5rem;
-  transition: background-color 0.2s;
+.form-footer {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
 }
 
-.admin-back-btn:hover { background-color: #f9fafb; }
-
-/* Botones pequeños tabla */
+/* Botones pequeños para la tabla */
 .btn-small { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.75rem;}
 .accept-cancel { background-color: #b91c1c; color: white; }
 
 /* =========================================
-   5. ALERTAS Y BADGES
+   5. ALERTAS Y ESTADOS (BADGES)
 ========================================= */
 .badge {
   padding: 2px 8px;
@@ -200,10 +208,10 @@
 .alert-text-error {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   color: #ef4444;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .alert-box {
@@ -213,24 +221,24 @@
 }
 
 .alert-cancel { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-.alert-warning { background-color: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
 .alert-title { font-weight: bold; margin-bottom: 4px; font-size: 0.75rem; }
 
-/* =========================================
-   6. FORMULARIOS Y CALENDARIO
-========================================= */
-.form-blocks-container {
+.alert-box.alert-warning {
+  background-color: #fffbeb;
+  color: #d97706;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
 }
 
-.form-footer {
-  margin-top: 1rem;
-  padding-top: 2rem;
-  border-top: 2px solid #e5e7eb;
-}
-
+/* =========================================
+   6. CALENDARIO Y BLOQUEOS
+========================================= */
 .bloqueo-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -284,7 +292,7 @@
 }
 
 /* =========================================
-   7. MODAL DETALLES
+   7. MODAL DE DETALLES
 ========================================= */
 .modal-overlay {
   position: fixed;
@@ -356,14 +364,13 @@
 }
 
 /* =========================================
-   8. UTILIDADES Y ANIMACIONES
+   8. ANIMACIONES
 ========================================= */
-.flex-column-gap { display: flex; flex-direction: column; gap: 8px; }
-.mb-4 { margin-bottom: 1.5rem; }
-
-.fade-in { animation: fadeIn 0.3s ease-in; }
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }

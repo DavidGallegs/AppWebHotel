@@ -1,14 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, startOfDay, parseISO } from 'date-fns';
+import { startOfDay, parseISO } from 'date-fns';
 import { api } from '../dashboard/api';
 
 /**
- * Hook central de administración con reactividad automática (Sin F5).
+ * Hook de administración centralizado.
+ * Gestiona el estado global de reservas y ocupación sin refrescos de página.
  */
 export const useAdmin = (habitacionId?: string) => {
   const queryClient = useQueryClient();
 
-  // --- QUERIES ---
+  // --- CONSULTAS ---
   const reservasQuery = useQuery({
     queryKey: ['admin-reservations'],
     queryFn: async () => {
@@ -29,12 +30,12 @@ export const useAdmin = (habitacionId?: string) => {
     enabled: !!habitacionId,
   });
 
-  // --- MUTATIONS ---
+  // --- ACCIONES (MUTACIONES) ---
   const confirmarPagoYAprobar = useMutation({
     mutationFn: async (id: string | number) => await api.post(`/admin/reservations/${id}/confirmar-pago`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-      alert("Pago verificado y reserva aprobada.");
+      alert("Pago verificado correctamente.");
     }
   });
 
@@ -49,7 +50,7 @@ export const useAdmin = (habitacionId?: string) => {
     mutationFn: async (id: string | number) => await api.delete(`/admin/reservations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
-      alert("Reserva anulada correctamente.");
+      alert("Reserva anulada.");
     }
   });
 
@@ -59,21 +60,20 @@ export const useAdmin = (habitacionId?: string) => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-occupancy', variables.habitacion_id] });
-      alert("Fechas bloqueadas correctamente.");
+      alert("Fechas bloqueadas con éxito.");
     }
   });
 
-  // NUEVA MUTACIÓN PARA WALK-IN
   const crearWalkIn = useMutation({
     mutationFn: async (payload: any) => await api.post('/admin/walk-in', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
       queryClient.invalidateQueries({ queryKey: ['admin-occupancy'] });
-      alert("✅ Check-in directo realizado con éxito.");
+      alert("✅ Proceso completado: Reserva y Check-in realizados.");
     },
     onError: (error) => {
-      console.error("Error Walk-in:", error);
-      alert("Error al crear el check-in directo.");
+      console.error("Error en Walk-in:", error);
+      alert("Hubo un error al procesar el check-in directo.");
     }
   });
 
@@ -86,7 +86,7 @@ export const useAdmin = (habitacionId?: string) => {
       resolverSolicitud,
       cancelarReservaAdmin,
       bloquearFechas,
-      crearWalkIn // Exportada correctamente
+      crearWalkIn
     }
   };
 };

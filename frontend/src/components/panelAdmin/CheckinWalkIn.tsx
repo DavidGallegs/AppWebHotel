@@ -26,13 +26,15 @@ export default function CheckinWalkIn() {
     });
 
     const onSubmit = (data: TWalkIn) => {
+        // CONSTRUCCIÓN DEL PAYLOAD PARA EL BACKEND
         const payload = {
-            habitacion_id: data.habitacion,
+            idHabitacion: data.habitacion, // Ajustado según tu requisito
             fecha_entrada: data.fechaEntrada,
             fecha_salida: data.fechaSalida,
             numPersonas: data.viajeros.length,
             viajeros: data.viajeros.map((v) => {
                 const viajero = { ...v };
+                // Limpieza de campos geográficos redundantes
                 if (viajero.pais === "ESP") delete (viajero as any).nombreMunicipio;
                 else delete (viajero as any).codigoMunicipio;
                 return viajero;
@@ -61,7 +63,7 @@ export default function CheckinWalkIn() {
                             <h4 className="modal-section-title">1. Datos de la Estancia</h4>
                             {(methods.formState.errors.fechaEntrada || methods.formState.errors.fechaSalida) && (
                                 <span className="alert-text-error">
-                                    <AlertTriangle size={14} /> Seleccione fechas
+                                    <AlertTriangle size={14} /> Seleccione fechas válidas
                                 </span>
                             )}
                         </div>
@@ -77,7 +79,7 @@ export default function CheckinWalkIn() {
                             </span>
                         </div>
                         <p className="admin-text-muted mb-4">
-                            Añade a los viajeros. El primero será el titular de la estancia. (Máximo 3 personas).
+                            Registre a los viajeros presentes. El primero de la lista será el titular de la estancia.
                         </p>
                         
                         {fields.length < 3 ? (
@@ -101,14 +103,14 @@ export default function CheckinWalkIn() {
                         )}
                     </div>
 
-                    {/* LISTA DINÁMICA */}
+                    {/* LISTA DINÁMICA DE VIAJEROS */}
                     <div className="flex-column-gap">
                         {fields.map((field, index) => (
                             <SeccionViajero key={field.id} index={index} remover={() => remove(index)} />
                         ))}
                     </div>
 
-                    {/* ENVÍO */}
+                    {/* PIE DE FORMULARIO / ENVÍO */}
                     {fields.length > 0 && (
                         <div className="form-footer">
                             <button 
@@ -117,7 +119,7 @@ export default function CheckinWalkIn() {
                                 className="btn-action btn-approve btn-large"
                             >
                                 {mutations.crearWalkIn.isPending ? <Loader2 className="animate-spin" /> : <Save size={20} />}
-                                {mutations.crearWalkIn.isPending ? 'Procesando...' : 'Finalizar y Crear Reserva'}
+                                {mutations.crearWalkIn.isPending ? 'Procesando envío...' : 'Finalizar y Crear Reserva'}
                             </button>
                         </div>
                     )}
