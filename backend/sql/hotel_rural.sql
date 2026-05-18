@@ -4,7 +4,7 @@ USE hotel_rural;
 START TRANSACTION;
 
 CREATE TABLE `arrendador` (
-  `codigo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigoArrendador` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tipo` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `apellido1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -14,8 +14,9 @@ CREATE TABLE `arrendador` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-INSERT INTO `arrendador` (`codigo`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
-('0000004794', 'ARRE', 'Elena', 'Serrano', 'Castro', 'DNI', '50093052H');
+
+INSERT INTO `arrendador` (`codigoArrendador`, `tipo`, `nombre`, `apellido1`, `apellido2`, `tipoDocumento`, `documento`) VALUES
+('0000004794', 'Hosp', 'CARLOS', 'SANCHEZ', 'ROCO', 'DNI', '50093052H');
 
 
 
@@ -66,7 +67,6 @@ CREATE TABLE `contrato` (
 
 
 
-
 CREATE TABLE `establecimiento` (
   `codigoEstablecimiento` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `codigoArrendador` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -82,8 +82,7 @@ CREATE TABLE `establecimiento` (
 
 
 INSERT INTO `establecimiento` (`codigoEstablecimiento`, `codigoArrendador`, `tipo`, `nombre`, `direccion`, `codigoMunicipio`, `localidad`, `cp`, `pais`) VALUES
-('0000004063', '0000004794', 'HOTEL', 'Hotel Rural ', 'Calle Mayor 10', '1001', 'Villahotel', '12345', 'ESP');
-
+('0000004063', '0000004794', 'Balneario', 'Hotel Rural ', 'CARRETERA DE BOADILLA DEL MONTE 31', '1001', 'Villahotel', '28024', 'ESP');
 
 
 CREATE TABLE `habitacion` (
@@ -92,7 +91,6 @@ CREATE TABLE `habitacion` (
   `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacidadMaxima` int NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 INSERT INTO `habitacion` (`idHabitacion`, `codigoEstablecimiento`, `nombre`, `capacidadMaxima`) VALUES
@@ -122,7 +120,6 @@ CREATE TABLE `operaciones_ses` (
   `resultado_funcional` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 CREATE TABLE `parte` (
@@ -208,10 +205,11 @@ CREATE TABLE `reserva` (
   `solicitud_cancelacion` tinyint(1) NOT NULL DEFAULT '0',
   `solicitud_modificacion` tinyint(1) NOT NULL DEFAULT '0',
   `datos_modificacion` json DEFAULT NULL,
-  `estado_pago` enum('pendiente','notificado','pagado','devolucion_solicitada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pendiente',
+  `estado_pago` enum('pendiente','notificado','pagado','devolucion_solicitada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pendiente',
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 
@@ -262,7 +260,7 @@ CREATE TABLE `viajero_parte` (
 
 
 ALTER TABLE `arrendador`
-  ADD PRIMARY KEY (`codigo`),
+  ADD PRIMARY KEY (`codigoArrendador`),
   ADD UNIQUE KEY `uk_arrendador_documento` (`documento`);
 
 
@@ -426,7 +424,7 @@ ALTER TABLE `contrato`
 
 
 ALTER TABLE `establecimiento`
-  ADD CONSTRAINT `fk_establecimiento_arrendador` FOREIGN KEY (`codigoArrendador`) REFERENCES `arrendador` (`codigo`) ON DELETE RESTRICT ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_establecimiento_arrendador` FOREIGN KEY (`codigoArrendador`) REFERENCES `arrendador` (`codigoArrendador`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 
 ALTER TABLE `habitacion`

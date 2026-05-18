@@ -26,6 +26,9 @@ return [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'endpoint' => env('SES_ENDPOINT'),
+        'auth_basic' => env('SES_AUTH_BASIC'),
+        'codigo_arrendador' => env('SES_CODIGO_ARRENDADOR'),
     ],
 
     'slack' => [

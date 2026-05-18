@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\AdminReservaController;
  
 use App\Http\Controllers\Auth\PasswordResetController;
 
+use App\Http\Controllers\Ses\SesController;
+
 
 // Aquí definimos la ruta para crear una reserva
 
@@ -106,6 +108,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservations/{id}/solicitar-devolucion',[ReservaController::class, 'solicitarDevolucion']);
 });
 
+
+
+/****************************************COMUNICACION SES******************************************* */
+
+
+
+Route::get('/admin/ses/logs', [SesController::class, 'logs']);
 
 
 ?>

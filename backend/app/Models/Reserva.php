@@ -71,4 +71,13 @@ class Reserva extends Model
     {
         return $this->hasMany(ReservaHabitacion::class, 'idReserva');
     }
+
+    public function establecimiento()
+    {
+        return $this->belongsTo(Establecimiento::class, 'codigoEstablecimiento', 'codigoEstablecimiento');
+    }
+
+   
+
+    
 }
