@@ -3,6 +3,8 @@
 namespace App\Services\SES;
 
 use App\Models\Parte;
+use App\Models\Persona;
+use App\Models\ViajeroParte;
 use App\Models\ComunicacionSES;
 use App\Models\OperacionSES;
 use DOMDocument;
@@ -14,9 +16,11 @@ class SesAltaReservaService
 {
     public function enviarParte(Parte $parte): array
     {
+
+
+
         $parte->load([
-            'contrato.reserva.establecimiento',
-            'viajeros'
+            'contrato.reserva.establecimiento'
         ]);
 
         $requestXml = null;
@@ -82,13 +86,26 @@ class SesAltaReservaService
             |--------------------------------------------------------------------------
             */
 
-            $response = Http::withHeaders([
-                'Content-Type' => 'text/xml; charset=utf-8',
-                'Authorization' => 'Basic ' . config('services.ses.auth_basic'),
-            ])
-            ->withBody($soapXml, 'text/xml')
-            ->post(config('services.ses.endpoint'));
+            logger()->info('ENVIANDO PETICION HTTP AL SES');
 
+            $response = Http::withoutVerifying()
+                ->timeout(30)
+                ->connectTimeout(10)
+                ->withHeaders([
+                    'Content-Type' => 'text/xml; charset=utf-8',
+                    'Authorization' => 'Basic ' . config('services.ses.auth_basic'),
+                ])
+                ->withBody($soapXml, 'text/xml')
+                ->post(config('services.ses.endpoint'));
+
+            logger()->info('RESPUESTA SES RECIBIDA', [
+                'status' => $response->status(),
+                'successful' => $response->successful(),
+                'failed' => $response->failed(),
+                'body' => $response->body(),
+            ]);
+            /******************************************/
+            
             $responseXml = $response->body();
 
             /*
@@ -102,6 +119,20 @@ class SesAltaReservaService
             $estado = $this->getNodeValue($responseXml, 'estado');
             $codigoEstado = $this->getNodeValue($responseXml, 'codigoEstado');
             $descripcionEstado = $this->getNodeValue($responseXml, 'descripcion');
+
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | 6.1 ACTUALIZAR ESTADO DEL PARTE  👈 AQUÍ VA
+            |--------------------------------------------------------------------------
+            */
+
+            $ok = $response->successful();
+
+            $parte->estado = $ok ? 'enviado' : 'error';
+            $parte->fechaEnvio = now();
+            $parte->save();
 
             /*
             |--------------------------------------------------------------------------
@@ -154,6 +185,9 @@ class SesAltaReservaService
             | 10. RESPUESTA FINAL
             |--------------------------------------------------------------------------
             */
+            
+
+
 
             return [
                 'ok' => $response->successful(),
@@ -194,146 +228,105 @@ class SesAltaReservaService
         $reserva = $contrato->reserva;
         $establecimiento = $reserva->establecimiento;
 
-        $viajeros = $parte->viajeros;
+        $numPersonas = $reserva->habitaciones
+            ->first()
+            ?->pivot
+            ?->numPersonas ?? 1;
 
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
-        $peticion = $dom->createElementNS(
-            'http://www.neg.hospedajes.mir.es/altaReservaHospedaje',
-            'peticion'
-        );
+        /*
+        |----------------------------------------------------------------------
+        | PETICION (CON NAMESPACE)
+        |----------------------------------------------------------------------
+        */
+        $nsPeticion = 'http://www.neg.hospedajes.mir.es/altaReservaHospedaje';
 
+        $peticion = $dom->createElementNS($nsPeticion, 'peticion');
         $dom->appendChild($peticion);
 
+        /*
+        | SOLICITUD SIN NAMESPACE REAL (OBLIGATORIO EN SES)
+        */
         $solicitud = $dom->createElement('solicitud');
+        $solicitud->setAttribute('xmlns', '');
         $peticion->appendChild($solicitud);
 
+        /*
+        | COMUNICACION
+        */
         $comunicacion = $dom->createElement('comunicacion');
         $solicitud->appendChild($comunicacion);
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | ESTABLECIMIENTO
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
-
         $est = $dom->createElement('establecimiento');
-        $est->appendChild(
-            $dom->createElement('codigo', $establecimiento->codigoEstablecimiento)
-        );
+        $est->appendChild($dom->createElement('codigo', $establecimiento->codigoEstablecimiento));
         $comunicacion->appendChild($est);
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | CONTRATO
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
         $contratoNode = $dom->createElement('contrato');
 
-        $contratoNode->appendChild(
-            $dom->createElement('referencia', $contrato->referencia)
-        );
+        $contratoNode->appendChild($dom->createElement('referencia', $contrato->referencia));
 
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'fechaContrato',
-                $contrato->fechaContrato
-            )
-        );
+        $contratoNode->appendChild($dom->createElement(
+            'fechaContrato',
+            date('Y-m-d', strtotime($contrato->fechaContrato))
+        ));
 
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'fechaEntrada',
-                $reserva->fechaEntrada
-            )
-        );
+        $contratoNode->appendChild($dom->createElement(
+            'fechaEntrada',
+            date('Y-m-d\TH:i:s', strtotime($reserva->fechaEntrada))
+        ));
 
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'fechaSalida',
-                $reserva->fechaSalida
-            )
-        );
+        $contratoNode->appendChild($dom->createElement(
+            'fechaSalida',
+            date('Y-m-d\TH:i:s', strtotime($reserva->fechaSalida))
+        ));
 
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'numPersonas',
-                $viajeros->count()
-            )
-        );
+        $contratoNode->appendChild($dom->createElement('numPersonas', $numPersonas));
 
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'numHabitaciones',
-                $reserva->habitaciones->count() ?: 1
-            )
-        );
+        $contratoNode->appendChild($dom->createElement('numHabitaciones', $reserva->habitaciones->count() ?: 1));
 
-        /*
-        |--------------------------------------------------------------------------
-        | INTERNET
-        |--------------------------------------------------------------------------
-        */
-
-        $contratoNode->appendChild(
-            $dom->createElement(
-                'internet',
-                $contrato->internet ? 'true' : 'false'
-            )
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAGO (FALTA EN TU CÓDIGO)
-        |--------------------------------------------------------------------------
-        */
+        $contratoNode->appendChild($dom->createElement('internet', $contrato->internet ? 'true' : 'false'));
 
         $pagoNode = $dom->createElement('pago');
-
-        $pagoNode->appendChild(
-            $dom->createElement(
-                'tipoPago',
-                $contrato->tipoPago ?? 'EFECT'
-            )
-        );
-
-        $pagoNode->appendChild(
-            $dom->createElement(
-                'fechaPago',
-                $contrato->fechaPago ?? date('Y-m-d')
-            )
-        );
+        $pagoNode->appendChild($dom->createElement('tipoPago', $contrato->tipoPago ?? 'EFECT'));
+        $pagoNode->appendChild($dom->createElement('fechaPago', $contrato->fechaPago ?? date('Y-m-d')));
 
         $contratoNode->appendChild($pagoNode);
 
         $comunicacion->appendChild($contratoNode);
 
         /*
-        |--------------------------------------------------------------------------
-        | PERSONAS
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
+        | PERSONA
+        |----------------------------------------------------------------------
         */
+        $titular = Persona::find($reserva->idPersonaTitular);
 
-        foreach ($viajeros as $v) {
+        $rolTitular = ViajeroParte::where('idParte', $parte->idParte)
+            ->where('rol', 'TI')
+            ->first();
 
-            $p = $dom->createElement('persona');
+        $personaNode = $dom->createElement('persona');
 
-            $p->appendChild($dom->createElement('rol', $v->pivot->rol));
-            $p->appendChild($dom->createElement('nombre', $v->nombre));
-            $p->appendChild($dom->createElement('apellido1', $v->apellido1));
+        $personaNode->appendChild($dom->createElement('rol', $rolTitular?->rol ?? 'TI'));
+        $personaNode->appendChild($dom->createElement('nombre', $titular?->nombre));
+        $personaNode->appendChild($dom->createElement('apellido1', $titular?->apellido1));
+        $personaNode->appendChild($dom->createElement('apellido2', $titular?->apellido2 ?? ''));
+        $personaNode->appendChild($dom->createElement('telefono', $titular?->telefono ?? ''));
+        $personaNode->appendChild($dom->createElement('correo', $titular?->email ?? ''));
 
-            if ($v->apellido2) {
-                $p->appendChild($dom->createElement('apellido2', $v->apellido2));
-            }
-
-            $p->appendChild($dom->createElement('telefono', $v->telefono));
-            $p->appendChild($dom->createElement('correo', $v->email));
-            $p->appendChild($dom->createElement('tipoDocumento', $v->tipoDocumento));
-            $p->appendChild($dom->createElement('documento', $v->documento));
-
-            $comunicacion->appendChild($p);
-        }
+        $comunicacion->appendChild($personaNode);
 
         return $dom->saveXML();
     }

@@ -14,10 +14,20 @@ class SesController extends Controller
         $resultado = $service->enviarParte($parte);
 
         return response()->json([
-            'ok' => $resultado['ok'],
-            'estado' => $resultado['ok'] ? 'ENVIADA' : 'ERROR',
-            'lote' => $resultado['lote'] ?? null,
-            'codigo_comunicacion' => $resultado['codigo_comunicacion'] ?? null,
-        ]);
+            'success' => $resultado['ok'],
+
+            'status' => $resultado['ok'] ? 'sent' : 'error',
+
+            'data' => [
+                'parte_id' => $parte->idParte,
+                'lote' => $resultado['lote'] ?? null,
+                'codigo_comunicacion' => $resultado['codigo_comunicacion'] ?? null,
+            ],
+
+            'ses' => [
+                'codigo_respuesta' => $resultado['ses_codigo'] ?? null,
+                'descripcion' => $resultado['ses_descripcion'] ?? null,
+            ]
+        ], $resultado['ok'] ? 200 : 422);
     }
 }

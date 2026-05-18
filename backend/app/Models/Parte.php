@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Contrato;
+use App\Models\Persona;
+use App\Models\ViajeroParte;
 
 class Parte extends Model
 {
@@ -39,5 +42,17 @@ class Parte extends Model
             'idPersona'
         )
         ->withPivot('rol', 'parentesco');
+    }
+
+    public function titular()
+    {
+        return $this->hasOneThrough(
+            Persona::class,
+            ViajeroParte::class,
+            'idParte',
+            'idPersona',
+            'idParte',
+            'idPersona'
+        )->where('rol', 'TI');
     }
 }

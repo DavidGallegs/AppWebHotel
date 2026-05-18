@@ -30,6 +30,6 @@ class Contrato extends Model
 
     public function reserva()
     {
-        return $this->belongsTo(Reserva::class, 'idReserva');
+        return $this->belongsTo(Reserva::class, 'idReserva', 'idReserva');
     }
 }
