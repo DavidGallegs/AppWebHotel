@@ -4,30 +4,30 @@ namespace App\Http\Controllers\Ses;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Parte;
-use App\Services\SES\SesAltaReservaService;
+use App\Model\ComunicacionesSES;
+
 
 class SesController extends Controller
 {
-    public function alta(Parte $parte, SesAltaReservaService $service)
+    public function logs()
     {
-        $resultado = $service->enviarParte($parte);
+        $logs = ComunicacionSES::orderBy('fecha_peticion', 'desc')
+            ->get()
+            ->map(function ($log) {
 
-        return response()->json([
-            'success' => $resultado['ok'],
+                return [
+                    'reserva_id' => $log->idReserva,
 
-            'status' => $resultado['ok'] ? 'sent' : 'error',
+                    'accion' => $log->tipo_comunicacion,
 
-            'data' => [
-                'parte_id' => $parte->idParte,
-                'lote' => $resultado['lote'] ?? null,
-                'codigo_comunicacion' => $resultado['codigo_comunicacion'] ?? null,
-            ],
+                    'estado' => $log->estado_ses,
 
-            'ses' => [
-                'codigo_respuesta' => $resultado['ses_codigo'] ?? null,
-                'descripcion' => $resultado['ses_descripcion'] ?? null,
-            ]
-        ], $resultado['ok'] ? 200 : 422);
+                    'mensaje' => $log->descripcion_estado,
+
+                    'fecha' => $log->fecha_peticion,
+                ];
+            });
+
+        return response()->json($logs);
     }
 }

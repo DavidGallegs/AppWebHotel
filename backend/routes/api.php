@@ -108,7 +108,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /****************************************COMUNICACION SES******************************************* */
 
-//Route::post('/ses/parte/{parte}/alta', [SesController::class, 'alta']);
+
+
+Route::get('/admin/ses/logs', [SesController::class, 'logs']);
 
 
 ?>
