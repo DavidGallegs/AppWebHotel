@@ -30,6 +30,17 @@ export const useAdmin = (habitacionId?: string) => {
     enabled: !!habitacionId,
   });
 
+  const sesLogsQuery = useQuery({
+    queryKey: ['admin-ses-logs'],
+    queryFn: async () => {
+      // Esta es la ruta GET que tu compañero debe crear
+      const res = await api.get('/admin/ses/logs'); 
+      return res.data;
+    },
+    // Opcional: Refrescar la consola automáticamente cada 10 segundos
+    refetchInterval: 10000 
+  });
+
   // --- ACCIONES (MUTACIONES) ---
   const confirmarPagoYAprobar = useMutation({
     mutationFn: async (id: string | number) => await api.post(`/admin/reservations/${id}/confirmar-pago`),
@@ -81,6 +92,7 @@ export const useAdmin = (habitacionId?: string) => {
     reservas: reservasQuery.data,
     ocupacion: ocupacionQuery.data,
     estaCargandoOcupacion: ocupacionQuery.isLoading,
+    logs: sesLogsQuery.data,
     mutations: {
       confirmarPagoYAprobar,
       resolverSolicitud,

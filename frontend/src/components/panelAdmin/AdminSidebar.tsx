@@ -1,4 +1,4 @@
-import { ClipboardList, Users, Calendar, Ban } from 'lucide-react';
+import { ClipboardList, Users, Calendar, Ban, Terminal } from 'lucide-react';
 
 interface SidebarProps {
   pestañaActiva: string;
@@ -11,6 +11,7 @@ const AdminSidebar = ({ pestañaActiva, setTab }: SidebarProps) => {
     { id: 'walkin', label: 'Check-in Directo', icon: Users },
     { id: 'nuevaReserva', label: 'Reserva Manual', icon: Calendar },
     { id: 'vacaciones', label: 'Bloquear Fechas', icon: Ban },
+    { id: 'logs', label: 'Consola SES', icon: Terminal }, 
   ];
 
   return (
