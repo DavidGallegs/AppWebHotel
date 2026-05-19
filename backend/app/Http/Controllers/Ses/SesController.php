@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Ses;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Model\ComunicacionesSES;
+use App\Models\ComunicacionSES;
+use App\Services\SES\SesAltaReservaService;
 
 
 class SesController extends Controller

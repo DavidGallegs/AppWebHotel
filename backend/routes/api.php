@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::post('/reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
 
     // Ruta para realizar check-in de walk-in (solo para admin)
-    Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
+    //Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
 });
 
 Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);

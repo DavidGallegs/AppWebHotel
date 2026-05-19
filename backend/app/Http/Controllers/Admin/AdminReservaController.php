@@ -13,6 +13,8 @@ use App\Models\Establecimiento;
 use App\Services\SES\SesAltaReservaService;
 use Illuminate\Support\Str;
 
+use App\Models\ComunicacionSES;
+use App\Services\SES\SesConsultaLoteService;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -73,7 +75,7 @@ class AdminReservaController extends Controller
                         'fechaContrato' => now(),
                         'estado' => 'activo',
                         'internet' => false,
-                        'tipoPago' => "TRANF",
+                        'tipoPago' => "TRANS",
                         'fechaPago' => now(),
                         'precioTotal' => null
                     ]);
@@ -128,9 +130,44 @@ class AdminReservaController extends Controller
 
             $estado = null;
             if ($parte instanceof \App\Models\Parte) {
-                $estado = "entra";
-                app(SesAltaReservaService::class)
+                $sesResponse = app(SesAltaReservaService::class)
                     ->enviarParte($parte);
+
+                if ($sesResponse['ok']) {
+
+                    // 🔥 ESPERA PARA QUE SES PROCESE EL LOTE
+                    sleep(7); // o 8–10 segundos si quieres ser más seguro
+
+                    $comunicacion = ComunicacionSES::where(
+                        'codigo_lote',
+                        $sesResponse['lote']
+                    )->first();
+
+                    if ($comunicacion) {
+
+                        $intentos = 0;
+                        $resultadoConsulta = null;
+
+                        // 🔁 reintento básico (MUY IMPORTANTE)
+                        while ($intentos < 3) {
+
+                            $resultadoConsulta = app(SesConsultaLoteService::class)
+                                ->consultarLote($comunicacion);
+
+                            // si ya dejó de estar pendiente, salir
+                            if (($resultadoConsulta['estado'] ?? null) != 5) {
+                                break;
+                            }
+
+                            sleep(4); // esperar un poco más
+                            $intentos++;
+                        }
+
+                        logger()->info('RESULTADO CONSULTA LOTE', [
+                            'resultado' => $resultadoConsulta
+                        ]);
+                    }
+                }
             }
 
             return response()->json([

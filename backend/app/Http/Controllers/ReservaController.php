@@ -597,6 +597,8 @@ class ReservaController extends Controller
         $response = [];
         $status = 200;
 
+        
+
         if (!$user) {
 
             $response = [

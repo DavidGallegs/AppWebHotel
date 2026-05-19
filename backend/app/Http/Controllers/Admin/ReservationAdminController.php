@@ -21,6 +21,7 @@ class ReservationAdminController extends Controller
 
         $user = $request->user();
 
+
         if (!$user) {
 
             $response = [

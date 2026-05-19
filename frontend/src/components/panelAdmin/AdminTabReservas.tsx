@@ -12,9 +12,7 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
 
   return (
     <div className="fade-in">
-      <div className="admin-page-title">
-        <h2>Gestión de Reservas</h2>
-      </div>
+      <h2 className="admin-text-semibold" style={{ marginBottom: '1.5rem' }}>Gestión de Reservas</h2>
       
       <div className="admin-table-container">
         <table className="admin-table">
@@ -38,8 +36,14 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                   <div className="flex-column-gap">
                     <span className={`badge badge-${res.status}`}>{res.status}</span>
                     
+                    {/* Alerta: Esperando transferencia bancaria */}
                     {res.status === 'pending' && (res.estado_pago === 'pendiente' || !res.estado_pago) && (
                        <span className="admin-alert-waiting">⏳ Esperando fondos</span>
+                    )}
+
+                    {/* Alerta: El cliente ya ha notificado que ha pagado */}
+                    {res.status === 'pending' && res.estado_pago === 'notificado' && (
+                       <span className="admin-alert-waiting" style={{ color: '#10b981' }}>💰 Pago Notificado</span>
                     )}
 
                     {res.solicitud_cancelacion === 1 && (
@@ -55,9 +59,21 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                     <button onClick={() => setReservaDetalle(res)} className="btn-action btn-outline">
                       <Eye size={14} /> + Info
                     </button>
+
+                    {/* BOTÓN RECUPERADO: Solo aparece si está pendiente y con el pago notificado */}
+                    {res.status === 'pending' && res.estado_pago === 'notificado' && (
+                       <button 
+                         onClick={() => { if(confirm('¿Confirmar ingreso bancario y aprobar reserva?')) mutations.confirmarPagoYAprobar.mutate(res.id) }} 
+                         className="btn-action btn-approve"
+                       >
+                         <Euro size={14} /> Confirmar Ingreso
+                       </button>
+                    )}
+
                     {res.status === 'approved' && (
                        <button onClick={() => onCheckinSelect(res)} className="btn-action btn-checkin">Check-in</button>
                     )}
+
                     <button onClick={() => { if(confirm('¿Anular?')) mutations.cancelarReservaAdmin.mutate(res.id) }} className="btn-action btn-danger-soft">
                       <Trash2 size={14} /> Anular
                     </button>

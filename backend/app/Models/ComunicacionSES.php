@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Reserva;
+use App\Models\Parte;
+use App\Models\OperacionSES;
 
 class ComunicacionSES extends Model
 {
