@@ -27,6 +27,6 @@ class ReservaPendientePagoMail extends Mailable
     public function build()
     {
         return $this->subject('Tu reserva está pendiente de pago')
-                    ->view('emails.reserva_pendiente_pago');
+            ->view('emails.reserva_pendiente_pago');
     }
 }

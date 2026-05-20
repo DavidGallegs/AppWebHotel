@@ -13,7 +13,7 @@ use Illuminate\Auth\Events\PasswordReset;
 class PasswordResetController extends Controller
 {
     /**
-     * Enviar email de recuperación
+     * ENVIO DE EMAIL PARA RESETEAR CONTRASEÑA
      */
     public function forgotPassword(Request $request)
     {
@@ -37,7 +37,7 @@ class PasswordResetController extends Controller
     }
 
     /**
-     * Reset real de contraseña
+     * RESETEAR CONTRASEÑA DESDE EL LINK ENVIADO POR EMAIL
      */
     public function resetPassword(Request $request)
     {

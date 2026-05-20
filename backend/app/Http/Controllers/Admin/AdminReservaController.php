@@ -31,12 +31,6 @@ class AdminReservaController extends Controller
 
             $reserva = Reserva::with('persona')->findOrFail($id);
 
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDACIÓN PAGO
-            |--------------------------------------------------------------------------
-            */
-
             if (!in_array($reserva->estado_pago, ['pendiente', 'notificado'])) {
 
                 return response()->json([
@@ -50,17 +44,11 @@ class AdminReservaController extends Controller
             DB::transaction(function () use ($reserva, &$parte, &$referencia) {
 
                 /*
-                |--------------------------------------------------------------------------
                 | 1. CONFIRMAR PAGO
-                |--------------------------------------------------------------------------
                 */
-
                 $reserva->estado_pago = 'pagado';
-
                 /*
-                |--------------------------------------------------------------------------
                 | 2. APROBAR RESERVA + CREAR CONTRATO + PARTE
-                |--------------------------------------------------------------------------
                 */
 
                 if ($reserva->estado !== 'approved') {
@@ -100,34 +88,22 @@ class AdminReservaController extends Controller
                         'parentesco' => null
                     ]);
                 }
-
                 /*
-                |--------------------------------------------------------------------------
                 | 3. GUARDAR RESERVA
-                |--------------------------------------------------------------------------
                 */
-
                 $reserva->updatedAt = now();
                 $reserva->save();
 
                 /*
-                |--------------------------------------------------------------------------
-                | 4. EMAIL (mejor dentro o fuera, aquí lo dejo como tú lo tenías)
-                |--------------------------------------------------------------------------
+                | 4. EMAIL
                 */
-
                 Mail::to($reserva->persona->email)
                     ->send(new ReservaConfirmadaMail($reserva));
             });
 
             /*
-            |--------------------------------------------------------------------------
-            | 5. ENVIAR A SES (FUERA DE TRANSACCIÓN)
-            |--------------------------------------------------------------------------
+            | 5. ENVIAR A SES 
             */
-
-        
-
             $estado = null;
             if ($parte instanceof \App\Models\Parte) {
                 $sesResponse = app(SesAltaReservaService::class)
@@ -136,7 +112,7 @@ class AdminReservaController extends Controller
                 if ($sesResponse['ok']) {
 
                     // ESPERA PARA QUE SES PROCESE EL LOTE
-                    sleep(7); // o 8–10 segundos 
+                    sleep(7); 
 
                     $comunicacion = ComunicacionSES::where(
                         'codigo_lote',
@@ -148,18 +124,17 @@ class AdminReservaController extends Controller
                         $intentos = 0;
                         $resultadoConsulta = null;
 
-                        // 🔁 reintento básico (MUY IMPORTANTE)
+                        //REINTENTAR CONSULTA HASTA 3 VECES SI EL ESTADO SIGUE PENDIENTE 
                         while ($intentos < 3) {
 
                             $resultadoConsulta = app(SesConsultaLoteService::class)
                                 ->consultarLote($comunicacion);
 
-                            // si ya dejó de estar pendiente, salir
                             if (($resultadoConsulta['estado'] ?? null) != 5) {
                                 break;
                             }
 
-                            sleep(4); // esperar un poco más
+                            sleep(4); 
                             $intentos++;
                         }
 

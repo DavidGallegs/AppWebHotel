@@ -34,9 +34,7 @@ class CheckInController extends Controller
             DB::transaction(function () use ($request, &$reservaCreada) {
 
                 /*
-                |-----------------------------
                 | TITULAR
-                |-----------------------------
                 */
                 $titularData = $request->viajeros[0];
 
@@ -59,9 +57,7 @@ class CheckInController extends Controller
                 ]);
 
                 /*
-                |-----------------------------
                 | RESERVA
-                |-----------------------------
                 */
                 $establecimiento = Establecimiento::first();
 
@@ -75,9 +71,7 @@ class CheckInController extends Controller
                 ]);
 
                 /*
-                |-----------------------------
                 | CONTRATO
-                |-----------------------------
                 */
                 $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
 
@@ -93,9 +87,7 @@ class CheckInController extends Controller
                 ]);
 
                 /*
-                |-----------------------------
-                | HABITACIÓN
-                |-----------------------------
+                | HABITACION
                 */
                 ReservaHabitacion::create([
                     'idReserva' => $reserva->idReserva,
@@ -104,9 +96,7 @@ class CheckInController extends Controller
                 ]);
 
                 /*
-                |-----------------------------
                 | PARTE
-                |-----------------------------
                 */
                 $parte = Parte::create([
                     'referenciaContrato' => $contrato->referencia,
@@ -114,9 +104,7 @@ class CheckInController extends Controller
                 ]);
 
                 /*
-                |-----------------------------
                 | VIAJEROS
-                |-----------------------------
                 */
                 foreach ($request->viajeros as $index => $viajeroData) {
 
@@ -143,9 +131,7 @@ class CheckInController extends Controller
                     }
 
                     /*
-                    |-----------------------------
-                    | RELACIÓN VIAJERO - PARTE
-                    |-----------------------------
+                    | RELACION VIAJERO - PARTE
                     */
                     ViajeroParte::create([
                         'idParte' => $parte->idParte,
@@ -154,7 +140,6 @@ class CheckInController extends Controller
                         'parentesco' => $viajeroData['parentesco'] ?? null,
                     ]);
                 }
-
                 $reservaCreada = $reserva;
             });
 

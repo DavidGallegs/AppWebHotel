@@ -15,19 +15,14 @@ use App\Rules\DniValido;
 
 class CrearParteViajeros extends Controller
 {
-     // Metodo para recibir la reserva desde el frontend, validar los datos, crear o actualizar las personas en la base de datos.
     public function parteViajeros(Request $request)
     {
-        
-        
-        // IMPORTANTE: el frontend debe enviarme el idParte
         $idParte = $request->reserva_id;
-   
 
-        // 1. Unificar viajeros (titular + acompañantes)
+        /*
+        |1. UNIFICAR DATOS DE TITULAR Y ACOMPAÑANTES 
+        */
         $viajeros = [];
-
-        //$viajeros[] = $request->input('titular');
 
         foreach ($request->input('viajeros', []) as $acompanante) {
             $viajeros[] = $acompanante;
@@ -36,7 +31,9 @@ class CrearParteViajeros extends Controller
         $validatedViajeros = [];
         $personas = [];
 
-        // 2. Validación + UPSERT de Persona
+        /*
+        |2. VALIDAR Y NORMALIZAR DATOS DE CADA VIAJERO, Y CREAR O ACTUALIZAR REGISTRO EN PERSONA
+        */
         foreach ($viajeros as $index => $viajero) {
 
             // Normalización
@@ -66,7 +63,9 @@ class CrearParteViajeros extends Controller
                 'parentesco' => ['nullable']
             ])->validate();
 
-            // UPSERT Persona
+            /*
+            |UPSERT EN PERSONA: SI EXISTE DOCUMENTO, ACTUALIZA. SI NO, CREA NUEVO REGISTRO
+            */
             $persona = Persona::updateOrCreate(
                 ['documento' => $viajero['documento']],
                 [
@@ -91,7 +90,9 @@ class CrearParteViajeros extends Controller
             $personas[$index] = $persona;
         }
         
-        // 3. Insertar en viajero_parte
+        /*
+        |3. CREAR REGISTROS EN VIAJERO_PARTE PARA ASOCIAR CADA PERSONA 
+        */
         foreach ($personas as $index => $persona) {
             $viajero = $validatedViajeros[$index];
 
@@ -104,24 +105,16 @@ class CrearParteViajeros extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | ACTUALIZAR RESERVA A FINISHED
-        |--------------------------------------------------------------------------
+        |4. ACTUALIZAR ESTADO DE LA RESERVA A 'finished' PARA INDICAR QUE EL CHECK-IN SE HA COMPLETADO Y SE HA CREADO EL PARTE DE VIAJEROS
         */
-
         $reserva = Reserva::findOrFail($request->reserva_id);
 
         $reserva->estado = 'finished';
         $reserva->updatedAt = now();
         $reserva->save();
         
-
-        // Responder al frontend con JSON indicando que la reserva se ha creado correctamente.
         return response()->json([
             'data' => $request->all()
         ]);
-        
     }
-
-
 }

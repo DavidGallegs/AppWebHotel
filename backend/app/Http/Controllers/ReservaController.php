@@ -13,26 +13,24 @@ use App\Rules\DniValido;
 use Illuminate\Support\Facades\DB;
 use App\Models\ReservaHabitacion;
 use App\Models\BloqueoFecha;
-
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SolicitudModificacionReservaMail;
 use App\Mail\ReservaCanceladaMail;
 use App\Mail\ReservaPendientePagoMail;
 
 
-
-
-
-
 class ReservaController extends Controller
 {
-    // Metodo para recibir la reserva desde el frontend, validar los datos, crear o actualizar las personas en la base de datos.
+    /*
+    | METODO PARA CREAR RESERVA DESDE FRONTEND
+    */
     public function crearReserva(Request $request)
     {
-        // 1. Extraer titular
+        /*
+        | 1. EXTRAER Y UNIFICAR DATOS DE TITULAR Y ACOMPAÑANTES
+        */
         $titular = $request->input('titular');
 
-        // 2. Normalización básica
         $titular['nombre'] = Str::ucfirst(Str::lower(trim($titular['nombre'])));
         $titular['apellido1'] = Str::ucfirst(Str::lower(trim($titular['apellido1'])));
         $titular['apellido2'] = $titular['apellido2']
@@ -43,7 +41,9 @@ class ReservaController extends Controller
         $titular['correo'] = strtolower(trim($titular['correo'] ?? ''));
 
 
-        // 3. Validación
+        /*
+        |2. VALIDACION DE DATOS DE TITULAR 
+        */
         $validated = validator($titular, [
             'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
             'apellido1' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
@@ -70,7 +70,9 @@ class ReservaController extends Controller
 
         ])->validate();
 
-        // 4. Upsert persona
+        /*
+        |3. CREAR O ACTUALIZAR REGISTRO EN PERSONA PARA EL TITULAR
+        */
         $persona = Persona::updateOrCreate(
             [
                 'email' => $validated['correo'],
@@ -94,10 +96,10 @@ class ReservaController extends Controller
             ]
         );
         
-        // 5. Crear reserva (solo titular)
+        /*
+        |4. CREAR RESERVA ASOCIADA AL TITULAR
+        */
         $establecimiento = Establecimiento::first();
-
-       
 
         $reserva = Reserva::create([
             'idPersonaTitular' => $persona->idPersona,
@@ -109,8 +111,9 @@ class ReservaController extends Controller
             'updatedAt' => now(),
         ]);
 
-        
-        // 6. Asociar habitaciones a la reserva (si se envían)
+        /*
+        |5. ASOCIAR HABITACION Y NUMERO DE PERSONAS A LA RESERVA CREADA 
+        */
         ReservaHabitacion::create([
             'idReserva' => $reserva->idReserva,
             'idHabitacion' => (int) $request->input('habitacion'),
@@ -118,13 +121,9 @@ class ReservaController extends Controller
         ]);
         
         /*
-        |--------------------------------------------------------------------------
-        | ENVIAR EMAIL DE PAGO
-        |--------------------------------------------------------------------------
+        |6. ENVIAR EMAIL
         */
-
-        $precio = 150; // aquí luego puedes calcularlo dinámicamente
-
+        $precio = 150; 
         Mail::to($persona->email)->send(
             new ReservaPendientePagoMail(
                 $reserva,
@@ -132,14 +131,16 @@ class ReservaController extends Controller
                 $precio
             )
         );
-
-
         return response()->json([
             'success' => true,
             'date' => $titular,
         ]);
     }
 
+
+    /*
+    |FUNCION PARA OBTENER DETALLES DE UNA RESERVA ESPECIFICA, INCLUYENDO DATOS DEL CONTRATO SI EXISTE
+    */
     public function show($id)
     {
         $reserva = Reserva::with('contrato')->find($id);
@@ -153,8 +154,6 @@ class ReservaController extends Controller
             ];
             $status = 404;
         } else {
-
-            // Datos base
             $data = [
                 'numPersonas' => $reserva->numPersonas,
                 'numHabitaciones' => $reserva->numHabitaciones,
@@ -163,7 +162,6 @@ class ReservaController extends Controller
                 'status' => $reserva->estado
             ];
 
-            // Si tiene contrato
             if ($reserva->contrato) {
                 $data['contrato'] = [
                     'fechaContrato' => $reserva->contrato->fechaContrato,
@@ -175,7 +173,6 @@ class ReservaController extends Controller
                 ];
             }
         }
-
         return response()->json($data, $status);
     }
 
@@ -206,7 +203,6 @@ class ReservaController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
@@ -219,32 +215,25 @@ class ReservaController extends Controller
         $status = 200;
 
         try {
-
             $reserva = Reserva::findOrFail($id);
 
-            // Ya cancelada
             if ($reserva->estado === 'cancelled') {
-
                 $response = [
                     'error' => 'La reserva ya está cancelada'
                 ];
                 $status = 400;
 
-            // Solo se pueden cancelar directamente las pending
             } elseif ($reserva->estado !== 'pending') {
-
                 $response = [
                     'error' => 'Solo las reservas pendientes pueden cancelarse directamente'
                 ];
                 $status = 400;
 
             } else {
-
                 DB::transaction(function () use ($reserva) {
 
                     $reserva->estado = 'cancelled';
                     $reserva->save();
-
                     $contrato = Contrato::where('idReserva', $reserva->idReserva)->first();
 
                     if ($contrato) {
@@ -253,16 +242,13 @@ class ReservaController extends Controller
                     }
                 });
 
-                // Obtener email del viajero
                 $persona = Persona::find($reserva->idPersonaTitular);
 
                 if ($persona && $persona->email) {
-
                     Mail::to($persona->email)->send(
                         new ReservaCanceladaMail($reserva, $persona)
                     );
                 }
-
 
                 $response = [
                     'success' => true,
@@ -271,20 +257,17 @@ class ReservaController extends Controller
             }
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
             $response = [
                 'error' => 'Reserva no encontrada'
             ];
             $status = 404;
 
         } catch (\Exception $e) {
-
             $response = [
                 'error' => $e->getMessage()
             ];
             $status = 500;
         }
-
         return response()->json($response, $status);
     }
 
@@ -292,31 +275,28 @@ class ReservaController extends Controller
     {
         $status = 200;
         $response = [];
-
         $reserva = Reserva::with('persona')->find($id);
 
         if (!$reserva) {
-
             $status = 404;
             $response = [
                 'error' => 'Reserva no encontrada'
             ];
-
         } else {
-
-            // --- ACTUALIZAR RESERVA ---
+            /*
+            | ACTUALIZAR DATOS DE LA RESERVA 
+            */
             $reserva->fechaEntrada = $request->fechaEntrada;
             $reserva->fechaSalida = $request->fechaSalida;
 
             if ($request->has('idHabitacion')) {
                 $reserva->idHabitacion = $request->idHabitacion;
             }
-
             $reserva->save();
-
-            // --- ACTUALIZAR TITULAR CON RELACIÓN ---
+            /*
+            | ACTUALIZAR DATOS DEL TITULAR SI SE ENVIAN EN LA SOLICITUD
+            */
             if ($request->has('titular') && $reserva->persona) {
-
                 $reserva->persona->update([
                     'nombre' => $request->titular['nombre'] ?? $reserva->persona->nombre,
                     'apellidos' => $request->titular['apellidos'] ?? $reserva->persona->apellidos,
@@ -330,11 +310,12 @@ class ReservaController extends Controller
                 "message" => "Reserva actualizada con éxito"
             ];
         }
-
         return response()->json($response, $status);
     }
     
-
+    /*
+    | FUNCION PARA OBTENER LOS DIAS OCUPADOS DE UNA HABITACION EN UN RANGO DE FECHAS, INCLUYENDO RESERVAS APROBADAS Y BLOQUEOS MANUALES
+    */
     public function ocupacion(Request $request)
     {
         $habitacionId = $request->query('habitacion');
@@ -343,13 +324,6 @@ class ReservaController extends Controller
         $diasOcupados = [];
 
         if ($habitacionId) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | RESERVAS
-            |--------------------------------------------------------------------------
-            */
-
             $query = Reserva::join(
                     'reserva_habitacion as rh',
                     'reserva.idReserva',
@@ -358,21 +332,14 @@ class ReservaController extends Controller
                 )
                 ->where('rh.idHabitacion', $habitacionId)
 
-                // Estados válidos
+   
                 ->whereIn('reserva.estado', [
                     'pending',
                     'approved',
                     'finished'
                 ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | EXCLUIR RESERVA ACTUAL (EDICIÓN)
-            |--------------------------------------------------------------------------
-            */
-
             if ($excludeReservaId) {
-
                 $query->where('reserva.idReserva', '!=', $excludeReservaId);
             }
 
@@ -384,115 +351,82 @@ class ReservaController extends Controller
                 ->get();
 
             foreach ($reservas as $reserva) {
-
                 $start = new \DateTime($reserva->fechaEntrada);
                 $end = new \DateTime($reserva->fechaSalida);
 
                 while ($start <= $end) {
-
                     $diasOcupados[] = $start->format('Y-m-d');
-
                     $start->modify('+1 day');
                 }
             }
-
             /*
-            |--------------------------------------------------------------------------
-            | BLOQUEOS MANUALES
-            |--------------------------------------------------------------------------
+            | BLOQUEOS MANUALES: OBTENER LOS BLOQUEOS DE FECHAS ASOCIADOS A LA HABITACION, INCLUYENDO 
+            | LOS QUE NO TIENEN ID DE HABITACION 
             */
-
             $bloqueos = BloqueoFecha::where('idHabitacion', $habitacionId)
                 ->orWhere(function ($query) {
-
                     $query->whereNull('idHabitacion');
                 })
                 ->get();
 
             foreach ($bloqueos as $bloqueo) {
-
                 $start = new \DateTime($bloqueo->fechaInicio);
                 $end = new \DateTime($bloqueo->fechaFin);
-
                 while ($start <= $end) {
-
                     $diasOcupados[] = $start->format('Y-m-d');
-
                     $start->modify('+1 day');
                 }
             }
-
             $diasOcupados = array_values(array_unique($diasOcupados));
         }
-
         return response()->json([
             'diasOcupados' => $diasOcupados
         ]);
     }
 
-    /**
-     * Usuario solicita modificación
-     */
+    /*
+    |FUNCION PARA SOLICITAR MODIFICACION DE RESERVA: SI LA RESERVA ESTA PENDING, SE MODIFICA DIRECTAMENTE. 
+    |SI ESTA APPROVED, SE CREA UNA SOLICITUD DE MODIFICACION QUE EL ADMIN DEBE APROBAR. 
+    |SI YA EXISTE UNA SOLICITUD PENDIENTE, SE RECHAZA LA NUEVA SOLICITUD
+    */
     public function solicitarModificacion(Request $request, $id)
     {
         $response = null;
         $status = 200;
 
         try {
-
             $reserva = Reserva::with('persona')->findOrFail($id);
 
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDAR ESTADO
-            |--------------------------------------------------------------------------
-            */
-
             if (in_array($reserva->estado, ['cancelled', 'finished'])) {
-
                 $response = [
                     'error' => 'La reserva no puede modificarse'
                 ];
-
                 $status = 400;
 
             } else {
-
                 $datos = $request->input('datos');
-
                 if (!$datos) {
-
                     $response = [
                         'error' => 'No se enviaron datos de modificación'
                     ];
 
                     $status = 400;
-
                 } else {
-
                     DB::transaction(function () use ($reserva, $datos) {
-
                         $titular = $datos['titular'] ?? null;
                         unset($datos['titular']);
 
                         /*
-                        |--------------------------------------------------------------------------
-                        | RESERVA PENDING -> MODIFICACIÓN DIRECTA
-                        |--------------------------------------------------------------------------
+                        | RESERVA PENDING -> MODIFICACION DIRECTA
                         */
-
                         if ($reserva->estado === 'pending') {
-
-                            // actualizar reserva base
                             $reserva->fechaEntrada = $datos['fechaEntrada'] ?? $reserva->fechaEntrada;
                             $reserva->fechaSalida  = $datos['fechaSalida'] ?? $reserva->fechaSalida;
 
-                            // actualizar titular (persona)
                             if ($titular) {
                                 $reserva->persona->update($titular);
                             }
 
-                            // actualizar reserva_habitacion
                             if (isset($datos['idHabitacion'], $datos['numPersonas'])) {
 
                                 DB::table('reserva_habitacion')
@@ -502,19 +436,13 @@ class ReservaController extends Controller
                                         'numPersonas' => $datos['numPersonas']
                                     ]);
                             }
-
                         /*
-                        |--------------------------------------------------------------------------
-                        | RESERVA APROBADA -> SOLICITUD MODIFICACIÓN
-                        |--------------------------------------------------------------------------
+                        | RESERVA APROBADA -> SOLICITUD MODIFICACION
                         */
-
                         } else {
-
                             if ($reserva->solicitud_modificacion) {
                                 throw new \Exception('Ya existe una solicitud de modificación pendiente');
                             }
-
                             $reserva->solicitud_modificacion = 1;
 
                             $reserva->datos_modificacion = [
@@ -527,11 +455,9 @@ class ReservaController extends Controller
                                 'titular' => $titular
                             ];
                         }
-
                         $reserva->updatedAt = now();
                         $reserva->save();
                     });
-
                     $response = [
                         'success' => true,
                         'message' => $reserva->estado === 'pending'
@@ -542,41 +468,32 @@ class ReservaController extends Controller
             }
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
             $response = [
                 'error' => 'Reserva no encontrada'
             ];
-
             $status = 404;
-
         } catch (\Exception $e) {
-
             $response = [
                 'error' => $e->getMessage()
             ];
-
             $status = 500;
         }
-
         return response()->json($response, $status);
     }
 
-     /**
-     * Usuario solicita cancelación
-     */
+    /*
+    | FUNCION PARA SOLICITAR CANCELACION DE RESERVA: SI LA RESERVA ESTA PENDING, SE CANCELA DIRECTAMENTE.
+    */
     public function requestCancellation($id)
     {
         $reserva = Reserva::find($id);
 
         if (!$reserva) {
-
             return response()->json([
                 'error' => 'Reserva no encontrada'
             ], 404);
         }
-
         $reserva->solicitud_cancelacion = 1;
-
         $reserva->save();
 
         return response()->json([
@@ -584,33 +501,23 @@ class ReservaController extends Controller
         ]);
     }
 
-    /**
-     * Admin acepta o rechaza solicitudes
-     */
-    
-
-
+    /*
+    | FUNCION PARA OBETNER LA LISTA DE RESERVAS DE UN USUARIO AUTENTICADO, INCLUYENDO DATOS DEL TITULAR 
+    | Y DE LA HABITACION ASOCIADA A CADA RESERVA
+    */
     public function index(Request $request)
     {
         $user = $request->user();
-
         $response = [];
         $status = 200;
 
-        
-
         if (!$user) {
-
             $response = [
                 'error' => 'No autenticado'
             ];
-
             $status = 401;
-
         } else {
-
             $idPersona = $user->idPersona;
-
             $reservas = Reserva::with([
                     'persona',
                     'habitaciones'
@@ -620,7 +527,6 @@ class ReservaController extends Controller
                 ->get();
 
             $response = $reservas->map(function ($reserva) {
-
                 return [
                     'id' => $reserva->idReserva,
                     'status' => $reserva->estado,
@@ -651,63 +557,40 @@ class ReservaController extends Controller
                 ];
             });
         }
-
         return response()->json($response, $status);
     }
 
+    /*
+    | FUNCION PARA NOTIFICAR PAGO DE UNA RESERVA: SOLO SE PERMITE NOTIFICAR SI LA RESERVA ESTA PENDIENTE DE PAGO.
+    */
     public function notificarPago($id)
     {
         try {
-
             $reserva = Reserva::findOrFail($id);
-
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDACIONES
-            |--------------------------------------------------------------------------
-            */
 
             if ($reserva->estado_pago !== 'pendiente') {
 
                 return response()->json([
-
                     'error' => 'La reserva no está pendiente de pago'
-
                 ], 400);
             }
-
             /*
-            |--------------------------------------------------------------------------
             | ACTUALIZAR ESTADO PAGO
-            |--------------------------------------------------------------------------
             */
-
             $reserva->estado_pago = 'notificado';
             $reserva->updatedAt = now();
-
             $reserva->save();
-
             return response()->json([
-
                 'success' => true,
                 'message' => 'Pago notificado correctamente'
-
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
             return response()->json([
-
                 'error' => 'Reserva no encontrada'
-
             ], 404);
-
         } catch (\Exception $e) {
-
             return response()->json([
-
                 'error' => $e->getMessage()
-
             ], 500);
         }
     }
@@ -718,71 +601,38 @@ class ReservaController extends Controller
         $status = 200;
 
         try {
-
             $reserva = Reserva::findOrFail($id);
 
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDACIONES
-            |--------------------------------------------------------------------------
-            */
-
             if ($reserva->estado_pago !== 'pagado') {
-
                 $response = [
-
                     'error' => 'Solo se pueden solicitar devoluciones de reservas pagadas'
-
                 ];
-
                 $status = 400;
-
             } else {
-
                 /*
-                |--------------------------------------------------------------------------
-                | ACTUALIZAR
-                |--------------------------------------------------------------------------
+                | ACTUALIZAR ESTADO DE PAGO A DEVOLUCION_SOLICITADA Y MARCAR SOLICITUD DE CANCELACION PARA QUE 
+                |EL ADMIN PUEDA REVISAR LA SOLICITUD DE DEVOLUCION
                 */
-
                 $reserva->estado_pago = 'devolucion_solicitada';
-
                 $reserva->solicitud_cancelacion = 1;
-
                 $reserva->updatedAt = now();
-
                 $reserva->save();
-
                 $response = [
-
                     'success' => true,
                     'message' => 'Solicitud de devolución enviada correctamente'
-
                 ];
             }
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
             $response = [
-
                 'error' => 'Reserva no encontrada'
-
             ];
-
             $status = 404;
-
         } catch (\Exception $e) {
-
             $response = [
-
                 'error' => $e->getMessage()
-
             ];
-
             $status = 500;
         }
-
         return response()->json($response, $status);
     }
-
 }

@@ -27,7 +27,7 @@ class ReservaCanceladaMail extends Mailable
     public function build()
     {
         return $this->subject('Cancelación de tu reserva')
-                    ->view('emails.reserva_cancelada');
+            ->view('emails.reserva_cancelada');
     }
 
     

@@ -18,9 +18,7 @@ class ReservationAdminController extends Controller
     {
         $response = null;
         $status = 200;
-
         $user = $request->user();
-
 
         if (!$user) {
 
@@ -28,9 +26,7 @@ class ReservationAdminController extends Controller
                 'error' => 'No autenticado'
             ];
             $status = 401;
-
         } else {
-
             $reservas = Reserva::with([
                     'persona',
                     'habitaciones'
@@ -60,7 +56,7 @@ class ReservationAdminController extends Controller
                         'telefono' => $reserva->persona->telefono,
                         'correo' => $reserva->persona->email,
                         'direccion' => $reserva->persona->direccion,
-                        'codigoPostal' => $reserva->persona->codigoPostal,
+                        'codigoPostal' => $reserva->persona->cp,
                         'nombreMunicipio' => $reserva->persona->nombreMunicipio,
                         'codigoMunicipio' => $reserva->persona->codigoMunicipio,
                         'pais' => $reserva->persona->nacionalidad,
@@ -72,92 +68,6 @@ class ReservationAdminController extends Controller
         return response()->json($response, $status);
     }
 
-
-    /*
-    public function approveReservation($id)
-    {
-        $response = null;
-        $status = 200;
-
-        try {
-
-            $reserva = Reserva::with('persona')->findOrFail($id);
-
-            // Si ya está aprobada
-            if ($reserva->estado === 'approved') {
-                $response = [
-                    'error' => 'La reserva ya está aprobada'
-                ];
-                $status = 400;
-
-            } else {
-
-                DB::transaction(function () use ($reserva) {
-
-                    // 1.-Cambiar estado
-                    $reserva->estado = 'approved';
-                    $reserva->save();
-
-                    // 2. Generar referencia del contrato
-                    $referencia = 'HR-RES-' . date('Ymd') . '-' . str_pad($reserva->idReserva, 4, '0', STR_PAD_LEFT);
-
-                    // 3. Crear contrato asociado
-                    Contrato::create([
-                        'referencia' => $referencia,
-                        'idReserva' => $reserva->idReserva,
-                        'fechaContrato' => now(), 
-                        'estado' => 'activo',
-                        'internet' => false,
-                        'tipoPago' => null,
-                        'fechaPago' => null,
-                        'precioTotal' => null
-                    ]);
-
-                    // 4.- Creamos un parte asociado al contrato, con estado "pendiente".
-                    $parte = Parte::create([
-                        'referenciaContrato' => $referencia,
-                        'estado' => 'pending',
-                        'fechaCreacion' => now(),
-                        'fechaEnvio' => null,
-                        'createdAt' => now(),
-                        'updatedAt' => now()
-                    ]);
-                    
-                    ViajeroParte::create([
-                        'idParte' => $parte->idParte,
-                        'idPersona' => $persona->idPersona,
-                        'rol' => $titular['rol'],
-                    ]);
-                    
-                    // 5.- Enviar email de confirmación
-                    Mail::to($reserva->persona->email)
-                        ->send(new ReservaConfirmadaMail($reserva));
-                });
-
-                $response = [
-                    'success' => true,
-                    'message' => 'Reserva aprobada correctamente'
-                ];
-            }
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
-            $response = [
-                'error' => 'Reserva no encontrada'
-            ];
-            $status = 404;
-
-        } catch (\Exception $e) {
-
-            $response = [
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
-        }
-
-        return response()->json($response, $status);
-    }
-    */
     public function rejectReservation($id)
     {
         $response = null;
@@ -178,24 +88,29 @@ class ReservationAdminController extends Controller
 
                 DB::transaction(function () use ($reserva) {
 
-                    // 1. Cambiar estado a cancelada
+                    /*
+                    | 1. CAMBIAR ESTADO DE LA RESERVA A CANCELADA  
+                    */
                     $reserva->estado = 'cancelled';
                     $reserva->save();
 
-                    // 2. Cancelar contrato si existe
+                    /*
+                    | 2. CAMBIAR ESTADO DEL CONTRATO ASOCIADO A CANCELADO SI EXISTE
+                    */
                     $contrato = Contrato::where('idReserva', $reserva->idReserva)->first();
 
                     if ($contrato) {
                         $contrato->estado = 'cancelado';
                         $contrato->save();
                     }
-
-                    // 3. Enviar email de cancelación
+                    /*
+                    | 3. ENVIAR EMAIL DE CANCELACION
+                    */
                     Mail::to($reserva->persona->email)
-                            ->send(new ReservaCanceladaMail(
-                                $reserva,
-                                $reserva->persona
-                            ));
+                        ->send(new ReservaCanceladaMail(
+                            $reserva,
+                            $reserva->persona
+                        ));
                 });
 
                 $response = [

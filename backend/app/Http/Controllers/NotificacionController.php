@@ -41,15 +41,11 @@ class NotificacionController extends Controller
 
             } else {
 
-                /*
-                |--------------------------------------------------------------------------
-                | REGLA DE NEGOCIO
-                |--------------------------------------------------------------------------
-                */
-
                 if ($tipo === 'solicitud_modificacion_admin') {
 
-                    // 🔴 pending → no email
+                    /*
+                    | SI LA RESERVA ESTA EN PENDING, NO SE ENVIA NOTIFICACION DEBIDO A QUE EL ADMIN AUN NO HA APROBADO LA MODIFICACION
+                    */
                     if ($reserva->estado === 'pending') {
 
                         $response = [
@@ -59,7 +55,10 @@ class NotificacionController extends Controller
 
                     } else {
 
-                        // 🟡 approved → email admin
+                        /*
+                        | SI LA RESERVA NO ESTA EN PENDING, SE ENVIA NOTIFICACION AL ADMIN CON LOS DATOS DE LA RESERVA 
+                        | Y LOS CAMBIOS SOLICITADOS PARA QUE EL ADMIN PUEDA REVISAR LA MODIFICACION Y DECIDIR SI LA APRUEBA O RECHAZA
+                        */
                         $datos = $reserva->datos_modificacion;
 
                         if (is_string($datos)) {
@@ -85,6 +84,9 @@ class NotificacionController extends Controller
 
                 } elseif ($tipo === 'solicitud_cancelacion_admin') {
 
+                    /*
+                    | SI LA RESERVA ESTA EN PENDING, NO SE ENVIA NOTIFICACION DEBIDO A QUE EL ADMIN AUN NO HA APROBADO LA CANCELACION
+                    */
                     if ($reserva->estado === 'pending') {
 
                         $response = [
@@ -106,26 +108,21 @@ class NotificacionController extends Controller
                     }
 
                 } else {
-
                     $response = [
                         'error' => 'Tipo de notificación inválido'
                     ];
-
                     $status = 400;
                 }
             }
 
         } catch (\Exception $e) {
-
             $response = [
                 'error' => 'Error enviando la notificación',
                 'detalle' => $e->getMessage(),
                 'admin_address' => env('MAIL_ADMIN_ADDRESS')
             ];
-
             $status = 500;
         }
-
         return response()->json($response, $status);
     }
 }
