@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 Route::get('/admin/ses/logs', [SesController::class, 'logs']);
+Route::post('/admin/ses/anular/{id}', [SesController::class, 'anularSES']);
 
 
 ?>

@@ -135,8 +135,8 @@ class AdminReservaController extends Controller
 
                 if ($sesResponse['ok']) {
 
-                    // 🔥 ESPERA PARA QUE SES PROCESE EL LOTE
-                    sleep(7); // o 8–10 segundos si quieres ser más seguro
+                    // ESPERA PARA QUE SES PROCESE EL LOTE
+                    sleep(7); // o 8–10 segundos 
 
                     $comunicacion = ComunicacionSES::where(
                         'codigo_lote',

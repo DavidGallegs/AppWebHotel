@@ -36,11 +36,29 @@ class SesConsultaComunicacionService
                 throw new \RuntimeException("SES error comunicación HTTP {$response->status()}");
             }
 
+            //En caso de consulta de anulacion
+            $anulada = $this->get($body, 'anulada');
+    
+            //------------------------------------------
+
             $estado = $this->get($body, 'codigoEstado');
             $desc = $this->get($body, 'descripcion');
 
+
+
             $comunicacion->codigo_estado = $estado;
             $comunicacion->descripcion_estado = $desc;
+
+
+            if ($anulada !== null) {
+                $comunicacion->anulada = (
+                    strtolower($anulada) === 'true'
+                );
+
+                $comunicacion->estado_ses = 'ANULADA';
+            }
+
+
             $comunicacion->fecha_procesamiento = now();
             $comunicacion->save();
 
