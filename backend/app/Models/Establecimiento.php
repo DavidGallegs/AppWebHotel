@@ -10,9 +10,9 @@ class Establecimiento extends Model
 
     protected $primaryKey = 'codigo';
 
-    public $incrementing = false; // clave si NO es autoincrement
+    public $incrementing = false; 
 
-    protected $keyType = 'string'; // si el codigo es tipo '0000004063'
+    protected $keyType = 'string'; 
 
     protected $fillable = [
         'codigo',

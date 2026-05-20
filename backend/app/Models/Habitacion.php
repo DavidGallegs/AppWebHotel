@@ -17,6 +17,10 @@ class Habitacion extends Model
         'capacidadMaxima'
     ];
 
+    /*
+    | RELACIONES 
+    */
+
     public function reservas()
     {
         return $this->belongsToMany(

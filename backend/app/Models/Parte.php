@@ -24,6 +24,10 @@ class Parte extends Model
         'updatedAt'
     ];
 
+    /*
+    | RELACIONES 
+    */
+
     public function contrato()
     {
         return $this->belongsTo(

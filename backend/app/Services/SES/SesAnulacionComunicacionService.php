@@ -18,9 +18,7 @@ class SesAnulacionComunicacionService
         try {
 
             /*
-            |---------------------------------------------------
             | 1. XML INTERNO
-            |---------------------------------------------------
             */
 
             $xmlInterno = $this->generarXmlInterno(
@@ -28,9 +26,7 @@ class SesAnulacionComunicacionService
             );
 
             /*
-            |---------------------------------------------------
             | 2. ZIP
-            |---------------------------------------------------
             */
 
             $zipPath = storage_path(
@@ -66,9 +62,7 @@ class SesAnulacionComunicacionService
             $base64 = base64_encode($zipContent);
 
             /*
-            |---------------------------------------------------
             | 3. SOAP
-            |---------------------------------------------------
             */
 
             $soap = $this->generarSoap($base64);
@@ -78,9 +72,7 @@ class SesAnulacionComunicacionService
             ]);
 
             /*
-            |---------------------------------------------------
             | 4. REQUEST HTTP
-            |---------------------------------------------------
             */
 
             $response = Http::withoutVerifying()
@@ -100,9 +92,7 @@ class SesAnulacionComunicacionService
             ]);
 
             /*
-            |---------------------------------------------------
             | 5. PARSEAR RESPUESTA
-            |---------------------------------------------------
             */
 
             $codigo = $this->getValue($body, 'codigo');
@@ -110,9 +100,7 @@ class SesAnulacionComunicacionService
             $lote = $this->getValue($body, 'lote');
 
             /*
-            |---------------------------------------------------
             | 6. GUARDAR OPERACION
-            |---------------------------------------------------
             */
 
             OperacionSES::create([
@@ -160,56 +148,56 @@ class SesAnulacionComunicacionService
     private function generarXmlInterno(string $codigo): string
     {
         return <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<anul:comunicaciones
-xmlns:anul="http://www.neg.hospedajes.mir.es/anularComunicacion">
+        <?xml version="1.0" encoding="UTF-8"?>
+        <anul:comunicaciones
+        xmlns:anul="http://www.neg.hospedajes.mir.es/anularComunicacion">
 
-    <anul:codigoComunicacion>{$codigo}</anul:codigoComunicacion>
+            <anul:codigoComunicacion>{$codigo}</anul:codigoComunicacion>
 
-</anul:comunicaciones>
-XML;
+        </anul:comunicaciones>
+        XML;
     }
 
     private function generarSoap(string $base64): string
     {
         return <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope
-xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-xmlns:com="http://www.soap.servicios.hospedajes.mir.es/comunicacion">
+        <?xml version="1.0" encoding="UTF-8"?>
+        <soapenv:Envelope
+        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:com="http://www.soap.servicios.hospedajes.mir.es/comunicacion">
 
-    <soapenv:Header/>
+            <soapenv:Header/>
 
-    <soapenv:Body>
+            <soapenv:Body>
 
-        <com:comunicacionRequest>
+                <com:comunicacionRequest>
 
-            <peticion>
+                    <peticion>
 
-                <cabecera>
+                        <cabecera>
 
-                    <codigoArrendador>
-                        {config('services.ses.codigo_arrendador')}
-                    </codigoArrendador>
+                            <codigoArrendador>
+                                {config('services.ses.codigo_arrendador')}
+                            </codigoArrendador>
 
-                    <aplicacion>
-                        APP_Pruebas
-                    </aplicacion>
+                            <aplicacion>
+                                APP_Pruebas
+                            </aplicacion>
 
-                    <tipoOperacion>B</tipoOperacion>
+                            <tipoOperacion>B</tipoOperacion>
 
-                </cabecera>
+                        </cabecera>
 
-                <solicitud>{$base64}</solicitud>
+                        <solicitud>{$base64}</solicitud>
 
-            </peticion>
+                    </peticion>
 
-        </com:comunicacionRequest>
+                </com:comunicacionRequest>
 
-    </soapenv:Body>
+            </soapenv:Body>
 
-</soapenv:Envelope>
-XML;
+        </soapenv:Envelope>
+        XML;
     }
 
     private function getValue(string $xml, string $tag): ?string

@@ -25,11 +25,8 @@ class Arrendador extends Model
     ];
 
     /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
+    | RELACIONES 
     */
-
     public function establecimientos()
     {
         return $this->hasMany(

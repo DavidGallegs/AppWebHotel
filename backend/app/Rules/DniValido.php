@@ -36,8 +36,6 @@ class DniValido implements ValidationRule
             }
             return;
         }
-
-        // Si no es ni DNI ni NIE válido
         $fail('El documento debe ser un DNI o NIE válido.');
     }
 }

@@ -34,14 +34,18 @@ class Reserva extends Model
         'updatedAt'
     ];
 
-    // Laravel manejará automáticamente el JSON. No es necesario convertirlo manualmente.
+    
     protected $casts = [
         'datos_modificacion' => 'array',
         'solicitud_modificacion' => 'boolean',
         'solicitud_cancelacion' => 'boolean'
     ];
 
-    // Definimos la relacion con el modelo Persona para acceder al titular de la reserva
+    /*
+    | RELACIONES 
+    */
+
+
     public function titular()
     {
         return $this->belongsTo(Persona::class, 'idPersonaTitular', 'idPersona');

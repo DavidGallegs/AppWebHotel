@@ -19,7 +19,9 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
 
-    //MOdificado
+    /*
+    | AQUI CONFIGURAMOS LA URL PARA EL RESETEO DE CONTRASEÑA, QUE SE ENVIARA EN EL CORREO DE RESTABLECIMIENTO DE CONTRASEÑA.
+    */
     public function boot(): void
     {
         ResetPassword::createUrlUsing(function ($user, string $token) {

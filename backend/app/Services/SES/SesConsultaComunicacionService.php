@@ -36,7 +36,10 @@ class SesConsultaComunicacionService
                 throw new \RuntimeException("SES error comunicación HTTP {$response->status()}");
             }
 
-            //En caso de consulta de anulacion
+            /*
+            | EN CASO DE QUE EL CAMPO ANULADA NO EXISTA, SE ASUME QUE NO ESTA ANULADA. 
+            |SOLO SI EL CAMPO EXISTE Y ES TRUE SE CONSIDERA ANULADA.
+            */
             $anulada = $this->get($body, 'anulada');
     
             //------------------------------------------
@@ -44,20 +47,15 @@ class SesConsultaComunicacionService
             $estado = $this->get($body, 'codigoEstado');
             $desc = $this->get($body, 'descripcion');
 
-
-
             $comunicacion->codigo_estado = $estado;
             $comunicacion->descripcion_estado = $desc;
-
 
             if ($anulada !== null) {
                 $comunicacion->anulada = (
                     strtolower($anulada) === 'true'
                 );
-
                 $comunicacion->estado_ses = 'ANULADA';
             }
-
 
             $comunicacion->fecha_procesamiento = now();
             $comunicacion->save();
@@ -94,18 +92,13 @@ class SesConsultaComunicacionService
         <?xml version="1.0" encoding="UTF-8"?>
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
                         xmlns:com="http://www.soap.servicios.hospedajes.mir.es/comunicacion">
-
             <soapenv:Header/>
             <soapenv:Body>
-
                 <com:consultaComunicacionRequest>
-
                     <codigos>
                         <codigo>{$codigo}</codigo>
                     </codigos>
-
                 </com:consultaComunicacionRequest>
-
             </soapenv:Body>
         </soapenv:Envelope>
         XML;

@@ -49,7 +49,9 @@ class User extends Authenticatable
         ];
     }
 
-    // Relacion con Persona, un usuario pertenece a una persona
+    /*
+    | RELACIONES 
+    */
     public function persona()
     {
         return $this->belongsTo(Persona::class, 'idPersona');

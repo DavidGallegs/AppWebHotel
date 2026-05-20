@@ -7,7 +7,6 @@ use App\Models\Reserva;
 
 class Contrato extends Model
 {
-    // Nombre exacto de la tabla
     protected $table = 'contrato';
 
     protected $primaryKey = 'referencia';
@@ -28,6 +27,9 @@ class Contrato extends Model
         'precioTotal'
     ];
 
+    /*
+    | RELACIONES 
+    */
     public function reserva()
     {
         return $this->belongsTo(Reserva::class, 'idReserva', 'idReserva');

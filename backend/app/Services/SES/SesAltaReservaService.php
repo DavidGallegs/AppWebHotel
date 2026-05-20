@@ -16,9 +16,6 @@ class SesAltaReservaService
 {
     public function enviarParte(Parte $parte): array
     {
-
-
-
         $parte->load([
             'contrato.reserva.establecimiento'
         ]);
@@ -30,19 +27,13 @@ class SesAltaReservaService
         try {
 
             /*
-            |--------------------------------------------------------------------------
             | 1. GENERAR XML
-            |--------------------------------------------------------------------------
             */
-
             $requestXml = $this->generarXml($parte);
 
             /*
-            |--------------------------------------------------------------------------
             | 2. CREAR ZIP
-            |--------------------------------------------------------------------------
             */
-
             $zipPath = storage_path('app/temp/ses_' . uniqid() . '.zip');
 
             $zip = new ZipArchive();
@@ -55,18 +46,13 @@ class SesAltaReservaService
             $zip->close();
 
             /*
-            |--------------------------------------------------------------------------
             | 3. BASE64
-            |--------------------------------------------------------------------------
             */
-
             $zipData = file_get_contents($zipPath);
             $base64 = base64_encode($zipData);
 
             /*
-            |--------------------------------------------------------------------------
             | 4. PLANTILLA SOAP
-            |--------------------------------------------------------------------------
             */
 
             $dom = new DOMDocument();
@@ -81,9 +67,7 @@ class SesAltaReservaService
             $soapXml = $dom->saveXML();
 
             /*
-            |--------------------------------------------------------------------------
             | 5. ENVIAR SES
-            |--------------------------------------------------------------------------
             */
 
             logger()->info('ENVIANDO PETICION HTTP AL SES');
@@ -105,13 +89,11 @@ class SesAltaReservaService
                 'body' => $response->body(),
             ]);
             /******************************************/
-            
+        
             $responseXml = $response->body();
 
             /*
-            |--------------------------------------------------------------------------
             | 6. EXTRAER DATOS SES
-            |--------------------------------------------------------------------------
             */
 
             $lote = $this->getNodeValue($responseXml, 'lote');
@@ -120,12 +102,8 @@ class SesAltaReservaService
             $codigoEstado = $this->getNodeValue($responseXml, 'codigoEstado');
             $descripcionEstado = $this->getNodeValue($responseXml, 'descripcion');
 
-
-
             /*
-            |--------------------------------------------------------------------------
-            | 6.1 ACTUALIZAR ESTADO DEL PARTE  👈 AQUÍ VA
-            |--------------------------------------------------------------------------
+            | 6.1 ACTUALIZAR ESTADO DEL PARTE  
             */
 
             $ok = $response->successful();
@@ -135,9 +113,7 @@ class SesAltaReservaService
             $parte->save();
 
             /*
-            |--------------------------------------------------------------------------
-            | 7. GUARDAR COMUNICACIÓN SES
-            |--------------------------------------------------------------------------
+            | 7. GUARDAR COMUNICACION SES
             */
 
             $comunicacion = ComunicacionSES::create([
@@ -156,11 +132,8 @@ class SesAltaReservaService
             ]);
 
             /*
-            |--------------------------------------------------------------------------
-            | 8. GUARDAR OPERACIÓN SES
-            |--------------------------------------------------------------------------
+            | 8. GUARDAR OPERACION SES
             */
-
             OperacionSES::create([
                 'idComunicacionSES' => $comunicacion->idComunicacionSES,
                 'operacion' => 'ALTA_RESERVA',
@@ -171,24 +144,15 @@ class SesAltaReservaService
             ]);
 
             /*
-            |--------------------------------------------------------------------------
             | 9. LIMPIEZA
-            |--------------------------------------------------------------------------
             */
-
             if (file_exists($zipPath)) {
                 unlink($zipPath);
             }
 
             /*
-            |--------------------------------------------------------------------------
             | 10. RESPUESTA FINAL
-            |--------------------------------------------------------------------------
             */
-            
-
-
-
             return [
                 'ok' => $response->successful(),
                 'status' => $response->status(),
@@ -198,17 +162,9 @@ class SesAltaReservaService
             ];
 
         } catch (Throwable $e) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | ERROR CONTROLADO
-            |--------------------------------------------------------------------------
-            */
-
             if ($zipPath && file_exists($zipPath)) {
                 unlink($zipPath);
             }
-
             return [
                 'ok' => false,
                 'error' => $e->getMessage()
@@ -237,9 +193,7 @@ class SesAltaReservaService
         $dom->formatOutput = true;
 
         /*
-        |----------------------------------------------------------------------
-        | PETICION (CON NAMESPACE)
-        |----------------------------------------------------------------------
+        | PETICION 
         */
         $nsPeticion = 'http://www.neg.hospedajes.mir.es/altaReservaHospedaje';
 
@@ -247,7 +201,7 @@ class SesAltaReservaService
         $dom->appendChild($peticion);
 
         /*
-        | SOLICITUD SIN NAMESPACE REAL (OBLIGATORIO EN SES)
+        | SOLICITUD SIN NAMESPACE REAL 
         */
         $solicitud = $dom->createElement('solicitud');
         $solicitud->setAttribute('xmlns', '');
@@ -260,23 +214,17 @@ class SesAltaReservaService
         $solicitud->appendChild($comunicacion);
 
         /*
-        |----------------------------------------------------------------------
         | ESTABLECIMIENTO
-        |----------------------------------------------------------------------
         */
         $est = $dom->createElement('establecimiento');
         $est->appendChild($dom->createElement('codigo', $establecimiento->codigoEstablecimiento));
         $comunicacion->appendChild($est);
 
         /*
-        |----------------------------------------------------------------------
         | CONTRATO
-        |----------------------------------------------------------------------
         */
         $contratoNode = $dom->createElement('contrato');
-
         $contratoNode->appendChild($dom->createElement('referencia', $contrato->referencia));
-
         $contratoNode->appendChild($dom->createElement(
             'fechaContrato',
             date('Y-m-d', strtotime($contrato->fechaContrato))
@@ -293,9 +241,7 @@ class SesAltaReservaService
         ));
 
         $contratoNode->appendChild($dom->createElement('numPersonas', $numPersonas));
-
         $contratoNode->appendChild($dom->createElement('numHabitaciones', $reserva->habitaciones->count() ?: 1));
-
         $contratoNode->appendChild($dom->createElement('internet', $contrato->internet ? 'true' : 'false'));
 
         $pagoNode = $dom->createElement('pago');
@@ -303,13 +249,10 @@ class SesAltaReservaService
         $pagoNode->appendChild($dom->createElement('fechaPago', $contrato->fechaPago ?? date('Y-m-d')));
 
         $contratoNode->appendChild($pagoNode);
-
         $comunicacion->appendChild($contratoNode);
 
         /*
-        |----------------------------------------------------------------------
         | PERSONA
-        |----------------------------------------------------------------------
         */
         $titular = Persona::find($reserva->idPersonaTitular);
 
@@ -344,9 +287,7 @@ class SesAltaReservaService
         if (!@$dom->loadXML($xml)) {
             return null;
         }
-
         $nodes = $dom->getElementsByTagName($tag);
-
         return $nodes->length > 0
             ? trim($nodes->item(0)->nodeValue)
             : null;
