@@ -3,33 +3,27 @@ import { QueryProvider } from '../dashboard/QueryProvider';
 import { ArrowLeft } from 'lucide-react';
 import type { FullReservation } from '../dashboard/ReservationList';
 
-// Importaciones de los componentes fragmentados y optimizados
+// Importaciones actualizadas
 import AdminSidebar from './AdminSidebar';
 import AdminTabReservas from './AdminTabReservas';
 import AdminTabFechas from './AdminTabFechas';
 import CheckinWalkIn from './CheckinWalkIn';
-import AdminTabLogs from './AdminTabLogs';
+import AdminTabSES from './AdminTabSES'; // <-- Componente correcto importado
 import ReservaHotel from '../formularios/reservaHotel/ReservaHotel';
 import ParteViajeros from '../formularios/parteViajeros/ParteViajeros';
 
 import '../../styles/dashboardAdmin.css';
 
 const AdminContent = () => {
-  // Estado de navegación que controla la pestaña activa (incluyendo 'logs')
-  const [pestaña, setPestaña] = useState<'reservas' | 'nuevaReserva' | 'vacaciones' | 'walkin' | 'logs'>('reservas');
-  
-  // Estado para gestionar si se está realizando el Check-in de una reserva existente
+  // Ajustamos el tipo del estado para usar 'ses' en lugar de 'logs'
+  const [pestaña, setPestaña] = useState<'reservas' | 'nuevaReserva' | 'vacaciones' | 'walkin' | 'ses'>('reservas');
   const [reservaCheckin, setReservaCheckin] = useState<FullReservation | null>(null);
 
   return (
     <div className="admin-layout">
-      {/* Menú Lateral de Navegación */}
       <AdminSidebar pestañaActiva={pestaña} setTab={setPestaña} />
 
-      {/* Contenedor Principal de Vistas */}
       <main className="admin-main">
-        
-        {/* MODO CHECK-IN (Se superpone visualmente si hay una reserva seleccionada) */}
         {reservaCheckin ? (
           <div className="fade-in">
             <button onClick={() => setReservaCheckin(null)} className="admin-back-btn">
@@ -43,7 +37,6 @@ const AdminContent = () => {
             </div>
           </div>
         ) : (
-          /* RENDERIZADO CONDICIONAL DE LAS PESTAÑAS */
           <>
             {pestaña === 'reservas' && (
               <AdminTabReservas onCheckinSelect={setReservaCheckin} />
@@ -57,8 +50,8 @@ const AdminContent = () => {
               <CheckinWalkIn />
             )}
 
-            {pestaña === 'logs' && (
-              <AdminTabLogs />
+            {pestaña === 'ses' && (
+              <AdminTabSES /> // <-- Renderizado correcto
             )}
             
             {pestaña === 'nuevaReserva' && (

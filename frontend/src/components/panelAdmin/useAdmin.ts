@@ -4,12 +4,14 @@ import { api } from '../dashboard/api';
 
 /**
  * Hook de administración centralizado.
- * Gestiona el estado global de reservas y ocupación sin refrescos de página.
+ * Gestiona el estado global de reservas, ocupación y estados del SES.
  */
 export const useAdmin = (habitacionId?: string) => {
   const queryClient = useQueryClient();
 
-  // --- CONSULTAS ---
+  // --- CONSULTAS (QUERIES) ---
+  
+  // 1. Listado de reservas generales
   const reservasQuery = useQuery({
     queryKey: ['admin-reservations'],
     queryFn: async () => {
@@ -18,6 +20,7 @@ export const useAdmin = (habitacionId?: string) => {
     },
   });
 
+  // 2. Calendario de ocupación de habitaciones
   const ocupacionQuery = useQuery({
     queryKey: ['admin-occupancy', habitacionId],
     queryFn: async () => {
@@ -30,15 +33,16 @@ export const useAdmin = (habitacionId?: string) => {
     enabled: !!habitacionId,
   });
 
-  const sesLogsQuery = useQuery({
-    queryKey: ['admin-ses-logs'],
+  // 3. NUEVA: Historial y estados del SES (Hospederías)
+  const sesQuery = useQuery({
+    queryKey: ['admin-ses-data'],
     queryFn: async () => {
-      // Esta es la ruta GET que tu compañero debe crear
-      const res = await api.get('/admin/ses/logs'); 
+      // Esta es la ruta GET que tu compañero habilitará en el backend
+      const res = await api.get('/admin/ses/data'); 
       return res.data;
     },
-    // Opcional: Refrescar la consola automáticamente cada 10 segundos
-    refetchInterval: 10000 
+    // Opcional: Se refresca automáticamente cada 15 segundos para ver actualizaciones del back
+    refetchInterval: 15000, 
   });
 
   // --- ACCIONES (MUTACIONES) ---
@@ -61,6 +65,7 @@ export const useAdmin = (habitacionId?: string) => {
     mutationFn: async (id: string | number) => await api.delete(`/admin/reservations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-ses-data'] });
       alert("Reserva anulada.");
     }
   });
@@ -80,7 +85,8 @@ export const useAdmin = (habitacionId?: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
       queryClient.invalidateQueries({ queryKey: ['admin-occupancy'] });
-      alert("✅ Proceso completado: Reserva y Check-in realizados.");
+      queryClient.invalidateQueries({ queryKey: ['admin-ses-data'] });
+      alert(" Proceso completado: Reserva y Check-in realizados.");
     },
     onError: (error) => {
       console.error("Error en Walk-in:", error);
@@ -92,7 +98,7 @@ export const useAdmin = (habitacionId?: string) => {
     reservas: reservasQuery.data,
     ocupacion: ocupacionQuery.data,
     estaCargandoOcupacion: ocupacionQuery.isLoading,
-    logs: sesLogsQuery.data,
+    sesData: sesQuery.data, // <-- Aquí exportamos la variable que faltaba
     mutations: {
       confirmarPagoYAprobar,
       resolverSolicitud,
