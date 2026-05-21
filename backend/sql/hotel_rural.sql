@@ -1,8 +1,6 @@
-
 CREATE DATABASE IF NOT EXISTS hotel_rural;
 USE hotel_rural;
 START TRANSACTION;
-
 CREATE TABLE `arrendador` (
   `codigoArrendador` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tipo` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -53,6 +51,8 @@ CREATE TABLE `comunicaciones_ses` (
 
 
 
+
+
 CREATE TABLE `contrato` (
   `referencia` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `idReserva` int NOT NULL,
@@ -85,12 +85,14 @@ INSERT INTO `establecimiento` (`codigoEstablecimiento`, `codigoArrendador`, `tip
 ('0000004063', '0000004794', 'Balneario', 'Hotel Rural ', 'CARRETERA DE BOADILLA DEL MONTE 31', '1001', 'Villahotel', '28024', 'ESP');
 
 
+
 CREATE TABLE `habitacion` (
   `idHabitacion` int NOT NULL,
   `codigoEstablecimiento` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacidadMaxima` int NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 INSERT INTO `habitacion` (`idHabitacion`, `codigoEstablecimiento`, `nombre`, `capacidadMaxima`) VALUES
@@ -122,6 +124,7 @@ CREATE TABLE `operaciones_ses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
 CREATE TABLE `parte` (
   `idParte` bigint NOT NULL,
   `referenciaContrato` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -139,7 +142,6 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 CREATE TABLE `persona` (
@@ -236,7 +238,6 @@ INSERT INTO `temporada` (`idTemporada`, `nombre`, `fechaInicio`, `fechaFin`) VAL
 (3, 'TB', '2026-09-16', '2026-12-31');
 
 
-
 CREATE TABLE `users` (
   `id` bigint UNSIGNED NOT NULL,
   `idPersona` int NOT NULL,
@@ -247,6 +248,7 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `rol` enum('user','admin') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 
@@ -409,6 +411,8 @@ ALTER TABLE `viajero_parte`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 
+
+
 ALTER TABLE `bloqueo_fechas`
   ADD CONSTRAINT `fk_bloqueo_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`) ON DELETE CASCADE;
 
@@ -443,7 +447,6 @@ ALTER TABLE `precio_habitacion`
   ADD CONSTRAINT `fk_ph_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`),
   ADD CONSTRAINT `fk_ph_temporada` FOREIGN KEY (`idTemporada`) REFERENCES `temporada` (`idTemporada`);
 
-
 ALTER TABLE `reserva`
   ADD CONSTRAINT `fk_reserva_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigoEstablecimiento`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_reserva_persona` FOREIGN KEY (`idPersonaTitular`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -462,4 +465,3 @@ ALTER TABLE `viajero_parte`
   ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;
-

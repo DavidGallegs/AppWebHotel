@@ -19,13 +19,9 @@ class SesController extends Controller
 
                 return [
                     'reserva_id' => $log->idReserva,
-
                     'accion' => $log->tipo_comunicacion,
-
                     'estado' => $log->estado_ses,
-
                     'mensaje' => $log->descripcion_estado,
-
                     'fecha' => $log->fecha_peticion,
                 ];
             });
@@ -38,17 +34,13 @@ class SesController extends Controller
         try {
 
             /*
-            |---------------------------------------------------
             | 1. BUSCAR RESERVA
-            |---------------------------------------------------
             */
 
             $reserva = Reserva::findOrFail($id);
 
             /*
-            |---------------------------------------------------
             | 2. BUSCAR COMUNICACION SES
-            |---------------------------------------------------
             */
 
             $comunicacion = ComunicacionSES::where('idReserva', $id)
@@ -64,9 +56,7 @@ class SesController extends Controller
             }
 
             /*
-            |---------------------------------------------------
             | 3. ENVIAR ANULACION
-            |---------------------------------------------------
             */
 
             $resultado = app(
@@ -74,17 +64,13 @@ class SesController extends Controller
             )->anular($comunicacion);
 
             /*
-            |---------------------------------------------------
             | 4. ESPERAR PROCESAMIENTO SES
-            |---------------------------------------------------
             */
 
             sleep(5);
 
             /*
-            |---------------------------------------------------
             | 5. CONSULTAR COMUNICACION
-            |---------------------------------------------------
             */
 
             $verificacion = app(
