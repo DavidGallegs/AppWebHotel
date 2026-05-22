@@ -1,12 +1,10 @@
 ---
 tituloPage: "Situación"
-isHome: false
-isContact: false
 imageBack: "src/assets/background_Images/3_pajaro.jpg"
 nombreEnlace: "Situacion"
 orden: 2
 ---
-import Ma from '../components/markdown/SpanMarron.astro.astro';
+import Ma from '../components/markdown/SpanMarron.astro';
 
 # SITUACIÓN
 
@@ -29,4 +27,8 @@ Una vez en Taranes, **El Quintanal** se encuentra situado en la parte alta del
 pueblo, junto a la iglesia y el cruce que sube hacia el pueblo abandonado de 
 Vallemoro.
 
-*Insertar imagenes*
+export const SeccionImagenes = () => (
+    <div className="bloque-imagenes-situacion">
+        <img src="/2_situacion/mapa.jpg" alt="Mapa turístico de Taranes y el Parque Natural de Ponga" />
+    </div>
+);

@@ -246,3 +246,73 @@ Los municipios son sacados de este repositorio <https://github.com/codeforspain/
 
 Se crea un elemento BuscadorMunicipios, para aligerar la carga y es un busador efectivo, para buscar municipios
 asi se evita cargar 8100 municipios de un click.
+
+## FOMRULARIO SES 3
+
+- [] Arreglar la compatibilidad de telefono o correo. SI se manda el correo no es necesario el telefono
+y si se manda el telefono y esta correcto, no es necesario el correo.
+
+## SEMANA 3
+
+- [] Hacer lo del day picker para ver las habiaciones reservas <https://react-day-picker-v7.netlify.app/docs/getting-started/>
+- [] Interfaz user para rellenar el parte d eusers
+- [] Interfaz adminsitrador
+- [] Pedir a guillermo, que me pase su .venv
+
+### PLANIFICACIÓN DE IDEAS
+
+1. Un cliente accede a la página web, si quiere hacer una reserva tiene que registrarse o inciar sesión.
+2. El cliente inicia sesión usando Lucia-Auth y ya puede acceder al formulario y al panel de SUS reservas
+    - Entonces lo primero es hacer el sistema de Autenficación, que se conecte a un BD.
+3. Al hacer la reserva solo rellena que Él va a hacer una reserva y se envia a la BD
+    - Editar formulario y ajustarlo a solo el titular.
+4. Cuando la reserva haya sido aprobada, puede ver en su panel de reservas las reservas pendientes, podra hacer reservas, cancelar reservas y rellenar el parte de viajeros de una reserva ya aceptada o cancelarla aunque la hayan aprovado.
+    - Hacer panel de administración del cliente.
+5. Al aprobar una reserva, puede rellenar el parte de viajeros, es decir se abre un nuevo formulario para el día del checkin
+    - Hacer formulario del parte viajero
+6. Hacer el calendario para ver las habitaciones libres, para que las reservas no tengan peros.
+    - Hacer calendario react reservas.
+
+Conclusión de cliente:
+
+1. [x] Sistema de autentificación.
+2. [] Formulario titular.
+3. [] Panel de administración del cliente + opciones  sobre una reserva.
+4. [] Formulario parte viajero.
+5. [] Calendario de habitaciones ocupadas.
+
+Para terminar ya hoy 16 de abril funciona, solo queda pendiente
+En el navigation añadir:
+
+- [] Mostrar en el navigation que la sesion esta en marcha
+- [] Boton de cerrar sesión
+- [] Arreglar generación de cookie cuando falla
+
+## SEMANA 3,5
+
+### CREACIÓN DEL PANEL DE USUARIO
+
+En este punto se creara el panel de usaurio, para ello usaremos unas cuantas librerias de react,
+cabe recalcar que solo se puede acceder al panel de usuario con la cookie inicada.
+
+## SEMANA 4
+
+Creación de un dashboard provisional, queda documentar todo el codigo y buscar errores, y otimizar
+esas partes (esperando a que el backend haga las calls para continuar).
+
+## Obejtivos SMEANA 4
+
+- [] Documentacion bibliotecas react
+- [] Poner boton de cerrar sesion y arreglar bug de las cookies
+- [] Ver los tipos de estado de una reserva
+- [] Mostrar el parte de viajeros cuando una reserva este aprobada.
+
+## OBJETIVOS SEMANA 5
+
+- [] Añadir el num habitaciones.
+- [] Parte de viajes en función del numero de personas que se diga
+- [] Numero de perosnas que sea un select por maximo 3 por habitaciones.
+- [] Terminar interfaz de usuario.
+- [] Terminar interfaz del administrador.
+- [] Boton de datos de la reserva
+- [] Boton de solicitar modificacion de la reserva. es decir CRUD de reservas.

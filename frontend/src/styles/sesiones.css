@@ -1,0 +1,323 @@
+/* --- Contenedor Principal del Formulario --- */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 2rem auto;
+}
+
+/* --- La Tarjeta (Efecto Cristal Elegante) --- */
+.login-card {
+    /* Fondo un poco más blanco para que el formulario sea súper legible */
+    background: rgba(255, 255, 255, 0.85);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 450px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Borde sutil blanquecino */
+}
+
+.login-card h2 {
+    text-align: center;
+    color: #3b2a1a; /* Marrón oscuro elegante */
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-family: serif;
+    margin-top: 0;
+}
+
+/* --- Agrupación de Inputs --- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.input-group label {
+    font-size: 0.95rem;
+    color: #444;
+    font-weight: 600;
+}
+
+/* --- Los campos de texto --- */
+.input-group input {
+    padding: 0.85rem 1rem;
+    border: 1px solid #d4c4b7; /* Color tierra clarito */
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Efecto al hacer clic en un input */
+.input-group input:focus {
+    border-color: #cc530e; /* Tu naranja/marrón corporativo */
+    box-shadow: 0 0 0 3px rgba(204, 83, 14, 0.15); /* Halo de luz naranja */
+}
+
+/* Mensajes de error debajo de los inputs */
+.error-text {
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: -0.2rem;
+}
+
+/* --- Botón Principal --- */
+.login-btn {
+    background-color: #cc530e; 
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    box-shadow: 0 4px 10px rgba(204, 83, 14, 0.2);
+}
+
+.login-btn:hover {
+    background-color: #a84209; /* Un tono más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Se levanta un poquito */
+}
+
+/* --- Textos del Footer --- */
+.footer-text {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.footer-text:last-child{
+    margin-top: 0.5rem;
+}
+
+.footer-text a {
+    color: #cc530e;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.footer-text a:hover {
+    color: #3b2a1a;
+    text-decoration: underline;
+}
+
+/* =========================================
+   ESTILOS PARA RECUPERACIÓN DE CONTRASEÑA
+   ========================================= */
+
+/* Contenedor principal para centrar los formularios de auth */
+.auth-container {
+    max-width: 450px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(255,255, 255, 0.85); /* Fondo oscuro semitransparente */
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Títulos y textos de ayuda */
+.auth-title {
+    text-align: center;
+    color: #111;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #333;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Estilos de los inputs en el formulario de recuperación */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-label {
+    color: #333;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.auth-input {
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #111;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+
+}
+
+.auth-msg-true{
+    text-align: center;
+    padding: 2rem;
+    background-color: #f0fdf4;
+    border-radius: 4px;
+    color: #166534
+}
+
+
+
+/* Botón de acción principal */
+.auth-button {
+    background: #cc530e;
+    color: #ffffff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+}
+
+.auth-button:hover {
+    background: #bc430e;
+}
+
+.auth-button:active {
+    transform: scale(0.98);
+}
+
+.auth-button:disabled {
+    background: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Mensajes de éxito */
+.auth-success-msg {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(22, 101, 52, 0.2);
+    border: 1px solid #166534;
+    border-radius: 8px;
+    color: #4ade80;
+    font-weight: 500;
+}
+
+/* Enlace de "Volver al login" */
+.auth-back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.auth-back-link:hover {
+    color: #cc530e;
+}
+
+
+/* --- RESET PASSWORD */
+
+/* Contenedor principal del formulario */
+.container-form {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.70);
+    border-radius: 8px;
+}
+
+.container-form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.container-form p {
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Estructura del Formulario */
+.form-reset {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Grupos de campos (Label + Input) */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white; /* Asegura legibilidad */
+    font-size: 1rem;
+}
+
+/* Botón de acción */
+.btn-submit {
+    background-color: #cc530e;
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #bc430e;
+}
+
+.btn-submit:disabled {
+    background-color: #475569;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

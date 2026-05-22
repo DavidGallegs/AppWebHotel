@@ -1,19 +1,51 @@
 ---
-import Navigation from "../components/navigation/Navigation.astro";
-import '../styles/global.css'
+import Navigation from "../components/BasePage/Navigation.astro";
+import Footer from "../components/BasePage/Footer.astro"
+import '../styles/global.css'; 
+import '../styles/baseAstro.css';
 
-const {tituloPage, isHome, isContact, imageBack} = Astro.props
+/* * LÓGICA DE PROPS (El Frontmatter)
+ * Propósito: Este componente es súper flexible. Puede ser usado por una página normal de Astro (.astro) 
+ * o por un archivo Markdown (.mdx).
+ * Como los MDX guardan sus variables dentro de un objeto llamado 'frontmatter', 
+ * esta línea detecta de dónde vienen los datos para que no dé error en ninguno de los dos casos.
+ */
+const props = Astro.props.frontmatter || Astro.props;
+
+// Extraemos las variables que configuramos en cada página individual
+const { tituloPage, imageBack, centrado = false } = props;
 ---
 
 <html lang="es">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{tituloPage}</title>
-	</head>
-	<body style={`background-image: url('${imageBack}');`}>
-		<Navigation isHome ={isHome} isContact={isContact}/>
-		<slot/>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{tituloPage}</title>
+    </head>
+    
+    <body>
+        {/* Imagen de fondo inyectada dinámicamente según la página */}
+        <div class="fondo-hero" style={`background-image: url('${imageBack}');`} aria-hidden="true"></div>
+        
+        {/* Espaciador para el menú de navegación fijo */}
+        <div style="height: 85px; width: 100%;" aria-hidden="true"></div>
+
+        <Navigation />
+        
+        {/* * CONTENEDOR PRINCIPAL
+          * Si la variable 'centrado' es true, le aplica una clase, si no, lo echa a la derecha. 
+          * El id="main-content" es vital para la accesibilidad web.
+          */}
+        <main id="main-content" class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
+    
+            {/* ELIMINAMOS EL DIV AQUÍ. Ahora el slot es directo. */}
+            <slot />
+
+            {/* Este slot se mantiene igual */}
+            <slot name="contenido-libre" />
+
+        </main>
+        
+        <Footer/>
+    </body>
 </html>

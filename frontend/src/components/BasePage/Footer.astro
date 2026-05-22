@@ -1,0 +1,142 @@
+---
+---
+
+<footer class="footer-web" aria-labelledby="footer-title">
+    
+    <div class="footer-container">
+    <h2 id="footer-title" class="sr-only">Información institucional y legal</h2>
+        <div class="footer-info">
+            <p>
+                Proyecto subvencionado con la colaboración del grupo de acción local 
+                <strong class="footer-strongN">ASOCIACIÓN PARA EL DESARROLLO RURAL E INTEGRAL DEL ORIENTE DE ASTURIAS</strong>, 
+                en el desarrollo de la medida <strong class="footer-strongN">LEADER 19.2</strong> del 
+                <strong class="footer-strongN">PROGRAMA DE DESARROLLO RURAL 2014-2020</strong>, Principado de Asturias.
+            </p>
+            <p><strong class="footer-strongB">Proyecto:</strong> mejoras en casa rural y bar</p>
+            <p><strong class="footer-strongB">Beneficiario:</strong> Cristina Garrido Garrido</p>
+            <p><strong class="footer-strongB">Ayuda:</strong> 11.079€ (Financiada por la Unión Europea: 80%)</p>
+        </div>
+
+        <div class="footer-container">
+            <div class="footer-logos" aria-label="Logotipos de las entidades financiadoras">
+                <img src="/footer/logo-union-europea.png" alt="Logotipo de la Unión Europea" loading="lazy" />
+                <img src="/footer/logo-ministerio.jpg" alt="Logotipo del Ministerio" loading="lazy" />
+                <img src="/footer/logo-leader.jpg" alt="Logotipo de Leader" loading="lazy" />
+                <img src="/footer/logo-consorcio.jpg" alt="Logotipo del Consorcio" loading="lazy" />
+                <img src="/footer/logo-principado.png" alt="Logotipo del Principado de Asturias" loading="lazy" />
+            </div>
+        </div>
+        
+    </div>
+</footer>
+
+<style>
+    /* =========================================
+       1. CLASES DE UTILIDAD Y ACCESIBILIDAD
+       ========================================= */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    .footer-strongB {
+        color: #48f;
+    }
+
+    .footer-strongN {
+        color: #e69930;
+    }
+
+    /* =========================================
+       2. ESTRUCTURA PRINCIPAL
+       ========================================= */
+    .footer-web {
+        background-color: #fff;
+        padding: 1.2rem 2rem;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: auto; 
+    }
+
+    .footer-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center; 
+        gap: 4rem;
+    }
+
+    /* =========================================
+       3. BLOQUE DE TEXTO (IZQUIERDA)
+       ========================================= */
+    .footer-info {
+        flex: 1;
+        text-align: left;
+        color: #333;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .footer-info p {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-info p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* =========================================
+       4. BLOQUE DE IMÁGENES (DERECHA)
+       ========================================= */
+    .footer-logos {
+        flex: 1.2; 
+        display: flex;
+        justify-content: center; 
+        align-items: center;
+        flex-wrap: wrap; 
+        gap: 1.5rem;
+        max-width: 500px; 
+        margin-left: auto; 
+    }
+
+    .footer-logos img {
+        height: 60px; 
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(20%);
+        transition: filter 0.3s ease;
+    }
+
+    .footer-logos img:hover {
+        filter: grayscale(0%);
+    }
+
+    /* =========================================
+       5. RESPONSIVE
+       ========================================= */
+    @media (max-width: 965px) {
+        .footer-container {
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .footer-info {
+            text-align: center;
+        }
+
+        .footer-logos {
+            justify-content: center;
+            margin-left: 0;
+        }
+    }
+</style>

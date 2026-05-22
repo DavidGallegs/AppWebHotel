@@ -1,0 +1,325 @@
+/* =========================================
+   ESTILOS PARA EL FORMULARIO DE RESERVA
+   ========================================= */
+
+.container-form {
+    width: 90%;        /* Ocupará el 95% del ancho de la pantalla */
+    max-width: 1600px; /* Pero nunca superará los 1600px */
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 3rem;     /* También he aumentado el padding para que el interior respire más */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin-bottom: 20px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* Espacio entre los fieldsets */
+}
+
+/* --- Fieldsets y Leyendas --- */
+fieldset {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #f9fafb; /* Fondo gris súper clarito para separar secciones */
+    margin: 0;
+}
+
+legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    padding: 0.2rem 0.8rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+/* --- Inputs y Selects Generales --- */
+input[type="text"],
+input[type="date"],
+input[type="tel"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    color: #374151;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto al hacer clic en un input */
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* --- Labels (Etiquetas descriptivas) --- */
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+/* --- Grid para el Titular --- */
+/* Esto hace que los campos se pongan en 2 o 3 columnas dependiendo del espacio, 
+   en lugar de uno debajo de otro infinitamente */
+.seccion-titular {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+/* Hace que la leyenda y el selector de personas ocupen toda la fila superior */
+.seccion-titular legend,
+.seccion-titular .input-group {
+    grid-column: 1 / -1; 
+}
+
+/* --- Calendario Container --- */
+.calendario-container {
+    background: white;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- Botón de Envío --- */
+.acciones-formulario {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.acciones-formulario button {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.acciones-formulario button:hover {
+    background-color: #1d4ed8;
+}
+
+.acciones-formulario button:active {
+    transform: scale(0.98);
+}
+
+.acciones-formulario button:disabled {
+    background-color: #9ca3af;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   ESTILOS DEL CALENDARIO (React Day Picker)
+   ========================================= */
+
+/* Variables principales del calendario */
+.rdp {
+    --rdp-cell-size: 45px; /* Tamaño de los días (más fácil de tocar en móvil) */
+    --rdp-accent-color: #2563eb; /* Azul corporativo */
+    --rdp-background-color: #eff6ff; /* Azul muy clarito para el rango intermedio */
+    --rdp-accent-color-dark: #1d4ed8; /* Azul oscuro para hover */
+    --rdp-outline: 2px solid var(--rdp-accent-color); /* Borde al navegar con teclado */
+    margin: 0;
+    font-family: inherit;
+}
+
+/* Redondear suavemente los botones de los días */
+.rdp-day {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Efecto al pasar el ratón por un día libre */
+.rdp-day:not(.rdp-day_disabled):hover {
+    background-color: #f3f4f6;
+}
+
+/* Estilo para los días bloqueados/ocupados */
+.rdp-day_disabled {
+    color: #ef4444 !important; /* Rojo */
+    text-decoration: line-through;
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #fef2f2;
+}
+
+/* --- Mensaje de confirmación debajo del calendario --- */
+.seleccion-info {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f0fdf4; /* Verde muy clarito */
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    color: #166534;
+    font-weight: 500;
+}
+
+.seleccion-info p {
+    margin: 0;
+}
+
+/* =========================================
+   Estilos para el Buscador de Municipios
+   ========================================= */
+
+/* Contenedor principal: necesita position relative para que la lista flote debajo */
+.buscador-municipio {
+    position: relative;
+    width: 100%;
+    font-family: inherit; /* Hereda la fuente de tu proyecto */
+}
+
+/* El input de texto */
+.buscador-municipio-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    color: #374151; /* Gris oscuro */
+    background-color: #ffffff;
+    border: 1px solid #d1d5db; /* Borde gris claro */
+    border-radius: 0.375rem; /* Bordes ligeramente redondeados */
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+/* Efecto al hacer clic en el input (Focus) */
+.buscador-municipio-input:focus {
+    border-color: #3b82f6; /* Azul moderno */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* La lista desplegable */
+.buscador-municipio-lista {
+    position: absolute;
+    top: calc(100% + 4px); /* Se coloca justo debajo del input, con un pequeño margen */
+    left: 0;
+    width: 100%;
+    max-height: 250px; /* Altura máxima antes de hacer scroll */
+    overflow-y: auto; /* Permite hacer scroll si hay muchos municipios */
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    list-style: none; /* Quita los puntos de la lista */
+    padding: 0;
+    margin: 0;
+    z-index: 50; /* Asegura que se superponga a otros elementos de la página */
+}
+
+/* Cada municipio de la lista */
+.buscador-municipio-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between; /* Separa el nombre del código */
+    align-items: center;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6; /* Línea sutil entre items */
+    transition: background-color 0.15s ease;
+}
+
+/* Quita la línea divisoria del último elemento */
+.buscador-municipio-item:last-child {
+    border-bottom: none;
+}
+
+/* Efecto al pasar el ratón por encima del municipio */
+.buscador-municipio-item:hover {
+    background-color: #f3f4f6; /* Fondo gris muy clarito */
+    color: #111827; /* Texto un poco más oscuro */
+}
+
+/* El código del municipio (ej: 03014) */
+.buscador-municipio-codigo {
+    font-size: 0.85rem;
+    color: #9ca3af; /* Gris más claro para que no reste protagonismo al nombre */
+}
+
+/* Mensaje de "No se encontraron municipios" */
+.buscador-municipio-empty {
+    padding: 1rem;
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.campo-municipio-largo {
+    grid-column: 1 / -1; /* Esto hace que ocupe TODAS las columnas disponibles (ancho completo) */
+}
+
+
+/* --- FORMULARIO MODIFICAR */
+.formulario-modificar .acciones-modificar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.formulario-modificar button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Estilo Cancelar */
+.formulario-modificar .btn-cancelar {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.formulario-modificar .btn-cancelar:hover {
+    background: #f3f4f6;
+}
+
+/* Estilo Guardar */
+.formulario-modificar .btn-guardar {
+    background: #2563eb;
+    border: none;
+    color: #ffffff;
+}
+
+.formulario-modificar .btn-guardar:hover {
+    background: #1d4ed8;
+}
+
+/* Estado deshabilitado */
+.formulario-modificar button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

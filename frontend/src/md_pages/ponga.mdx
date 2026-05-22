@@ -1,12 +1,10 @@
 ---
 tituloPage: "Ponga"
-isHome: false
-isContact: false
 imageBack: "src/assets/background_Images/5_mountain.jpg"
 nombreEnlace: "Ponga"
 orden: 4
 ---
-import Ma from '../components/markdown/SpanMarron.astro.astro';
+import Ma from '../components/markdown/SpanMarron.astro';
 
 # Concejo y Parque Natural de Ponga
 
@@ -28,4 +26,19 @@ de las rutas de trekking más atractivas de la
 comarca de los **Picos de Europa** y de
 **Asturias** en general.
 
-*Insertar imagenes*
+export const SeccionImagenes = () => (
+    <div class="bloque-imagenes">
+        <img src="/4_ponga/ponga-1.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-2.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-3.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-4.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-5.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-6.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-7.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-8.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-9.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-10.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-11.jpg" alt="Monte Taranes" />
+        <img src="/4_ponga/ponga-12.jpg" alt="Monte Taranes" />
+    </div>
+);

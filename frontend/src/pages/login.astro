@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BasePage.astro';
+import LoginForm from "../components/sesiones/LoginForm";
+import ImageBack from "../assets/background_Images/10_reserva.jpg";
+---
+
+<BaseLayout tituloPage="Iniciar Sesión" imageBack={ImageBack.src} centrado={true}>
+  
+  <LoginForm client:load />
+
+</BaseLayout>

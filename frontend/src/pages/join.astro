@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import BasePage from "../layouts/BasePage.astro"
+import ImageBack from "../assets/background_Images/10_reserva.jpg"
+import JoinForm from "../components/sesiones/JoinForm"
+---
+<BasePage tituloPage="Hotel rural Taranes"  isHome={false} isContact={false} imageBack={ImageBack.src} centrado={true}>
+    <JoinForm client:load/>
+</BasePage>

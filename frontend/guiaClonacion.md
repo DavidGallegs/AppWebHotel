@@ -51,6 +51,10 @@ npm run dev
 docker compose -f docker-compose-dev.yml down
 
 wsl --shutdown
+
+<!-- Versión final -->
+npm run build
+npm run preview -- --host
 ~~~
 
 ### COMANDOS BACKEND

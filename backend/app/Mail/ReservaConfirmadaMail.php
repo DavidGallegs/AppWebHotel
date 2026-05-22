@@ -12,10 +12,15 @@ use Illuminate\Queue\SerializesModels;
 class ReservaConfirmadaMail extends Mailable
 {
     use Queueable, SerializesModels;
+    public $reserva;
 
     /**
      * Create a new message instance.
      */
+
+    /*
+    | FUNCION CONSTRUCTORA PARA INICIALIZAR LA PROPIEDAD $reserva CON LA RESERVA CONFIRMADA.
+    */
     public function __construct($reserva)
     {
         $this->reserva = $reserva;
@@ -24,6 +29,10 @@ class ReservaConfirmadaMail extends Mailable
     /**
      * Get the message envelope.
      */
+
+    /*
+    | FUNCION ENVELOPE PARA DEFINIR EL ASUNTO DEL EMAIL.
+    */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -34,6 +43,10 @@ class ReservaConfirmadaMail extends Mailable
     /**
      * Get the message content definition.
      */
+
+    /*
+    | FUNCION CONTENT PARA DEFINIR LA VISTA DEL EMAIL Y PASARLE LA RESERVA CONFIRMADA.
+    */
     public function content(): Content
     {
         return new Content(

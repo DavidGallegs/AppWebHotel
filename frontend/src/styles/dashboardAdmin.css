@@ -1,0 +1,333 @@
+/* =========================================
+   1. ESTRUCTURA Y NAVEGACIÓN
+========================================= */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.admin-sidebar {
+  width: 260px;
+  background-color: #111827;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-radius: 10px 0 0 10px;
+}
+
+.admin-logo {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #3b82f6;
+  font-weight: 800;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.admin-nav-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  padding: 0.75rem;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.admin-nav-btn:hover { background-color: #374151; color: white; }
+.admin-nav-btn.active { background-color: #1f2937; color: white; font-weight: 600; }
+
+.admin-back-btn {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.admin-back-btn:hover { background-color: #f9fafb; }
+
+/* =========================================
+   2. ENCABEZADOS Y TEXTO
+========================================= */
+.admin-page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+/* Centrado del título si es necesario */
+.admin-page-title.centered {
+  justify-content: center;
+}
+
+.admin-page-title h2, 
+.admin-page-title h3 { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 700; 
+  color: #111827; 
+}
+
+.admin-text-semibold { font-weight: 600; }
+.admin-text-muted { font-size: 0.85rem; color: #6b7280; }
+
+/* =========================================
+   3. BLOQUES, TARJETAS Y TABLAS
+========================================= */
+.admin-card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.admin-table-container {
+  background-color: white;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 0.85rem;
+  color: #6b7280;
+  padding: 1rem;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.flex-column-gap { display: flex; flex-direction: column; gap: 12px; }
+.mb-4 { margin-bottom: 1rem; }
+
+/* =========================================
+   4. BOTONES
+========================================= */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: transform 0.1s, opacity 0.2s;
+  padding: 0.5rem 0.8rem;
+}
+
+.btn-action:active { transform: scale(0.98); }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-approve { background-color: #10b981; color: white; }
+.btn-checkin { background-color: #3b82f6; color: white; }
+.btn-danger { background-color: #ef4444; color: white; }
+.btn-danger-soft { background-color: #fee2e2; color: #ef4444; }
+.btn-outline { background-color: white; color: #374151; border: 1px solid #d1d5db; }
+
+.btn-full { width: 100%; justify-content: center; padding: 0.8rem; }
+.btn-tower { width: 100%; justify-content: center; padding: 0.8rem; margin-top: 2rem; }
+
+/* =========================================
+   5. ALERTAS Y BADGES
+========================================= */
+.badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  align-self: flex-start;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-pending { color: #b45309; background-color: #fef3c7; }
+.badge-approved { color: #1d4ed8; background-color: #dbeafe; }
+
+.admin-alert-waiting {
+  font-size: 0.7rem;
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* =========================================
+   6. CALENDARIO Y BLOQUEOS (Torre Centrada)
+========================================= */
+.bloqueo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  
+  /* AJUSTE DE CENTRADO Y GROSOR */
+  max-width: 450px; 
+  margin: 0 auto;  /* Centra el bloque horizontalmente */
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+.calendar-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.summary-card {
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Modificador para efecto Torre interno */
+.summary-card.tower-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.day-picker-occupied {
+  color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  font-weight: bold !important;
+  text-decoration: line-through !important;
+}
+
+/* =========================================
+   7. MODAL DE DETALLES
+========================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.modal-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.modal-section-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal-info-box {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.modal-footer-btn {
+  background: #111827;
+  color: white;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+/* =========================================
+   8. ANIMACIONES
+========================================= */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
