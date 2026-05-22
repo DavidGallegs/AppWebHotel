@@ -108,7 +108,7 @@ const ReservationListContent = () => {
 
 export const DashboardApp = ({ token }: { token: string }) => (
   <QueryProvider token={token}>
-    <main style={{ padding: '1.5rem', background: '#f9fafb', minHeight: '100vh' }}>
+    <main style={{ padding: '1.5rem', background: '#f9fafb', minHeight: '100vh', borderRadius: '10px', marginBottom: '20px' }}>
       <h1 style={{ fontWeight: 800, marginBottom: '2rem' }}>Panel de Usuario</h1>
       <ReservationListContent />
     </main>

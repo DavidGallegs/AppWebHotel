@@ -1,21 +1,25 @@
 ---
-// src/pages/index.astro
-import BaseLayout from '../layouts/BasePage.astro'; 
-
-/* * COMPONENTE: Página de Inicio (Home)
- * Propósito: Es la puerta de entrada. En lugar de escribir el texto aquí mismo,
- * importamos el archivo 'home.mdx'. Esto permite cambiar los textos en el futuro 
- * fácilmente como si fuera un documento de Word.
- */
-
-// 1. Importamos TODA la información de tu archivo MDX
+import BaseLayout from '../layouts/BasePage.astro';
 import * as HomeData from '../md_pages/home.mdx';
 
-// 2. Extraemos el Componente del contenido y sus variables
 const { Content, frontmatter } = HomeData;
 ---
 
-{/* 3. Inyectamos las variables de tu home.mdx en la plantilla base */}
 <BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
-  <Content />
+    
+    <!-- 1. Solo el texto: esto mantiene el formato de párrafos y títulos -->
+        <div class="bloque-texto">
+            <Content />
+        </div>
+
+        <div class="bloque-imagenes">
+            <img src="/1_home/pueblo.jpg" alt="Pueblo Taranes" />
+            <img src="/1_home/monte_tiatordos.jpg" alt="Montaña tiratordos" />
+            <img src="/1_home/casa_quintanal.jpg" alt="Casa Quintanal" />
+            <img src="/1_home/habitacion.jpg" alt="Habitacion Taranes" />
+            <img src="/1_home/cochinillo.jpg" alt="Cochinillo" />
+            <img src="/1_home/asturias.jpg" alt="Asturias Taranes" />
+        </div>
+
+
 </BaseLayout>

@@ -1,7 +1,7 @@
 .galeria-container {
-
-    max-width: 1200px;
+    max-width: 1800px; 
     margin: 0 auto;
+    padding: 0 20px; /* Añade un pequeño margen lateral para que no pegue al borde */
   }
 
   .main-title {
@@ -25,7 +25,7 @@
   .grid-fotos {
     display: grid;
     /* Ajustado a 200px para que entren unas 5 fotos por línea */
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
   }
 
@@ -33,7 +33,7 @@
     /* Forzamos que sea un cuadrado perfecto */
     aspect-ratio: 1 / 1; 
     overflow: hidden;
-    border: 1px solid #fff;
+    border: 1px solid #444;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
   }

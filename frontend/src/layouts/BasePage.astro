@@ -38,12 +38,10 @@ const { tituloPage, imageBack, centrado = false } = props;
           */}
         <main id="main-content" class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
     
-            {/* Aquí es donde Astro "escupe" el contenido normal de la página o del MDX */}
-            <div class="bloque-texto">
-                <slot />
-            </div>
+            {/* ELIMINAMOS EL DIV AQUÍ. Ahora el slot es directo. */}
+            <slot />
 
-            {/* Aquí es donde Astro inyecta cualquier bloque de código extra que le mandes con el atributo slot="contenido-libre" */}
+            {/* Este slot se mantiene igual */}
             <slot name="contenido-libre" />
 
         </main>

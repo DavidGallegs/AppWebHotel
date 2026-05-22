@@ -29,12 +29,14 @@ const { Content, frontmatter, SeccionImagenes } = pagina;
 
 <BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
     
-    {/* El texto formateado desde Markdown se inyecta aquí automáticamente */}
-    <Content />
 
-    {/* Si el MDX tenía una galería o bloque de imágenes extra (como en situacion.mdx), se pinta aquí */}
-    {SeccionImagenes && (
-        <SeccionImagenes slot="contenido-libre" />
-    )}
+    <!-- Ahora tú decides que el texto va en el bloque-texto -->
+    <div class="bloque-texto">
+        <Content />
+    </div>
+
+    <!-- Y las imágenes van fuera, libres de esa clase -->
+    {SeccionImagenes && <SeccionImagenes slot="contenido-libre" />}
+
 
 </BaseLayout>

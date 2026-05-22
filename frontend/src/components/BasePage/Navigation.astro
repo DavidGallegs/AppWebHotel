@@ -47,9 +47,6 @@ const isContact = currentPath === '/contacto' || currentPath === '/contacto/';
             <a href="/" class="icon-link" aria-label="Ir a la página de inicio">
                 <img src={isHome ? imgHomeMarron : imgHomeNegra} alt="" class="nav-icon-img" aria-hidden="true" />
             </a>
-            <a href="/contacto" class="icon-link" aria-label="Ir a la página de contacto">
-                <img src={isContact ? imgContactoMarron : imgContactoNegra} alt="" class="nav-icon-img" aria-hidden="true" />
-            </a>
         </div>
 
         {/* * ACCESIBILIDAD: El botón hamburguesa necesita saber a qué controla (aria-controls)
