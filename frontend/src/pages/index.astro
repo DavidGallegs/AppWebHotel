@@ -1,15 +1,21 @@
 ---
 // src/pages/index.astro
-import BaseLayout from '../layouts/BasePage.astro'; // Ajusta la ruta si es necesario
+import BaseLayout from '../layouts/BasePage.astro'; 
 
-// 1. Importamos TODA la información de tu archivo home.mdx directamente
+/* * COMPONENTE: Página de Inicio (Home)
+ * Propósito: Es la puerta de entrada. En lugar de escribir el texto aquí mismo,
+ * importamos el archivo 'home.mdx'. Esto permite cambiar los textos en el futuro 
+ * fácilmente como si fuera un documento de Word.
+ */
+
+// 1. Importamos TODA la información de tu archivo MDX
 import * as HomeData from '../md_pages/home.mdx';
 
 // 2. Extraemos el Componente del contenido y sus variables
 const { Content, frontmatter } = HomeData;
 ---
 
-<!-- 3. Usamos tu Layout pasándole las variables de tu home.mdx -->
+{/* 3. Inyectamos las variables de tu home.mdx en la plantilla base */}
 <BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
   <Content />
 </BaseLayout>

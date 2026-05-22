@@ -1,66 +1,60 @@
 ---
 import BasePage from '../layouts/BasePage.astro';
+import ImageBack from "../assets/background_Images/8_flor.jpg"
 import '../styles/fotos.css'
 
-// 1. Definimos los datos de las galerías
+/* * COMPONENTE: Galería de Fotos
+ * Propósito: Muestra el catálogo visual de la casa rural. 
+ * Los datos están centralizados en un array para que añadir fotos en el futuro 
+ * solo sea copiar y pegar una línea, sin tocar el HTML.
+ */
 const galerias = [
   {
-    titulo: "hotel Rural de Montaña",
-    fotos: [
-      "/fotos/armario.jpg",
-      "/fotos/arroz.jpg",
-      "/fotos/armario.jpg",
-
-    ]
+    titulo: "Hotel Rural de Montaña",
+    fotos: [ "/fotos/armario.jpg", "/fotos/arroz.jpg", "/fotos/armario.jpg" ]
   },
   {
     titulo: "Bar",
-    fotos: [
-      "/fotos/armario.jpg",
-
-    ]
+    fotos: [ "/fotos/armario.jpg" ]
   },
   {
     titulo: "Taranes",
     fotos: [
-      "/fotos/armario.jpg",
-      "/fotos/armario.jpg",
-      "/fotos/arroz.jpg",
-      "/fotos/armario.jpg",
-      "/fotos/armario.jpg",
-      "/fotos/armario.jpg",
-
+      "/fotos/armario.jpg", "/fotos/armario.jpg", "/fotos/arroz.jpg",
+      "/fotos/armario.jpg", "/fotos/armario.jpg", "/fotos/armario.jpg"
     ]
   },
   {
     titulo: "Concejo y Parque Natural de Ponga",
     fotos: [
-      "/fotos/armario.jpg",
-      "/fotos/armario.jpg",
-      "/fotos/arroz.jpg",
-      "/fotos/armario.jpg",
-
+      "/fotos/armario.jpg", "/fotos/armario.jpg", "/fotos/arroz.jpg", "/fotos/armario.jpg"
     ]
-  },
-  // Añade aquí Titulo 3, Titulo 4...
+  }
 ];
 
 const tituloPage = "Galería de Fotos";
-import ImageBack from "../assets/background_Images/8_flor.jpg"
 ---
 
 <BasePage tituloPage={tituloPage} imageBack={ImageBack.src} centrado={true}>
   
-  <section class="galeria-container">
-    <h1 class="main-title">Fotos</h1>
+  {/* ACCESIBILIDAD: Vinculamos la sección entera a su título principal */}
+  <section class="galeria-container" aria-labelledby="titulo-principal-galeria">
+    <h1 id="titulo-principal-galeria" class="main-title">Fotos</h1>
 
-    {galerias.map((seccion) => (
-      <div class="seccion-galeria">
-        <h2 class="titulo-seccion">{seccion.titulo}</h2>
-        <div class="grid-fotos">
-          {seccion.fotos.map((src) => (
-            <div class="foto-card">
-              <img src={src} alt={seccion.titulo} loading="lazy" />
+    {galerias.map((seccion, index) => (
+      <div class="seccion-galeria" aria-labelledby={`titulo-seccion-${index}`}>
+        <h2 id={`titulo-seccion-${index}`} class="titulo-seccion">{seccion.titulo}</h2>
+        
+        {/* Usamos role="list" para que los lectores de pantalla anuncien que esto es una agrupación de elementos */}
+        <div class="grid-fotos" role="list">
+          {seccion.fotos.map((src, fotoIndex) => (
+            <div class="foto-card" role="listitem">
+              {/* loading="lazy" retrasa la carga hasta que el usuario hace scroll, ahorrando datos y tiempo */}
+              <img 
+                src={src} 
+                alt={`Fotografía ${fotoIndex + 1} de la sección ${seccion.titulo}`} 
+                loading="lazy" 
+              />
             </div>
           ))}
         </div>

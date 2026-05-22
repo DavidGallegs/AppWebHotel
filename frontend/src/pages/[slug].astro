@@ -2,27 +2,37 @@
 // src/pages/[slug].astro
 import BaseLayout from '../layouts/BasePage.astro';
 
+/* * ENRUTAMIENTO DINÁMICO (El comodín)
+ * Propósito: Este archivo captura cualquier URL que no exista físicamente (ej: /situacion, /entorno).
+ * Busca en la carpeta md_pages si hay un archivo con ese nombre y lo renderiza automáticamente.
+ */
 const { slug } = Astro.params;
+
+// 1. Buscamos todos los archivos MDX en la carpeta
 const archivos = Object.values(import.meta.glob('../md_pages/*.mdx', { eager: true })) as any[];
 
+// 2. Filtramos para encontrar el que coincide con la URL actual
 const pagina = archivos.find((archivo) => {
   const nombre = archivo.file.split('/').pop()!.replace('.mdx', '');
   return nombre === slug;
 });
 
+// 3. Si alguien intenta entrar a una URL inventada, devolvemos un error 404 clásico
 if (!pagina) {
   return new Response(null, { status: 404, statusText: 'Página no encontrada' });
 }
 
-// 1. Extraemos tu nuevo componente "SeccionImagenes" junto con el Content
+// 4. Extraemos el contenido de texto (Content), las variables de arriba (frontmatter) 
+// y tu componente de imágenes extra (SeccionImagenes).
 const { Content, frontmatter, SeccionImagenes } = pagina;
 ---
 
-<!-- 6. Usamos tu layout pasándole las variables -->
 <BaseLayout tituloPage={frontmatter.tituloPage} imageBack={frontmatter.imageBack}>
     
+    {/* El texto formateado desde Markdown se inyecta aquí automáticamente */}
     <Content />
 
+    {/* Si el MDX tenía una galería o bloque de imágenes extra (como en situacion.mdx), se pinta aquí */}
     {SeccionImagenes && (
         <SeccionImagenes slot="contenido-libre" />
     )}
