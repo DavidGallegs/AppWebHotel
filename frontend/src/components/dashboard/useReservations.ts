@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from './api';
 import type { Reservation } from './reservation';
 
-// --- UTILIDAD DE NOTIFICACIONES ---
-// Hace una petición silenciosa al backend para que envíe el email
+/* * FUNCIÓN: enviarNotificacion (Interna)
+ * Propósito: Hace una llamada rápida al backend para decirle que dispare un email.
+ * Es silenciosa, si falla, solo lo vemos en consola, no bloquea al usuario.
+ */
 const enviarNotificacion = async (tipo: string, reservaId: string | number) => {
   try {
     await api.post('/notificaciones/enviar', { tipo, reservaId });
@@ -14,7 +16,11 @@ const enviarNotificacion = async (tipo: string, reservaId: string | number) => {
   }
 };
 
-// 1. Fetch de todas las reservas del usuario
+/* * HOOK: useReservations
+ * Propósito: Trae la lista completa de reservas del usuario logueado.
+ * React Query guarda estos datos bajo la etiqueta (queryKey) 'user-reservations'.
+ * staleTime: 60000 -> Durante 1 minuto considerará que los datos están "frescos" y no hará otra petición.
+ */
 export const useReservations = () => {
   return useQuery({
     queryKey: ['user-reservations'], 
@@ -26,7 +32,11 @@ export const useReservations = () => {
   });
 };
 
-// 2. Cancelar directamente (Solo cuando está 'pending')
+/* * HOOK: useCancelReservation
+ * Propósito: Permite al usuario cancelar su reserva SOLO si está en estado 'pending'.
+ * Cuando tiene éxito, avisa a React Query de que la lista 'user-reservations' está obsoleta, 
+ * forzando a que se recargue sola y veamos la reserva como "Cancelada".
+ */
 export const useCancelReservation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -36,12 +46,14 @@ export const useCancelReservation = () => {
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ['user-reservations'] });
-      // Opcional: enviarNotificacion('cancelacion_directa', id);
     },
   });
 };
 
-// 3. Solicitar Modificación (Cuando está 'approved')
+/* * HOOK: useRequestModification
+ * Propósito: Cuando la reserva ya está 'approved', el usuario no puede cambiarla directamente.
+ * Manda los nuevos datos propuestos al admin para que los revise.
+ */
 export const useRequestModification = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -56,7 +68,10 @@ export const useRequestModification = () => {
   });
 };
 
-// 4. Solicitar Cancelación (Cuando está 'approved')
+/* * HOOK: useRequestCancellation
+ * Propósito: Igual que el de modificar, pero para pedir una cancelación formal al admin
+ * cuando la reserva ya había sido aprobada y posiblemente pagada.
+ */
 export const useRequestCancellation = () => {
   const queryClient = useQueryClient();
   return useMutation({

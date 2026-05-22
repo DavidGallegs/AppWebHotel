@@ -12,11 +12,15 @@ interface Props {
     isPending: boolean;
 }
 
+/* * COMPONENTE: FormularioModificar
+ * Propósito: Reutiliza los componentes que ya creamos en la reserva inicial (Fechas y Titular), 
+ * pero los rellena (pre-carga) con los datos de una reserva existente para poder editarla.
+ */
 export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, isPending }: Props) {
     
-    /**
-     * Construimos el objeto inicial asegurándonos de que todas las propiedades
-     * requeridas por el esquema TReserva tengan un valor (aunque sea vacío).
+    /* * * Construimos el objeto inicial. 
+     * Hacemos una comprobación profunda (con ?.) por si algunos datos del titular 
+     * vienen vacíos o a nivel de la raíz de la reserva, evitando errores de "undefined".
      */
     const valoresIniciales: TReserva = {
         habitacion: (reservaOriginal.habitacion === "2" ? "2" : "1"),
@@ -42,22 +46,18 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
         }
     };
 
-    /**
-     * CORRECCIÓN CLAVE: 
-     * 1. Usamos el genérico <TReserva> para que el formulario sepa exactamente qué datos maneja.
-     * 2. Aplicamos 'as any' al resolver para romper el bucle de validación de tipos complejos 
-     * que está causando el error del "undefined" en habitación.
+    /* *
+     * Inicializamos el formulario y usamos 'as any' en el resolver.
+     * Esto soluciona un bug técnico de TypeScript donde se atasca validando 
+     * tipos muy complejos, pero la validación real de Zod seguirá funcionando perfecto.
      */
     const methods = useForm<TReserva>({
         resolver: zodResolver(esquemaReserva) as any,
         defaultValues: valoresIniciales
     });
 
-    /**
-     * CORRECCIÓN DEL ENVIAR:
-     * Al usar methods.handleSubmit, pasamos una función que recibe 'data' ya validado como TReserva.
-     */
     const onSubmit: SubmitHandler<TReserva> = (data) => {
+        // Le pasamos los datos limpios y validados al componente padre (ReservationList)
         onGuardar(data);
     };
 
@@ -66,8 +66,10 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
             <form 
                 onSubmit={methods.handleSubmit(onSubmit)} 
                 style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+                aria-label="Formulario para modificar reserva"
             >
-                {/* Pasamos el ID para que SeccionFechas ignore la ocupación de esta misma reserva */}
+                {/* Pasamos el ID para que SeccionFechas ignore la ocupación de esta misma reserva 
+                    y nos permita mantener nuestras propias fechas sin que salte el error de "días ocupados" */}
                 <SeccionFechas reservaId={reservaOriginal.id} />
                 
                 <SeccionTitular />
@@ -84,6 +86,7 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
                         type="button" 
                         onClick={onCancelar}
                         disabled={isPending}
+                        aria-label="Cancelar modificación y cerrar modal"
                         style={{ 
                             padding: '0.5rem 1rem', 
                             background: 'white', 
@@ -97,6 +100,8 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
                     <button 
                         type="submit"
                         disabled={isPending}
+                        aria-busy={isPending}
+                        aria-label={reservaOriginal.status === 'approved' ? 'Solicitar cambios al administrador' : 'Guardar los cambios de la reserva'}
                         style={{ 
                             padding: '0.5rem 1rem', 
                             background: '#1d4ed8', 
