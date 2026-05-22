@@ -98,6 +98,42 @@ h1 {
     margin-top: 1.5rem;
 }
 
+.bloque-imagenes-situacion {
+    display: flex;         /* Activa flexbox */
+    justify-content: center; /* Centra horizontalmente */
+    margin: 2rem 0;        /* Espaciado superior e inferior */
+}
+
+.bloque-imagenes-situacion img {
+    max-width: 100%;       /* Asegura que no se salga de la pantalla en móviles */
+    height: auto;
+    border-radius: 8px;    /* Opcional: le da un toque más profesional */
+    margin-left: 40%;
+}
+
+
+/* General imagenes resto mdx */
+.bloque-imagenes {
+    /* Define cuántas columnas quieres según el tamaño */
+    column-count: 3; 
+    column-gap: 1rem;
+    margin: 2rem auto;
+    max-width: 1000px;
+}
+
+.bloque-imagenes img {
+    width: 100%;
+    display: block;
+    margin-bottom: 1rem; /* Espacio entre fotos */
+    border-radius: 8px;
+    break-inside: avoid; /* Evita que la imagen se corte si cambia de columna */
+}
+
+/* Efecto al pasar el ratón (opcional) */
+.bloque-imagenes img:hover {
+    transform: scale(1.02);
+}
+
 /* =========================================
    6. RESPONSIVE (MÓVILES Y TABLETS)
    ========================================= */
@@ -109,7 +145,19 @@ h1 {
     /* En móviles, quitamos el modo derecha porque no hay espacio, el texto ocupa todo el ancho */
     .modo-derecha .bloque-texto {
         width: 100%; 
-        background-color: rgba(255, 255, 255, 0.85); /* Hacemos el cristal más opaco para que se lea bien en pantallas pequeñas */
         padding: 1.5rem;
     }
+
+    .bloque-imagenes-situacion img {
+
+        margin-left: 5%;
+    }
+
+    .bloque-imagenes { column-count: 2; }
+
+    
+}
+
+@media (max-width: 480px) {
+    .bloque-imagenes { column-count: 1; }
 }
