@@ -1,4 +1,6 @@
-/* Reseteo universal */
+/* =========================================
+   1. RESETEO UNIVERSAL Y VARIABLES
+   ========================================= */
 * {
     box-sizing: border-box;
     padding: 0;
@@ -7,14 +9,13 @@
     font-size: 18px;
 }
 
-/* Reglas generales para toda la web */
+/* =========================================
+   2. CUERPO DE LA WEB (BODY)
+   ========================================= */
 body {
-    background-color: #f2ddb6; /* Tu color crema corporativo */
+    background-color: #f2ddb6; 
     min-height: 100vh;
 
-    position: relative; /* Súper importante para que la imagen portada no se vuelva loca */
+    /* Súper importante para que la imagen portada (fondo-hero) se posicione en base al body y no se vuelva loca */
+    position: relative; 
 }
-
-
-/* Ya no necesitamos el @media con background-attachment: fixed porque la foto
-   ya no está en el body, la sacamos a un div independiente (fondo-hero) */

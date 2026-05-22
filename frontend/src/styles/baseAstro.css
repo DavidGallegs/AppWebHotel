@@ -1,7 +1,14 @@
-h1{
+/* =========================================
+   1. TIPOGRAFÍA BASE
+   ========================================= */
+h1 {
     font-size: 2rem;
 }
 
+/* =========================================
+   2. IMAGEN DE FONDO (HERO)
+   ========================================= */
+/* Este div vive detrás de todo el contenido, dando el efecto de portada */
 .fondo-hero {
     position: absolute; 
     top: 0;
@@ -14,51 +21,61 @@ h1{
     z-index: -1; 
 }
 
-/* --- Base del Contenedor --- */
+/* =========================================
+   3. CONTENEDOR PRINCIPAL (LA TORRE)
+   ========================================= */
 .contenedor-torre {
     display: flex;
     flex-direction: column;
-    max-width: 1100px; 
+    max-width: 1100px; /* Ancho máximo para pantallas gigantes */
     margin: 0 auto;
     margin-top: 3vh; 
     padding: 0 2rem; 
 }
 
 /* =========================================
-    VARIANTE 1: MODO DERECHA (Tus páginas MDX)
-    ========================================= */
+   4. VARIANTES DE DISEÑO (LAYOUTS)
+   ========================================= */
+
+/* --- VARIANTE A: MODO DERECHA (Tus páginas MDX) --- */
 .modo-derecha {
+    /* Empuja los elementos flexibles hacia la derecha */
     align-items: flex-end; 
 }
-.modo-derecha .bloque-texto, 
-.modo-derecha .bloque-imagenes {
-    width: 55%; 
-}
-.modo-derecha .bloque-texto,
-.modo-derecha .bloque-imagenes-situacion {
 
-    padding: 0 2.5rem 2.5rem 2.5rem ;
+.modo-derecha .bloque-texto {
+    /* Limitamos SOLO el texto al 55% para que quede en columna a la derecha */
+    width: 55%; 
+    padding: 0 2.5rem 2.5rem 2.5rem;
     border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.4); /* Un fondo blanquecino muy sutil para mejorar la lectura sobre la foto */
     backdrop-filter: blur(4px); 
 }
 
-/* =========================================
-    VARIANTE 2: MODO CENTRADO (Login, Dashboard)
-    ========================================= */
+/* Cualquier bloque de imágenes que caiga en el slot libre, ahora ocupa todo el ancho disponible */
+.modo-derecha .bloque-imagenes,
+.modo-derecha .bloque-imagenes-situacion {
+    width: 100%; 
+    padding: 2rem 0;
+}
+
+/* --- VARIANTE B: MODO CENTRADO (Login, Dashboard) --- */
 .modo-centrado {
     align-items: center; 
 }
-.modo-centrado .bloque-texto,
-.modo-centrado .bloque-imagenes {
+
+.modo-centrado .bloque-texto {
     width: 100%; 
-    /* En el modo centrado quitamos el cristal del texto porque tu tarjeta de login ya tiene el suyo */
+    /* En el modo centrado quitamos el cristal del texto porque tu tarjeta de login/dashboard ya tiene el suyo propio */
     background-color: transparent;
     padding: 0;
     backdrop-filter: none;
     box-shadow: none;
 }
 
-/* --- Estilos comunes del Texto --- */
+/* =========================================
+   5. ESTILOS INTERNOS DEL TEXTO (MDX)
+   ========================================= */
 .bloque-texto {
     text-align: left; 
     font-size: 1.15rem; 
@@ -67,31 +84,32 @@ h1{
     margin-bottom: 2rem;
 }
 
+/* Usamos :global porque Astro inyecta el HTML procesado del Markdown y a veces no pilla las clases normales */
 .bloque-texto :global(h1) {
     font-size: 2.2rem;
-    color: #3b2a1a; 
+    color: #3b2a1a; /* Marrón oscuro corporativo */
     margin-bottom: 1rem;
     margin-top: 0;
 }
-.bloque-texto :global(h2), .bloque-texto :global(h3) {
+
+.bloque-texto :global(h2), 
+.bloque-texto :global(h3) {
     color: #444;
     margin-top: 1.5rem;
 }
 
-/* --- Bloques paginas --- */
-.bloque-imagenes-situacion{
-    padding: 0 0 2rem 0;
-
-}
-
-
-/* --- Móviles --- */
+/* =========================================
+   6. RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
 @media (max-width: 850px) {
     .contenedor-torre {
         align-items: center; 
     }
+    
+    /* En móviles, quitamos el modo derecha porque no hay espacio, el texto ocupa todo el ancho */
     .modo-derecha .bloque-texto {
         width: 100%; 
-        background-color: rgba(255, 255, 255, 0.70); 
+        background-color: rgba(255, 255, 255, 0.85); /* Hacemos el cristal más opaco para que se lea bien en pantallas pequeñas */
+        padding: 1.5rem;
     }
 }

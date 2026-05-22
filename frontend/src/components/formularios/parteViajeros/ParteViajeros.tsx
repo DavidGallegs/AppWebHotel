@@ -3,6 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SeccionViajero } from "./SeccionViajero";
 import { esquemaParteViajeros, type TParteViajeros } from "./esquemaViajeros"; 
 import { useQueryClient } from "@tanstack/react-query";
+
+// IMPORTANTE: Traemos tu configuración de axios que tiene el Token
 import { api } from "../../dashboard/api";
 
 interface Props {
@@ -46,7 +48,7 @@ export default function ParteViajeros({ reservaId, isAdmin = false }: Props) {
             });
         }
 
-        // 1. Elegimos la ruta correcta según quién lo use
+        // 1. LA MAGIA: Elegimos la ruta correcta según quién lo use
         const endpoint = isAdmin 
             ? `/admin/reservations/${reservaId}/checkin` 
             : `/reservations/${reservaId}/checkin`;
@@ -105,7 +107,8 @@ export default function ParteViajeros({ reservaId, isAdmin = false }: Props) {
                                 type="submit" 
                                 className="btn-action btn-approve" 
                                 style={{ width: '100%', marginTop: '1rem' }}
-                                aria-label="Enviar datos y finalizar check-in">
+                                aria-label="Enviar datos y finalizar check-in"
+                            >
                                 Enviar Parte de Viajeros y Finalizar
                             </button>
                         )}
