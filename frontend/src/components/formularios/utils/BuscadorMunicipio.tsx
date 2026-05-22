@@ -6,11 +6,16 @@ interface Props {
     name: string; 
 }
 
+/* * COMPONENTE: BuscadorMunicipio
+ * Propósito: Input autocompletable que busca municipios españoles en un JSON local.
+ * Sincroniza el ID del municipio seleccionado con el estado de react-hook-form.
+ */
 export function BuscadorMunicipio({ name }: Props) {
     const { register, setValue, control } = useFormContext();
     const [busqueda, setBusqueda] = useState("");
     const [mostrarOpciones, setMostrarOpciones] = useState(false);
 
+    // Vigilamos si el municipio cambia desde fuera (ej: al cargar datos por defecto)
     const valorActual = useWatch({ control, name });
 
     useEffect(() => {
@@ -22,6 +27,7 @@ export function BuscadorMunicipio({ name }: Props) {
         }
     }, [valorActual]);
 
+    // Filtrado en tiempo real basado en lo que escribe el usuario
     const municipiosFiltrados = busqueda
         ? datasetMunicipios
               .filter((m: any) => m.nombre.toLowerCase().includes(busqueda.toLowerCase()))
@@ -44,11 +50,17 @@ export function BuscadorMunicipio({ name }: Props) {
 
     return (
         <div className="buscador-municipio">
+            {/* Input oculto que realmente guarda el ID para React Hook Form */}
             <input type="hidden" {...register(name as any)} />
 
+            {/* ACCESIBILIDAD: Rol combobox, controles y estados expandidos */}
             <input
-                className="buscador-municipio-input" /* <-- Nueva clase añadida aquí */
+                className="buscador-municipio-input"
                 type="text"
+                role="combobox"
+                aria-expanded={mostrarOpciones}
+                aria-controls="lista-municipios-sugerencias"
+                aria-label="Buscar municipio por nombre"
                 placeholder="Escribe para buscar municipio..."
                 value={busqueda}
                 onChange={manejarCambio}
@@ -58,12 +70,19 @@ export function BuscadorMunicipio({ name }: Props) {
             />
 
             {mostrarOpciones && (
-                <ul className="buscador-municipio-lista">
+                // Lista de opciones semánticas
+                <ul 
+                    id="lista-municipios-sugerencias" 
+                    className="buscador-municipio-lista" 
+                    role="listbox"
+                >
                     {municipiosFiltrados.length > 0 ? (
                         municipiosFiltrados.map((mun: any) => (
                             <li
                                 key={mun.municipio_id}
                                 className="buscador-municipio-item"
+                                role="option"
+                                aria-selected={valorActual === mun.municipio_id}
                                 onMouseDown={() => seleccionarMunicipio(mun.municipio_id, mun.nombre)}
                             >
                                 {mun.nombre} 
@@ -71,7 +90,9 @@ export function BuscadorMunicipio({ name }: Props) {
                             </li>
                         ))
                     ) : (
-                        <li className="buscador-municipio-empty">No se encontraron municipios</li>
+                        <li className="buscador-municipio-empty" role="option" aria-disabled="true">
+                            No se encontraron municipios
+                        </li>
                     )}
                 </ul>
             )}
