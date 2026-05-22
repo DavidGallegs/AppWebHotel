@@ -3,21 +3,22 @@ import { FileBadge, Search, Eye, X } from 'lucide-react';
 import { useAdmin } from './useAdmin';
 import { format } from 'date-fns';
 
+/* * COMPONENTE: AdminTabSES
+ * Propósito: Muestra el historial de transmisiones a las autoridades. 
+ * Vital para auditorías legales de la casa rural.
+ */
 export default function AdminTabSES() {
 
   const { sesData } = useAdmin(); 
-  
-  // Estado para el modal de detalles
   const [detalleSES, setDetalleSES] = useState<any | null>(null);
 
-  // Función para dar color a los estados del SES
   const getEstadoSESClass = (estado: string) => {
     switch (estado?.toUpperCase()) {
-      case 'NOTIFICADO': return 'badge badge-finished'; // Verde
-      case 'PENDIENTE': return 'badge badge-pending'; // Naranja
-      case 'ANULADO': return 'badge alert-cancel'; // Rojo claro
-      case 'MODIFICADO': return 'badge btn-outline'; // Gris/Outline para reservas antiguas que fueron reemplazadas
-      case 'ERROR': return 'badge alert-cancel'; // Rojo
+      case 'NOTIFICADO': return 'badge badge-finished'; 
+      case 'PENDIENTE': return 'badge badge-pending'; 
+      case 'ANULADO': return 'badge alert-cancel'; 
+      case 'MODIFICADO': return 'badge btn-outline'; 
+      case 'ERROR': return 'badge alert-cancel'; 
       default: return 'badge badge-pending';
     }
   };
@@ -25,7 +26,7 @@ export default function AdminTabSES() {
   return (
     <div className="fade-in">
       <div className="admin-page-title">
-        <FileBadge size={28} color="#3b82f6" />
+        <FileBadge size={28} color="#3b82f6" aria-hidden="true" />
         <h2>Gestión y Estados SES (Hospederías)</h2>
       </div>
 
@@ -35,21 +36,21 @@ export default function AdminTabSES() {
         </p>
 
         {(!sesData || sesData.length === 0) ? (
-          <div style={{ textAlign: 'center', padding: '2rem 0', color: '#9ca3af' }}>
-            <Search size={32} style={{ margin: '0 auto', marginBottom: '1rem', opacity: 0.5 }} />
+          <div style={{ textAlign: 'center', padding: '2rem 0', color: '#9ca3af' }} role="status">
+            <Search size={32} style={{ margin: '0 auto', marginBottom: '1rem', opacity: 0.5 }} aria-hidden="true" />
             No hay información del SES disponible todavía.
           </div>
         ) : (
           <div className="admin-table-container">
-            <table className="admin-table">
+            <table className="admin-table" aria-label="Registro de transmisiones SES">
               <thead>
                 <tr>
-                  <th>ID Reserva</th>
-                  <th>Titular</th>
-                  <th>Estado SES</th>
-                  <th>Lote / Fecha Envío</th>
-                  <th>Relación</th>
-                  <th>Acciones</th>
+                  <th scope="col">ID Reserva</th>
+                  <th scope="col">Titular</th>
+                  <th scope="col">Estado SES</th>
+                  <th scope="col">Lote / Fecha Envío</th>
+                  <th scope="col">Relación</th>
+                  <th scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,7 +78,6 @@ export default function AdminTabSES() {
                       )}
                     </td>
                     <td>
-                      {/* LÓGICA DE RELACIÓN (ID 7 reemplazada por ID 9) */}
                       {row.sustituida_por && (
                         <span className="admin-alert-waiting" style={{ color: '#b45309' }}>
                           Sustituida por #{row.sustituida_por}
@@ -93,8 +93,9 @@ export default function AdminTabSES() {
                       <button 
                         onClick={() => setDetalleSES(row)} 
                         className="btn-action btn-outline btn-small"
+                        aria-label={`Ver detalles del lote para la reserva ${row.reserva_id}`}
                       >
-                        <Eye size={14} /> Ver Lote
+                        <Eye size={14} aria-hidden="true" /> Ver Lote
                       </button>
                     </td>
                   </tr>
@@ -105,12 +106,12 @@ export default function AdminTabSES() {
         )}
       </div>
 
-      {/* MODAL PARA VER LOS DETALLES DEL LOTE Y EL SES */}
+      {/* MODAL SES ACCESIBLE */}
       {detalleSES && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ses-title">
           <div className="modal-card">
-            <button onClick={() => setDetalleSES(null)} className="modal-close-btn"><X size={24} /></button>
-            <h2 className="modal-header">Detalles SES - Reserva #{detalleSES.reserva_id}</h2>
+            <button onClick={() => setDetalleSES(null)} className="modal-close-btn" aria-label="Cerrar"><X size={24} aria-hidden="true" /></button>
+            <h2 id="modal-ses-title" className="modal-header">Detalles SES - Reserva #{detalleSES.reserva_id}</h2>
 
             <div className="modal-grid">
               <section className="modal-info-box">

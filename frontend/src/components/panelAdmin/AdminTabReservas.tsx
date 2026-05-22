@@ -4,6 +4,10 @@ import { Eye, Euro, Trash2, X } from 'lucide-react';
 import { useAdmin } from './useAdmin';
 import type { FullReservation } from '../dashboard/ReservationList';
 
+/* * COMPONENTE: AdminTabReservas
+ * Propósito: Muestra todas las reservas. Desde aquí el administrador puede 
+ * aprobar pagos, anular, o lanzar el flujo de Check-in.
+ */
 const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReservation) => void }) => {
   const { reservas, mutations } = useAdmin();
   const [reservaDetalle, setReservaDetalle] = useState<FullReservation | null>(null);
@@ -15,13 +19,14 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
       <h2 className="admin-text-semibold" style={{ marginBottom: '1.5rem' }}>Gestión de Reservas</h2>
       
       <div className="admin-table-container">
-        <table className="admin-table">
+        {/* Accesibilidad para tablas de datos */}
+        <table className="admin-table" aria-label="Listado general de reservas">
           <thead>
             <tr>
-              <th>ID / Titular</th>
-              <th>Fechas</th>
-              <th>Estado / Alertas</th>
-              <th>Acciones</th>
+              <th scope="col">ID / Titular</th>
+              <th scope="col">Fechas</th>
+              <th scope="col">Estado / Alertas</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -36,46 +41,50 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                   <div className="flex-column-gap">
                     <span className={`badge badge-${res.status}`}>{res.status}</span>
                     
-                    {/* Alerta: Esperando transferencia bancaria */}
                     {res.status === 'pending' && (res.estado_pago === 'pendiente' || !res.estado_pago) && (
-                       <span className="admin-alert-waiting">⏳ Esperando fondos</span>
+                       <span className="admin-alert-waiting" role="status">Esperando fondos</span>
                     )}
 
-                    {/* Alerta: El cliente ya ha notificado que ha pagado */}
                     {res.status === 'pending' && res.estado_pago === 'notificado' && (
-                       <span className="admin-alert-waiting" style={{ color: '#10b981' }}>💰 Pago Notificado</span>
+                       <span className="admin-alert-waiting" style={{ color: '#10b981' }} role="status">💰 Pago Notificado</span>
                     )}
 
                     {res.solicitud_cancelacion === 1 && (
-                      <div className="alert-box alert-cancel">
-                        <div className="alert-title">🚨 SOLICITUD ANULACIÓN</div>
-                        <button onClick={() => mutations.resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} className="btn-small accept-cancel">Aceptar</button>
+                      <div className="alert-box alert-cancel" role="alert">
+                        <div className="alert-title"> SOLICITUD ANULACIÓN</div>
+                        <button 
+                            onClick={() => mutations.resolverSolicitud.mutate({ id: res.id, accion: 'accept', tipo: 'cancel' })} 
+                            className="btn-small accept-cancel"
+                            aria-label={`Aceptar anulación de reserva ${res.id}`}
+                        >
+                            Aceptar
+                        </button>
                       </div>
                     )}
                   </div>
                 </td>
                 <td>
-                  <div className="flex-column-gap">
-                    <button onClick={() => setReservaDetalle(res)} className="btn-action btn-outline">
-                      <Eye size={14} /> + Info
+                  <div className="flex-column-gap" role="group" aria-label="Acciones de reserva">
+                    <button onClick={() => setReservaDetalle(res)} className="btn-action btn-outline" aria-label="Ver detalles">
+                      <Eye size={14} aria-hidden="true" /> + Info
                     </button>
 
-                    {/* BOTÓN RECUPERADO: Solo aparece si está pendiente y con el pago notificado */}
                     {res.status === 'pending' && res.estado_pago === 'notificado' && (
                        <button 
                          onClick={() => { if(confirm('¿Confirmar ingreso bancario y aprobar reserva?')) mutations.confirmarPagoYAprobar.mutate(res.id) }} 
                          className="btn-action btn-approve"
+                         aria-label="Confirmar recepción del dinero"
                        >
-                         <Euro size={14} /> Confirmar Ingreso
+                         <Euro size={14} aria-hidden="true" /> Confirmar Ingreso
                        </button>
                     )}
 
                     {res.status === 'approved' && (
-                       <button onClick={() => onCheckinSelect(res)} className="btn-action btn-checkin">Check-in</button>
+                       <button onClick={() => onCheckinSelect(res)} className="btn-action btn-checkin" aria-label="Realizar check in">Check-in</button>
                     )}
 
-                    <button onClick={() => { if(confirm('¿Anular?')) mutations.cancelarReservaAdmin.mutate(res.id) }} className="btn-action btn-danger-soft">
-                      <Trash2 size={14} /> Anular
+                    <button onClick={() => { if(confirm('¿Anular?')) mutations.cancelarReservaAdmin.mutate(res.id) }} className="btn-action btn-danger-soft" aria-label="Anular reserva">
+                      <Trash2 size={14} aria-hidden="true" /> Anular
                     </button>
                   </div>
                 </td>
@@ -85,12 +94,12 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
         </table>
       </div>
 
-      {/* MODAL DETALLES LIMPIO */}
+      {/* MODAL DETALLES ACCESIBLE */}
       {reservaDetalle && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`modal-title-${reservaDetalle.id}`}>
           <div className="modal-card">
-            <button onClick={() => setReservaDetalle(null)} className="modal-close-btn"><X size={24} /></button>
-            <h2 className="modal-header">Detalles Reserva #{reservaDetalle.id}</h2>
+            <button onClick={() => setReservaDetalle(null)} className="modal-close-btn" aria-label="Cerrar ventana"><X size={24} aria-hidden="true" /></button>
+            <h2 id={`modal-title-${reservaDetalle.id}`} className="modal-header">Detalles Reserva #{reservaDetalle.id}</h2>
 
             <div className="modal-grid">
               <section>
