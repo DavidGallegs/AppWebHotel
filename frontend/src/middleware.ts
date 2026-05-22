@@ -1,44 +1,38 @@
-// src/middleware.ts
 import { getSession } from 'auth-astro/server';
 import { defineMiddleware } from 'astro:middleware';
 
+/* * ARCHIVO: middleware.ts
+ * Propósito: Este archivo se ejecuta ANTES de que cualquier página cargue. 
+ * Es el portero de la discoteca: verifica quién tiene permiso para pasar a qué salas.
+ */
 export const onRequest = defineMiddleware(async (context, next) => {
   const session = await getSession(context.request);
   const { pathname } = context.url;
 
-  // 1. LISTA DE RUTAS PRIVADAS (Solo para usuarios logueados)
-  const privateRoutes = ['/reserva','/dashboard','/admin'];
-  
-  // Comprobamos si la URL actual EMPIEZA por alguna de las rutas privadas
+  // 1. ZONAS RESTRINGIDAS: Solo clientes con pulsera (Sesión iniciada)
+  const privateRoutes = ['/reserva', '/dashboard', '/admin'];
   const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
 
   if (isPrivateRoute && !session) {
-    // Si es privada y no hay sesión, lo echamos al login
     return context.redirect('/login');
   }
 
-  // 2. LISTA DE RUTAS DE AUTENTICACIÓN (Solo para invitados)
-  const authRoutes = ['/login', '/join','/forgetPassword'];
-  
-  // Comprobamos si la URL actual ES EXACTAMENTE alguna de estas
+  // 2. ZONAS DE INVITADOS: Si ya tienes pulsera, no necesitas hacer la cola del login
+  const authRoutes = ['/login', '/join', '/forgetPassword'];
   const isAuthRoute = authRoutes.includes(pathname);
 
   if (isAuthRoute && session) {
-    // Si ya tiene sesión e intenta ir al login/join, lo mandamos al inicio
     return context.redirect('/');
   }
 
-  // Si intenta entrar al panel de admin...
+  // 3. ZONAS VIP (Administración): Solo para el personal autorizado
   if (pathname.startsWith('/admin')) {
-    // Sacamos el rol del usuario de la sesión
     const userRole = (session as any)?.user?.role;
-    
-    // Si no es admin, patada al dashboard
     if (userRole !== 'admin') {
       return context.redirect('/');
     }
   }
 
-  // 3. Si pasa todos los filtros, le mostramos la página normal
+  // Si todo está en orden, abrimos las puertas
   return next();
 });

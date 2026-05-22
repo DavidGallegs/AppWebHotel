@@ -9,6 +9,11 @@ interface LaravelUser {
   role: string;
 }
 
+/* * ARCHIVO: auth.config.ts
+ * Propósito: Define CÓMO AuthAstro valida a los usuarios.
+ * LA CLAVE: Como esto se ejecuta en el servidor Node.js de Astro, usamos "http://backend:80" 
+ * para comunicarnos directamente por la red interna de Docker con el contenedor de Laravel.
+ */
 export default defineConfig({
   providers: [
     Credentials({
@@ -16,13 +21,13 @@ export default defineConfig({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        otp: { label: "Código 2FA", type: "text" } // <-- 1. AÑADIMOS EL CAMPO OTP
+        otp: { label: "Código 2FA", type: "text" } 
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          // El backend de docker interno
+          // Petición interna de contenedor a contenedor (Astro -> Laravel)
           const response = await fetch("http://backend:80/api/login", {
             method: "POST",
             headers: { 
@@ -32,7 +37,7 @@ export default defineConfig({
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
-              otp: credentials.otp, // <-- 2. SE LO ENVIAMOS A LARAVEL
+              otp: credentials.otp, 
             }),
           });
 
@@ -40,6 +45,7 @@ export default defineConfig({
           console.log("RESPUESTA DE LARAVEL:", data);
 
           if (response.ok && data.user) {
+            // Guardamos todo en la "galleta" (cookie) encriptada de Astro
             return {
               id: data.user.id.toString(), 
               name: data.user.name,
@@ -59,15 +65,11 @@ export default defineConfig({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.userData = user;
-      }
+      if (user) token.userData = user;
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user = token.userData as any;
-      }
+      if (session.user) session.user = token.userData as any;
       return session;
     }
   }
