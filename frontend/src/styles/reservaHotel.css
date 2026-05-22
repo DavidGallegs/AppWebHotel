@@ -273,3 +273,51 @@ select:focus {
 .campo-municipio-largo {
     grid-column: 1 / -1; /* Esto hace que ocupe TODAS las columnas disponibles (ancho completo) */
 }
+
+
+/* --- FORMULARIO MODIFICAR */
+.formulario-modificar .acciones-modificar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.formulario-modificar button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Estilo Cancelar */
+.formulario-modificar .btn-cancelar {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.formulario-modificar .btn-cancelar:hover {
+    background: #f3f4f6;
+}
+
+/* Estilo Guardar */
+.formulario-modificar .btn-guardar {
+    background: #2563eb;
+    border: none;
+    color: #ffffff;
+}
+
+.formulario-modificar .btn-guardar:hover {
+    background: #1d4ed8;
+}
+
+/* Estado deshabilitado */
+.formulario-modificar button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

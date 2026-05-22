@@ -4,6 +4,7 @@ import { SeccionFechas } from "../formularios/reservaHotel/SeccionFechas";
 import { SeccionTitular } from "../formularios/reservaHotel/SeccionTitular";
 import { esquemaReserva, type TReserva } from "../formularios/reservaHotel/esquemaReserva"; 
 import type { FullReservation } from "./ReservationList"; 
+import '../../styles/reservaHotel.css'
 
 interface Props {
     reservaOriginal: FullReservation;
@@ -66,6 +67,7 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
             <form 
                 onSubmit={methods.handleSubmit(onSubmit)} 
                 style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+                className="formulario-modificar"
                 aria-label="Formulario para modificar reserva"
             >
                 {/* Pasamos el ID para que SeccionFechas ignore la ocupación de esta misma reserva 
@@ -74,43 +76,19 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
                 
                 <SeccionTitular />
                 
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end', 
-                    gap: '1rem', 
-                    marginTop: '1rem', 
-                    borderTop: '1px solid #eee', 
-                    paddingTop: '1rem' 
-                }}>
+                <div className="acciones-modificar">
                     <button 
                         type="button" 
+                        className="btn-cancelar"
                         onClick={onCancelar}
                         disabled={isPending}
-                        aria-label="Cancelar modificación y cerrar modal"
-                        style={{ 
-                            padding: '0.5rem 1rem', 
-                            background: 'white', 
-                            border: '1px solid #ccc', 
-                            borderRadius: '6px', 
-                            cursor: 'pointer' 
-                        }}
                     >
                         Cancelar
                     </button>
                     <button 
                         type="submit"
+                        className="btn-guardar"
                         disabled={isPending}
-                        aria-busy={isPending}
-                        aria-label={reservaOriginal.status === 'approved' ? 'Solicitar cambios al administrador' : 'Guardar los cambios de la reserva'}
-                        style={{ 
-                            padding: '0.5rem 1rem', 
-                            background: '#1d4ed8', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '6px', 
-                            cursor: 'pointer',
-                            fontWeight: 600
-                        }}
                     >
                         {isPending ? 'Procesando...' : (reservaOriginal.status === 'approved' ? 'Solicitar Cambios' : 'Guardar Cambios')}
                     </button>

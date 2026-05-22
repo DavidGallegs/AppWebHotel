@@ -3,7 +3,7 @@ import { listaPaises } from "../utils/paises";
 import { type TReserva } from "./esquemaReserva";
 import { BuscadorMunicipio } from "../utils/BuscadorMunicipio";
 
-/* * COMPONENTE: SeccionTitular
+/* * COMPONENTE: SeccionTitular 
  * Propósito: Recoge la información de la persona que se hace responsable del pago y de la reserva.
  * Es una versión un poco más estricta que la de un simple "viajero".
  */

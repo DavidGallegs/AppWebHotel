@@ -51,10 +51,10 @@ export default function ReservaHotel() {
             });
 
             if (!respuesta.ok) throw new Error(`Error: ${respuesta.status}`);
-            alert("Reserva creada correctamente. Ahora registre a los viajeros.");
+            alert("Reserva creada correctamente.");
 
             // Si todo fue bien, vaciamos el formulario para la siguiente reserva
-            methods.reset();
+            window.location.reload();
 
         } catch (error) {
             console.error("Fallo al conectar con el backend:", error);

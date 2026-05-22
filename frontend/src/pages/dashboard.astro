@@ -4,7 +4,6 @@ import BasePage from "../layouts/BasePage.astro";
 import ImageBack from "../assets/background_Images/10_reserva.jpg";
 import { getSession } from 'auth-astro/server';
 
-// Fíjate que ahora importamos DashboardApp
 import { DashboardApp } from '../components/dashboard/ReservationList';
 
 const session = await getSession(Astro.request);
