@@ -4,11 +4,15 @@ import Footer from "../components/BasePage/Footer.astro"
 import '../styles/global.css'; 
 import '../styles/baseAstro.css';
 
-// MAGIA 2: Comprobamos si las variables vienen dentro de "frontmatter" (porque es un MDX) 
-// o si vienen directamente en Astro.props (porque es un archivo .astro)
+/* * LÓGICA DE PROPS (El Frontmatter)
+ * Propósito: Este componente es súper flexible. Puede ser usado por una página normal de Astro (.astro) 
+ * o por un archivo Markdown (.mdx).
+ * Como los MDX guardan sus variables dentro de un objeto llamado 'frontmatter', 
+ * esta línea detecta de dónde vienen los datos para que no dé error en ninguno de los dos casos.
+ */
 const props = Astro.props.frontmatter || Astro.props;
 
-// Ahora sí extraemos las variables de forma segura
+// Extraemos las variables que configuramos en cada página individual
 const { tituloPage, imageBack, centrado = false } = props;
 ---
 
@@ -20,22 +24,30 @@ const { tituloPage, imageBack, centrado = false } = props;
     </head>
     
     <body>
-        <div class="fondo-hero" style={`background-image: url('${imageBack}');`}></div>
+        {/* Imagen de fondo inyectada dinámicamente según la página */}
+        <div class="fondo-hero" style={`background-image: url('${imageBack}');`} aria-hidden="true"></div>
         
-        <div style="height: 85px; width: 100%;"></div>
+        {/* Espaciador para el menú de navegación fijo */}
+        <div style="height: 85px; width: 100%;" aria-hidden="true"></div>
 
         <Navigation />
         
-        <!-- 2. MAGIA: Si centrado es true, pone la clase 'modo-centrado', si no, 'modo-derecha' -->
-        <main class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
+        {/* * CONTENEDOR PRINCIPAL
+          * Si la variable 'centrado' es true, le aplica una clase, si no, lo echa a la derecha. 
+          * El id="main-content" es vital para la accesibilidad web.
+          */}
+        <main id="main-content" class={`contenedor-torre ${centrado ? 'modo-centrado' : 'modo-derecha'}`}>
     
+            {/* Aquí es donde Astro "escupe" el contenido normal de la página o del MDX */}
             <div class="bloque-texto">
                 <slot />
             </div>
 
+            {/* Aquí es donde Astro inyecta cualquier bloque de código extra que le mandes con el atributo slot="contenido-libre" */}
             <slot name="contenido-libre" />
 
         </main>
+        
         <Footer/>
     </body>
 </html>

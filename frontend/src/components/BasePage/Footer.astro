@@ -1,9 +1,13 @@
 ---
 ---
 
-<footer class="footer-web">
+{/* ACCESIBILIDAD: Usamos la etiqueta semántica de HTML5 */}
+<footer class="footer-web" aria-labelledby="footer-title">
+    <h2 id="footer-title" style="display: none;">Información institucional y legal</h2>
+    
     <div class="footer-container">
         
+        {/* BLOQUE IZQUIERDO: Información legal y del proyecto */}
         <div class="footer-info">
             <p>
                 Proyecto subvencionado con la colaboración del grupo de acción local 
@@ -16,20 +20,23 @@
             <p><strong class="footer-strongB">Ayuda:</strong> 11.079€ (Financiada por la Unión Europea: 80%)</p>
         </div>
 
+        {/* BLOQUE DERECHO: Logos institucionales */}
         <div class="footer-container">
-
-        <div class="footer-logos">
-            <img src="/footer/logo-union-europea.png" alt="Logo unión Eueropea" />
-            <img src="/footer/logo-ministerio.jpg" alt="Logo ministerio " />
-            <img src="/footer/logo-leader.jpg" alt="Logo Leader" />
-            <img src="/footer/logo-consorcio.jpg" alt="Logo consorcio" />
-            <img src="/footer/logo-principado.png" alt="Logo principado" />
+            <div class="footer-logos" aria-label="Logotipos de las entidades financiadoras">
+                {/* Buena práctica: loading="lazy" hace que las imágenes solo se carguen cuando el usuario baja hasta el final */}
+                <img src="/footer/logo-union-europea.png" alt="Logotipo de la Unión Europea" loading="lazy" />
+                <img src="/footer/logo-ministerio.jpg" alt="Logotipo del Ministerio" loading="lazy" />
+                <img src="/footer/logo-leader.jpg" alt="Logotipo de Leader" loading="lazy" />
+                <img src="/footer/logo-consorcio.jpg" alt="Logotipo del Consorcio" loading="lazy" />
+                <img src="/footer/logo-principado.png" alt="Logotipo del Principado de Asturias" loading="lazy" />
+            </div>
         </div>
         
     </div>
 </footer>
 
 <style>
+    /* ... TODO TU CSS SE MANTIENE EXACTAMENTE IGUAL ... */
     .footer-web {
         background-color: #fff;
         padding: 1.2rem 2rem;
@@ -39,7 +46,8 @@
     }
 
     .footer-container {
-        max-width: 1300px; /* Lo hacemos más ancho para que quepa todo bien al lado */
+        max-width: 1300px;
+        /* Lo hacemos más ancho para que quepa todo bien al lado */
         margin: 0 auto;
         display: flex;
         flex-direction: row; /* Uno al lado del otro */
@@ -50,7 +58,8 @@
 
     /* Estilo del texto a la izquierda */
     .footer-info {
-        flex: 1; /* Ocupa la mitad del espacio */
+        flex: 1;
+        /* Ocupa la mitad del espacio */
         text-align: left;
         color: #333;
         font-size: 0.85rem;
