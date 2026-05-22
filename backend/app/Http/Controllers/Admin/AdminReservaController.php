@@ -112,7 +112,7 @@ class AdminReservaController extends Controller
                 if ($sesResponse['ok']) {
 
                     // ESPERA PARA QUE SES PROCESE EL LOTE
-                    sleep(7); 
+                    sleep(5); 
 
                     $comunicacion = ComunicacionSES::where(
                         'codigo_lote',
@@ -125,16 +125,16 @@ class AdminReservaController extends Controller
                         $resultadoConsulta = null;
 
                         //REINTENTAR CONSULTA HASTA 3 VECES SI EL ESTADO SIGUE PENDIENTE 
-                        while ($intentos < 3) {
+                        while ($intentos < 5) {
 
                             $resultadoConsulta = app(SesConsultaLoteService::class)
                                 ->consultarLote($comunicacion);
 
-                            if (($resultadoConsulta['estado'] ?? null) != 5) {
+                            if (($resultadoConsulta['codigo_estado'] ?? null) != 5) {
                                 break;
                             }
 
-                            sleep(4); 
+                            sleep(3); 
                             $intentos++;
                         }
 

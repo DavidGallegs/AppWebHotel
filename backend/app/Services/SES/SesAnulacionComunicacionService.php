@@ -13,6 +13,14 @@ class SesAnulacionComunicacionService
 {
     public function anular(ComunicacionSES $comunicacion): array
     {
+
+        logger()->info('SES DEBUG ANULACION SERVICE', [
+            'endpoint' => config('services.ses.endpoint'),
+            'arrendador' => config('services.ses.codigo_arrendador'),
+            'auth' => config('services.ses.auth_basic'),
+            'app_env' => app()->environment(),
+            'codigo_comunicacion' => $comunicacion->codigo_comunicacion,
+        ]);
         $zipPath = null;
 
         try {
@@ -148,56 +156,34 @@ class SesAnulacionComunicacionService
     private function generarXmlInterno(string $codigo): string
     {
         return <<<XML
-        <?xml version="1.0" encoding="UTF-8"?>
-        <anul:comunicaciones
-        xmlns:anul="http://www.neg.hospedajes.mir.es/anularComunicacion">
-
+        <anul:comunicaciones xmlns:anul="http://www.neg.hospedajes.mir.es/anularComunicacion">
             <anul:codigoComunicacion>{$codigo}</anul:codigoComunicacion>
-
         </anul:comunicaciones>
         XML;
     }
 
     private function generarSoap(string $base64): string
     {
+        $codigoArrendador = config('services.ses.codigo_arrendador');
+
         return <<<XML
-        <?xml version="1.0" encoding="UTF-8"?>
-        <soapenv:Envelope
-        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-        xmlns:com="http://www.soap.servicios.hospedajes.mir.es/comunicacion">
-
-            <soapenv:Header/>
-
-            <soapenv:Body>
-
-                <com:comunicacionRequest>
-
-                    <peticion>
-
-                        <cabecera>
-
-                            <codigoArrendador>
-                                {config('services.ses.codigo_arrendador')}
-                            </codigoArrendador>
-
-                            <aplicacion>
-                                APP_Pruebas
-                            </aplicacion>
-
-                            <tipoOperacion>B</tipoOperacion>
-
-                        </cabecera>
-
-                        <solicitud>{$base64}</solicitud>
-
-                    </peticion>
-
-                </com:comunicacionRequest>
-
-            </soapenv:Body>
-
-        </soapenv:Envelope>
-        XML;
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:com="http://www.soap.servicios.hospedajes.mir.es/comunicacion">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <com:comunicacionRequest>
+            <peticion>
+                <cabecera>
+                <codigoArrendador>{$codigoArrendador}</codigoArrendador>
+                <aplicacion>APP_Pruebas</aplicacion>
+                <tipoOperacion>B</tipoOperacion>
+                </cabecera>
+                <solicitud>{$base64}</solicitud>
+            </peticion>
+        </com:comunicacionRequest>
+    </soapenv:Body>
+    </soapenv:Envelope>
+    XML;
     }
 
     private function getValue(string $xml, string $tag): ?string
