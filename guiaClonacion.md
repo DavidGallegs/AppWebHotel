@@ -68,9 +68,15 @@ wsl --shutdown
 ## COMANDO PRODUCCION BASH
 
 ~~~cmd
+<!-- Conexión a ubuntu por ssh (bash) -->
+ssh -i "clave-aws.pem" ubuntu@
+
 <!-- Para iniciar o updates -->
 sudo docker compose --env-file ./backend/.env -f docker-compose-prod.yml up -d --build
 
 <!-- Primera vez laravel -->
 sudo docker compose -f docker-compose-prod.yml exec backend php artisan key:generate
+
+<!-- Consumo de memoria y almacenamiento -->
+ubuntu@ip-172-31-37-213:~$
 ~~~
