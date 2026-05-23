@@ -40,7 +40,7 @@ export function SeccionFechas({ reservaId }: Props) {
         const cargarOcupacion = async () => {
             setIsLoading(true);
             try {
-                const url = `http://localhost:8000/api/ocupacion?habitacion=${habitacionSeleccionada}${reservaId ? `&exclude_reserva=${reservaId}` : ''}`;
+                const url = `${import.meta.env.PUBLIC_API_URL}/api/ocupacion?habitacion=${habitacionSeleccionada}${reservaId ? `&exclude_reserva=${reservaId}` : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 

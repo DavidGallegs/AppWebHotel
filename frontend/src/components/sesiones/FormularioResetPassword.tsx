@@ -9,7 +9,7 @@ export function FormularioResetFinal({ token, email }: { token: string, email: s
         if (password !== confirmar) { alert("Las contraseñas no coinciden"); return; }
         setCargando(true);
         try {
-            const res = await fetch("http://localhost:8000/api/reset-password", {
+            const res = await fetch(import.meta.env.PUBLIC_API_URL +"/api/reset-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({ token, email, password, password_confirmation: confirmar })

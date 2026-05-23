@@ -6,7 +6,7 @@ import axios from 'axios';
  * cada vez que hacemos una petición en el resto de la aplicación. Es nuestra "autopista" al backend.
  */
 export const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.PUBLIC_API_URL +"/api",
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'

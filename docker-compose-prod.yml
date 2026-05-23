@@ -1,0 +1,54 @@
+services:
+  # 1. Base de datos
+  base_datos:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - ./backend/.env
+    networks:
+      - redOne
+
+  # 2. PhpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    networks:
+      - redOne
+    depends_on:
+      - base_datos
+
+  # 3. BackEnd(Laravel)
+  backend:
+    build: 
+      context: ./backend                   # La carpeta donde vive el código PHP
+      dockerfile: ../docker/php.Dockerfile
+    restart: always
+    ports:
+      - "8000:80"         
+    networks:
+      - redOne
+
+  # 4. FrontEnd (Astro + React)
+  frontend:
+    build:
+      context: ./frontend                  # La carpeta donde vive el código Astro
+      dockerfile: ../docker/node.Dockerfile 
+    tty: true    
+    restart: always                         
+    ports:
+      - "4321:4321"
+    environment:
+      - ASTRO_TELEMETRY_DISABLED=1
+    networks:
+      - redOne
+
+networks:
+  redOne:
+    driver: bridge
+
+volumes:
+  mysql_datos:

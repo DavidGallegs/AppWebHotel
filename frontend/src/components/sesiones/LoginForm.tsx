@@ -26,7 +26,7 @@ export default function LoginForm() {
 
     try {
       // Fase 1: Tocamos a Laravel por el puerto externo para que valide email/pass y mande el código
-      const response = await fetch("http://localhost:8000/api/pre-login", {
+      const response = await fetch(import.meta.env.PUBLIC_API_URL +"/api/pre-login", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ email: data.email, password: data.password })

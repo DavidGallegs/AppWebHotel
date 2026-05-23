@@ -44,7 +44,7 @@ export default function ReservaHotel() {
 
         try {
             // Petición al servidor
-            const respuesta = await fetch("http://localhost:8000/api/reservas", { 
+            const respuesta = await fetch(import.meta.env.PUBLIC_API_URL +"/api/reservas", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify(payloadFinal)
