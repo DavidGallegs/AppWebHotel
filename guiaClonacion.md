@@ -64,3 +64,13 @@ docker compose -f docker-compose-dev.yml down
 
 wsl --shutdown
 ~~~
+
+## COMANDO PRODUCCION BASH
+
+~~~cmd
+<!-- Para iniciar o updates -->
+sudo docker compose --env-file ./backend/.env -f docker-compose-prod.yml up -d --build
+
+<!-- Primera vez laravel -->
+sudo docker compose -f docker-compose-prod.yml exec backend php artisan key:generate
+~~~

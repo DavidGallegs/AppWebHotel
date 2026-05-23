@@ -5,8 +5,8 @@ services:
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-    env_file:
-      - ./backend/.env
+    volumes:
+      - mysql_datos:/var/lib/mysql
     networks:
       - redOne
 
@@ -43,6 +43,9 @@ services:
       - "4321:4321"
     environment:
       - ASTRO_TELEMETRY_DISABLED=1
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+    command: node ./dist/server/entry.mjs
     networks:
       - redOne
 
