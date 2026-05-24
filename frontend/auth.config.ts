@@ -16,6 +16,7 @@ interface LaravelUser {
  */
 export default defineConfig({
   trustHost: true,
+  useSecureCookies: false,
   providers: [
     Credentials({
       name: 'Credentials',
