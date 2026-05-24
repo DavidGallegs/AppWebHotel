@@ -20,6 +20,7 @@ interface CardProps {
   onCancelar: (id: string | number) => void;
   onNotificarPago: (id: string | number) => void;
   onSolicitarDevolucion: (id: string | number) => void;
+  onCheckin: (res: FullReservation) => void;
   isNotificandoPago: boolean;
 }
 
@@ -28,7 +29,7 @@ interface CardProps {
  * basándose en el estado de la reserva y del pago.
  */
 export function ReservationCard({ 
-  res, onVerDetalles, onModificar, onCancelar, onNotificarPago, onSolicitarDevolucion, isNotificandoPago 
+  res, onVerDetalles, onModificar, onCancelar, onNotificarPago, onSolicitarDevolucion, onCheckin,isNotificandoPago 
 }: CardProps) {
 
   // Variables lógicas de lectura fácil
@@ -153,9 +154,14 @@ export function ReservationCard({
 
             {puedeHacerCheckin && (
               <div style={{ width: '100%', marginTop: '0.5rem' }}>
-                <button className="btn-viajeros" style={{ background: '#059669', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, width: '100%' }}>
+                {/* SOLUCIÓN: Le añadimos un onClick provisional para probar si es una redirección o un Modal */}
+                <button 
+                  className="btn-viajeros" 
+                  onClick={() => onCheckin(res)} 
+                  style={{ background: '#059669', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, width: '100%' }}
+                >
                   <Users size={18} aria-hidden="true" /> REALIZAR CHECK-IN ONLINE
-                </button>
+              </button>
               </div>
             )}
           </>

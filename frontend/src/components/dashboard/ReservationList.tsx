@@ -5,10 +5,9 @@ import type { Reservation } from './reservation';
 import { QueryProvider } from './QueryProvider'; 
 import { FormularioModificar } from './FormularioModificar';
 import { api } from './api'; 
-
-// Importamos nuestros nuevos fragmentos
 import { ReservationCard } from './ReservationCard';
 import { ModalDetalles } from './ModalDetalles';
+import ParteViajeros from '../formularios/parteViajeros/ParteViajeros';
 
 export interface FullReservation extends Reservation {
   // ... (Tus interfaces se mantienen exactamente iguales aquí arriba)
@@ -33,6 +32,7 @@ const ReservationListContent = () => {
 
   const [reservaDetalle, setReservaDetalle] = useState<FullReservation | null>(null);
   const [reservaEditando, setReservaEditando] = useState<FullReservation | null>(null);
+  const [reservaCheckin, setReservaCheckin] = useState<FullReservation | null>(null); 
 
   // Hook de notificaciones
   const notificarPago = useMutation({
@@ -73,6 +73,7 @@ const ReservationListContent = () => {
             if(confirm('Se enviará una solicitud al administrador. ¿Continuar?')) solicitarDevolucion.mutate(id);
           }}
           isNotificandoPago={notificarPago.isPending}
+          onCheckin={setReservaCheckin}
         />
       ))}
 
@@ -102,6 +103,31 @@ const ReservationListContent = () => {
           onClose={() => setReservaDetalle(null)} 
         />
       )}
+
+      {/* 4. El Modal de Check-in */}
+      {reservaCheckin && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
+          <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0 }}>Check-in Online</h2>
+              <button 
+                onClick={() => setReservaCheckin(null)} 
+                style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+                aria-label="Cerrar ventana de Check-in"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Aquí inyectamos tu formulario perfecto, pasándole el maxViajeros dinámico */}
+            <ParteViajeros 
+              reservaId={reservaCheckin.id} 
+              maxViajeros={reservaCheckin.numPersonas || 1} 
+            />
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 };
