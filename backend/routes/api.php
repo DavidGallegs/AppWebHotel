@@ -85,10 +85,7 @@ Route::get('/ocupacion', [ReservaController::class, 'ocupacion']);
 Route::post('reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
 
 
-Route::post('/logout', function (Request $request) {
-    $request->user()->tokens()->delete();
-    return response()->json(['message' => 'Logged out']);
-})->middleware('auth:sanctum');
+
 
 
 // Rutas del Usuario (Panel de cliente)

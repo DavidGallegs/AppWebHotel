@@ -19,8 +19,9 @@ use App\Mail\ReservaCanceladaMail;
 use App\Mail\ReservaPendientePagoMail;
 
 use App\Mail\PagoNotificadoAdmin;
-
 use Illuminate\Support\Facades\Log;
+
+
 
 
 class ReservaController extends Controller
@@ -30,12 +31,12 @@ class ReservaController extends Controller
     */
     public function crearReserva(Request $request)
     {
-
-         Log::info('DEBUG RESERVA', [
+        Log::info('DEBUG RESERVA', [
             'auth_check' => auth()->check(),
             'auth_user' => auth()->user(),
             'request_user' => $request->user(),
         ]);
+
         /*
         | 1. EXTRAER Y NORMALIZAR DATOS DEL TITULAR
         */
@@ -52,110 +53,34 @@ class ReservaController extends Controller
         $titular['correo'] = strtolower(trim($titular['correo'] ?? ''));
 
         /*
-        | 2. VALIDAR DATOS
+        | 2. VALIDACIÓN
         */
         $validated = validator($titular, [
-
-            'nombre' => [
-                'required',
-                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
-            ],
-
-            'apellido1' => [
-                'required',
-                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
-            ],
-
-            'apellido2' => [
-                'nullable',
-                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
-            ],
-
-            'fechaNacimiento' => [
-                'required',
-                'date',
-                'before:today'
-            ],
-
-            'pais' => [
-                'nullable',
-                'string',
-                'max:3'
-            ],
-
-            'direccion' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'codigoMunicipio' => [
-                'nullable',
-                'string',
-                'max:10'
-            ],
-
-            'nombreMunicipio' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'localidad' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'cp' => [
-                'required',
-                'string',
-                'max:10'
-            ],
-
-            'telefono' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'correo' => [
-                'nullable',
-                'email',
-                'max:255'
-            ],
-
-            'tipoDocumento' => [
-                'nullable',
-                'in:DNI,NIE,PASAPORTE'
-            ],
-
-            'numeroDocumento' => [
-                'required',
-                'string',
-                'max:15',
-                new DniValido
-            ],
-
-            'soporteDocumento' => [
-                'nullable',
-                'string',
-                'max:9'
-            ],
-
+            'nombre' => ['required', 'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
+            'apellido1' => ['required', 'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
+            'apellido2' => ['nullable', 'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
+            'fechaNacimiento' => ['required', 'date', 'before:today'],
+            'pais' => ['nullable', 'string', 'max:3'],
+            'direccion' => ['required', 'string', 'max:255'],
+            'codigoMunicipio' => ['nullable', 'string', 'max:10'],
+            'nombreMunicipio' => ['nullable', 'string', 'max:100'],
+            'localidad' => ['nullable', 'string', 'max:100'],
+            'cp' => ['required', 'string', 'max:10'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'correo' => ['nullable', 'email', 'max:255'],
+            'tipoDocumento' => ['nullable', 'in:DNI,NIE,PASAPORTE'],
+            'numeroDocumento' => ['required', 'string', 'max:15', new DniValido],
+            'soporteDocumento' => ['nullable', 'string', 'max:9'],
         ])->validate();
 
         /*
-        | 3. CREAR O ACTUALIZAR PERSONA
-        | IMPORTANTE:
-        | SE IDENTIFICA POR DOCUMENTO, NO POR EMAIL
+        | 3. CREAR O ACTUALIZAR PERSONA (FIX IMPORTANTE)
+        | CLAVE ÚNICA: EMAIL
         */
         $persona = Persona::updateOrCreate(
-
             [
-                'documento' => $validated['numeroDocumento'],
+                'email' => $validated['correo'], //  CLAVE FIJA PARA EVITAR DUPLICADOS
             ],
-
             [
                 'nombre' => $validated['nombre'],
                 'apellido1' => $validated['apellido1'],
@@ -175,56 +100,39 @@ class ReservaController extends Controller
         );
 
         /*
-        | 4. OBTENER ESTABLECIMIENTO
+        | 4. ESTABLECIMIENTO
         */
         $establecimiento = Establecimiento::first();
 
         /*
         | 5. CREAR RESERVA
-        | IMPORTANTE:
-        | idUsuarioCreador = usuario autenticado
-        | idPersonaTitular = persona real titular
         */
         $reserva = Reserva::create([
-
-            'idUsuarioCreador' => $request->user()
-                ? $request->user()->id
-                : null,
-
+            'idUsuarioCreador' => $request->user()?->id,
             'idPersonaTitular' => $persona->idPersona,
-
             'codigoEstablecimiento' => $establecimiento->codigoEstablecimiento,
-
             'fechaEntrada' => $request->input('fechaEntrada'),
-
             'fechaSalida' => $request->input('fechaSalida'),
-
             'estado' => 'pending',
-
             'createdAt' => now(),
-
             'updatedAt' => now(),
         ]);
 
         /*
-        | 6. ASOCIAR HABITACION
+        | 6. HABITACIÓN
         */
         ReservaHabitacion::create([
-
             'idReserva' => $reserva->idReserva,
-
             'idHabitacion' => (int) $request->input('habitacion'),
-
             'numPersonas' => $request->input('numPersonas'),
         ]);
 
         /*
-        | 7. ENVIAR EMAIL
+        | 7. EMAIL
         */
         $precio = 150;
 
         Mail::to($persona->email)->send(
-
             new ReservaPendientePagoMail(
                 $reserva,
                 $persona,
@@ -236,11 +144,8 @@ class ReservaController extends Controller
         | 8. RESPUESTA
         */
         return response()->json([
-
             'success' => true,
-
             'reserva' => $reserva,
-
             'titular' => $persona,
         ]);
     }
@@ -658,52 +563,63 @@ class ReservaController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $response = [];
-        $status = 200;
 
         if (!$user) {
-            $response = [
+            return response()->json([
                 'error' => 'No autenticado'
-            ];
-            $status = 401;
-        } else {
-            $idPersona = $user->idPersona;
-            $reservas = Reserva::with(['persona', 'habitaciones'])
-                ->orderBy('fechaEntrada', 'desc')
-                ->get();
-
-            $response = $reservas->map(function ($reserva) {
-                return [
-                    'id' => $reserva->idReserva,
-                    'status' => $reserva->estado,
-                    'fechaEntrada' => $reserva->fechaEntrada,
-                    'fechaSalida' => $reserva->fechaSalida,
-
-                    'habitacion' => $reserva->habitaciones->pluck('idHabitacion')->first(),
-
-                    'numPersonas' => $reserva->habitaciones->first()?->pivot->numPersonas,
-                    'estado_pago' => $reserva->estado_pago,
-
-                    'titular' => [
-                        'nombre' => $reserva->persona->nombre,
-                        'apellido1' => $reserva->persona->apellido1,
-                        'apellido2' => $reserva->persona->apellido2,
-                        'fechaNacimiento' => $reserva->persona->fechaNacimiento,
-                        'tipoDocumento' => $reserva->persona->tipoDocumento,
-                        'numeroDocumento' => $reserva->persona->documento,
-                        'soporteDocumento' => $reserva->persona->soporteDocumento,
-                        'telefono' => $reserva->persona->telefono,
-                        'correo' => $reserva->persona->email,
-                        'direccion' => $reserva->persona->direccion,
-                        'codigoPostal' => $reserva->persona->cp,
-                        'nombreMunicipio' => $reserva->persona->nombreMunicipio,
-                        'codigoMunicipio' => $reserva->persona->codigoMunicipio,
-                        'pais' => $reserva->persona->nacionalidad,
-                    ]
-                ];
-            });
+            ], 401);
         }
-        return response()->json($response, $status);
+
+        $idPersona = $user->persona?->idPersona;
+
+        if (!$idPersona) {
+            return response()->json([
+                'error' => 'Usuario sin persona asociada'
+            ], 400);
+        }
+
+        $reservas = Reserva::with(['persona', 'habitaciones'])
+            ->where('idPersonaTitular', $idPersona)
+            ->orderBy('fechaEntrada', 'desc')
+            ->get();
+
+        $response = $reservas->map(function ($reserva) {
+            return [
+                'id' => $reserva->idReserva,
+                'status' => $reserva->estado,
+                'fechaEntrada' => $reserva->fechaEntrada,
+                'fechaSalida' => $reserva->fechaSalida,
+
+                'habitacion' => $reserva->habitaciones->pluck('idHabitacion')->first(),
+                'numPersonas' => $reserva->habitaciones->first()?->pivot->numPersonas,
+                'estado_pago' => $reserva->estado_pago,
+
+                'titular' => [
+                    'nombre' => $reserva->persona->nombre,
+                    'apellido1' => $reserva->persona->apellido1,
+                    'apellido2' => $reserva->persona->apellido2,
+                    'fechaNacimiento' => $reserva->persona->fechaNacimiento,
+                    'tipoDocumento' => $reserva->persona->tipoDocumento,
+                    'numeroDocumento' => $reserva->persona->documento,
+                    'soporteDocumento' => $reserva->persona->soporteDocumento,
+                    'telefono' => $reserva->persona->telefono,
+                    'correo' => $reserva->persona->email,
+                    'direccion' => $reserva->persona->direccion,
+                    'codigoPostal' => $reserva->persona->cp,
+                    'nombreMunicipio' => $reserva->persona->nombreMunicipio,
+                    'codigoMunicipio' => $reserva->persona->codigoMunicipio,
+                    'pais' => $reserva->persona->nacionalidad,
+                ]
+            ];
+        });
+
+        Log::info('DEBUG PERSONA', [
+                'user_id' => $user->id,
+                'idPersona_user' => $user->idPersona ?? null,
+                'idPersona_relation' => $user->persona?->idPersona ?? null,
+            ]);
+
+        return response()->json($response, 200);
     }
 
     /*
