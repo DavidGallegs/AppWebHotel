@@ -18,11 +18,17 @@ class SesController extends Controller
             ->map(function ($log) {
 
                 return [
+                    'id' => $log->idComunicacionSES,
+
                     'reserva_id' => $log->idReserva,
+
                     'accion' => $log->tipo_comunicacion,
+
                     'estado' => $log->estado_ses,
+
                     'mensaje' => $log->descripcion_estado,
-                    'fecha' => $log->fecha_peticion,
+
+                    'fecha' => $log->fecha_peticion
                 ];
             });
 

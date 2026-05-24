@@ -81,6 +81,9 @@ Route::get('/reservas/{id}', [ReservaController::class, 'show']);
 // Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
 Route::get('/ocupacion', [ReservaController::class, 'ocupacion']);
 
+// Ruta para crear parte de viajeros
+Route::post('reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
+
 
 // Rutas del Usuario (Panel de cliente)
 Route::middleware('auth:sanctum')->group(function () {
