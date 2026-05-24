@@ -1,6 +1,7 @@
 CREATE DATABASE IF NOT EXISTS hotel_rural;
 USE hotel_rural;
 START TRANSACTION;
+
 CREATE TABLE `arrendador` (
   `codigoArrendador` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tipo` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -51,8 +52,6 @@ CREATE TABLE `comunicaciones_ses` (
 
 
 
-
-
 CREATE TABLE `contrato` (
   `referencia` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `idReserva` int NOT NULL,
@@ -63,7 +62,6 @@ CREATE TABLE `contrato` (
   `fechaPago` date DEFAULT NULL,
   `precioTotal` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 
@@ -80,7 +78,6 @@ CREATE TABLE `establecimiento` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-
 INSERT INTO `establecimiento` (`codigoEstablecimiento`, `codigoArrendador`, `tipo`, `nombre`, `direccion`, `codigoMunicipio`, `localidad`, `cp`, `pais`) VALUES
 ('0000004063', '0000004794', 'Balneario', 'Hotel Rural ', 'CARRETERA DE BOADILLA DEL MONTE 31', '1001', 'Villahotel', '28024', 'ESP');
 
@@ -92,7 +89,6 @@ CREATE TABLE `habitacion` (
   `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacidadMaxima` int NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 INSERT INTO `habitacion` (`idHabitacion`, `codigoEstablecimiento`, `nombre`, `capacidadMaxima`) VALUES
@@ -108,7 +104,6 @@ CREATE TABLE `migrations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-
 CREATE TABLE `operaciones_ses` (
   `idOperacion` bigint NOT NULL,
   `idComunicacionSES` bigint NOT NULL,
@@ -122,7 +117,6 @@ CREATE TABLE `operaciones_ses` (
   `resultado_funcional` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 CREATE TABLE `parte` (
@@ -142,6 +136,7 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 CREATE TABLE `persona` (
@@ -165,6 +160,7 @@ CREATE TABLE `persona` (
 
 
 
+
 CREATE TABLE `personal_access_tokens` (
   `id` bigint UNSIGNED NOT NULL,
   `tokenable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -180,13 +176,15 @@ CREATE TABLE `personal_access_tokens` (
 
 
 
+
+
+
 CREATE TABLE `precio_habitacion` (
   `idPrecio` int NOT NULL,
   `idHabitacion` int NOT NULL,
   `idTemporada` int NOT NULL,
   `precio` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 
 INSERT INTO `precio_habitacion` (`idPrecio`, `idHabitacion`, `idTemporada`, `precio`) VALUES
@@ -209,7 +207,8 @@ CREATE TABLE `reserva` (
   `datos_modificacion` json DEFAULT NULL,
   `estado_pago` enum('pendiente','notificado','pagado','devolucion_solicitada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pendiente',
   `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` datetime DEFAULT NULL
+  `updatedAt` datetime DEFAULT NULL,
+  `idUsuarioCreador` bigint UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -220,6 +219,7 @@ CREATE TABLE `reserva_habitacion` (
   `idHabitacion` int NOT NULL,
   `numPersonas` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 
 
@@ -238,6 +238,7 @@ INSERT INTO `temporada` (`idTemporada`, `nombre`, `fechaInicio`, `fechaFin`) VAL
 (3, 'TB', '2026-09-16', '2026-12-31');
 
 
+
 CREATE TABLE `users` (
   `id` bigint UNSIGNED NOT NULL,
   `idPersona` int NOT NULL,
@@ -248,7 +249,6 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `rol` enum('user','admin') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 
@@ -334,7 +334,8 @@ ALTER TABLE `precio_habitacion`
 ALTER TABLE `reserva`
   ADD PRIMARY KEY (`idReserva`),
   ADD KEY `idx_reserva_persona` (`idPersonaTitular`),
-  ADD KEY `idx_reserva_establecimiento` (`codigoEstablecimiento`);
+  ADD KEY `idx_reserva_establecimiento` (`codigoEstablecimiento`),
+  ADD KEY `fk_reserva_usuario` (`idUsuarioCreador`);
 
 
 ALTER TABLE `reserva_habitacion`
@@ -357,6 +358,8 @@ ALTER TABLE `viajero_parte`
   ADD UNIQUE KEY `uk_viajero_parte_persona_rol` (`idParte`,`idPersona`,`rol`),
   ADD KEY `idx_viajero_parte_parte` (`idParte`),
   ADD KEY `idx_viajero_parte_persona` (`idPersona`);
+
+
 
 
 ALTER TABLE `bloqueo_fechas`
@@ -411,8 +414,6 @@ ALTER TABLE `viajero_parte`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 
-
-
 ALTER TABLE `bloqueo_fechas`
   ADD CONSTRAINT `fk_bloqueo_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`) ON DELETE CASCADE;
 
@@ -447,9 +448,11 @@ ALTER TABLE `precio_habitacion`
   ADD CONSTRAINT `fk_ph_habitacion` FOREIGN KEY (`idHabitacion`) REFERENCES `habitacion` (`idHabitacion`),
   ADD CONSTRAINT `fk_ph_temporada` FOREIGN KEY (`idTemporada`) REFERENCES `temporada` (`idTemporada`);
 
+
 ALTER TABLE `reserva`
   ADD CONSTRAINT `fk_reserva_establecimiento` FOREIGN KEY (`codigoEstablecimiento`) REFERENCES `establecimiento` (`codigoEstablecimiento`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_reserva_persona` FOREIGN KEY (`idPersonaTitular`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_reserva_persona` FOREIGN KEY (`idPersonaTitular`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reserva_usuario` FOREIGN KEY (`idUsuarioCreador`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 
 ALTER TABLE `reserva_habitacion`
@@ -465,3 +468,4 @@ ALTER TABLE `viajero_parte`
   ADD CONSTRAINT `fk_viajero_parte_parte` FOREIGN KEY (`idParte`) REFERENCES `parte` (`idParte`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_viajero_parte_persona` FOREIGN KEY (`idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;
+
