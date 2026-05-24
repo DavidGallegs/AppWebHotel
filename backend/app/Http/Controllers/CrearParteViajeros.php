@@ -144,11 +144,36 @@ class CrearParteViajeros extends Controller
                 /*
                 | UPSERT PERSONA
                 */
-                $persona = Persona::updateOrCreate(
-                    [
-                        'documento' => $viajero['documento']
-                    ],
-                    [
+                $personaActual = Persona::where('documento', $viajero['documento'])->first();
+
+                if ($personaActual) {
+
+                    $personaActual->update([
+                        'nombre' => $viajero['nombre'],
+                        'apellido1' => $viajero['apellido1'],
+                        'apellido2' => $viajero['apellido2'] ?? $personaActual->apellido2,
+                        'fechaNacimiento' => $viajero['fechaNacimiento'] ?? $personaActual->fechaNacimiento,
+                        'nacionalidad' => $viajero['nacionalidad'] ?? $personaActual->nacionalidad,
+                        'direccion' => $viajero['direccion'] ?? $personaActual->direccion,
+                        'codigoMunicipio' => $viajero['codigoMunicipio'] ?? $personaActual->codigoMunicipio,
+                        'nombreMunicipio' => $viajero['nombreMunicipio'] ?? $personaActual->nombreMunicipio,
+                        'localidad' => $viajero['localidad'] ?? $personaActual->localidad,
+                        'cp' => $viajero['cp'] ?? $personaActual->cp,
+
+                        // 🔥 CLAVE: no pisar con null si no viene del check-in
+                        'telefono' => $viajero['telefono'] ?? $personaActual->telefono,
+                        'email' => $viajero['correo'] ?? $personaActual->email,
+
+                        'tipoDocumento' => $viajero['tipoDocumento'] ?? $personaActual->tipoDocumento,
+                        'soporteDocumento' => $viajero['soporteDocumento'] ?? $personaActual->soporteDocumento,
+                    ]);
+
+                    $persona = $personaActual;
+
+                } else {
+
+                    $persona = Persona::create([
+                        'documento' => $viajero['documento'],
                         'nombre' => $viajero['nombre'],
                         'apellido1' => $viajero['apellido1'],
                         'apellido2' => $viajero['apellido2'] ?? null,
@@ -159,12 +184,14 @@ class CrearParteViajeros extends Controller
                         'nombreMunicipio' => $viajero['nombreMunicipio'] ?? null,
                         'localidad' => $viajero['localidad'] ?? null,
                         'cp' => $viajero['cp'],
+
                         'telefono' => $viajero['telefono'] ?? null,
                         'email' => $viajero['correo'] ?? null,
+
                         'tipoDocumento' => $viajero['tipoDocumento'] ?? null,
                         'soporteDocumento' => $viajero['soporteDocumento'] ?? null,
-                    ]
-                );
+                    ]);
+                }
 
                 $validatedViajeros[$index] = $viajero;
                 $personas[$index] = $persona;
