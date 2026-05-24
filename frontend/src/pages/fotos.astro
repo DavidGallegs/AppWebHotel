@@ -1,6 +1,5 @@
 ---
 import BasePage from '../layouts/BasePage.astro';
-import ImageBack from "../assets/background_Images/8_flor.jpg"
 import '../styles/fotos.css'
 
 /* * COMPONENTE: Galería de Fotos
@@ -57,7 +56,7 @@ const galerias = [
 const tituloPage = "Galería de Fotos";
 ---
 
-<BasePage tituloPage={tituloPage} imageBack={ImageBack.src} centrado={true}>
+<BasePage tituloPage={tituloPage} imageBack="/background_Images/8_flor.jpg" centrado={true}>
   
   {/* ACCESIBILIDAD: Vinculamos la sección entera a su título principal */}
   <section class="galeria-container" aria-labelledby="titulo-principal-galeria">
