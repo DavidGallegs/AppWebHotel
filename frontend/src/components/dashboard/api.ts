@@ -1,12 +1,15 @@
 import axios from 'axios';
 
 /* * ARCHIVO: api.ts
- * Propósito: Aquí creamos una instancia personalizada de Axios. 
- * ¿Por qué? Para no tener que escribir la URL base ni los headers (Content-Type) 
- * cada vez que hacemos una petición en el resto de la aplicación. Es nuestra "autopista" al backend.
+ * Propósito: Instancia optimizada y segura de Axios para producción y local.
  */
 export const api = axios.create({
-  baseURL: import.meta.env.PUBLIC_API_URL +"/api",
+  baseURL: import.meta.env.PUBLIC_API_URL + "/api",
+  
+  // SOLUCIÓN AL PROBLEMA 1: Fuerza a Axios a viajar SIEMPRE con las cookies 
+  // (laravel_session y XSRF-TOKEN) en entornos de IPs cruzadas como AWS.
+  withCredentials: true, 
+  
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -14,19 +17,16 @@ export const api = axios.create({
 });
 
 /* * FUNCIÓN: setAuthToken
- * Propósito: Actúa como un "guardia de seguridad". 
- * Cuando el usuario inicia sesión y tenemos su Token, usamos esta función.
- * A partir de ese momento, el "interceptor" inyectará automáticamente ese Token 
- * en TODAS las peticiones futuras. Así el backend de Laravel sabe quién está llamando.
+ * SOLUCIÓN AL PROBLEMA 2: En lugar de usar interceptores que se acumulan infinitamente,
+ * inyectamos o removemos el Token directamente en la configuración por defecto de Axios.
+ * Es limpio, directo y seguro contra cambios de sesión.
  */
-export const setAuthToken = (token: string) => {
-  api.interceptors.request.use(
-    (config) => {
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    // Si hay token, se asigna al header común de forma global
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    // Si es null (Cierre de sesión), se elimina por completo el header
+    delete api.defaults.headers.common['Authorization'];
+  }
 };
