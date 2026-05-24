@@ -15,11 +15,13 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => [''],
 
-    'allowed_origins' => ['http://localhost:4321', 'http://13.38.228.124:4321'],
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:4321'),
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +31,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
+    'supports_credentials' => true, // Esto debe estar en true si usas sesiones o Sanctum
 
 ];
