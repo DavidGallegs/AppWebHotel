@@ -22,6 +22,12 @@ export default defineConfig({
     host: true, 
   },
 
+  // --- LA NUEVA REGLA DE SEGURIDAD PARA DOCKER ---
+  security: {
+    checkOrigin: false
+  },
+  // -----------------------------------------------
+
   adapter: node({
     mode: 'standalone'
   })
