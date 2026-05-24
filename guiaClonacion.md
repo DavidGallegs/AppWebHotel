@@ -78,8 +78,8 @@ sudo docker compose --env-file ./backend/.env -f docker-compose-prod.yml up -d -
 sudo docker compose -f docker-compose-prod.yml exec backend php artisan key:generate
 
 <!-- Consumo de memoria y almacenamiento -->
-ubuntu@ip-172-31-37-213:~$
-
+df -h
+free -h
 
 <!-- Updates y produccion -->
 cd AppWebHotel
