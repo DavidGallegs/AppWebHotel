@@ -18,6 +18,8 @@ use App\Mail\SolicitudModificacionReservaMail;
 use App\Mail\ReservaCanceladaMail;
 use App\Mail\ReservaPendientePagoMail;
 
+use Illuminate\Support\Facades\Log;
+
 
 class ReservaController extends Controller
 {
@@ -26,57 +28,132 @@ class ReservaController extends Controller
     */
     public function crearReserva(Request $request)
     {
+
+         Log::info('DEBUG RESERVA', [
+            'auth_check' => auth()->check(),
+            'auth_user' => auth()->user(),
+            'request_user' => $request->user(),
+        ]);
         /*
-        | 1. EXTRAER Y UNIFICAR DATOS DE TITULAR Y ACOMPAÑANTES
+        | 1. EXTRAER Y NORMALIZAR DATOS DEL TITULAR
         */
         $titular = $request->input('titular');
 
         $titular['nombre'] = Str::ucfirst(Str::lower(trim($titular['nombre'])));
         $titular['apellido1'] = Str::ucfirst(Str::lower(trim($titular['apellido1'])));
-        $titular['apellido2'] = $titular['apellido2']
+        $titular['apellido2'] = !empty($titular['apellido2'])
             ? Str::ucfirst(Str::lower(trim($titular['apellido2'])))
             : null;
+
         $titular['numeroDocumento'] = strtoupper(trim($titular['numeroDocumento']));
-        $titular['cp'] = $titular['codigoPostal'];
+        $titular['cp'] = $titular['codigoPostal'] ?? null;
         $titular['correo'] = strtolower(trim($titular['correo'] ?? ''));
 
-
         /*
-        |2. VALIDACION DE DATOS DE TITULAR 
+        | 2. VALIDAR DATOS
         */
         $validated = validator($titular, [
-            'nombre' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
-            'apellido1' => ['required','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
-            'apellido2' => ['nullable','regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'],
 
-            'fechaNacimiento' => ['required','date','before:today'],
+            'nombre' => [
+                'required',
+                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
+            ],
 
-            'pais' => ['nullable','string','max:3'],
+            'apellido1' => [
+                'required',
+                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
+            ],
 
-            'direccion' => ['required','string','max:255'],
+            'apellido2' => [
+                'nullable',
+                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,50}$/u'
+            ],
 
-            'codigoMunicipio' => ['nullable','string','max:10'],
-            'nombreMunicipio' => ['nullable','string','max:100'],
-            'localidad' => ['nullable','string','max:100'],
+            'fechaNacimiento' => [
+                'required',
+                'date',
+                'before:today'
+            ],
 
-            'cp' => ['required','string','max:10'],
+            'pais' => [
+                'nullable',
+                'string',
+                'max:3'
+            ],
 
-            'telefono' => ['nullable','string','max:20'],
-            'correo' => ['nullable','email','max:255'],
+            'direccion' => [
+                'required',
+                'string',
+                'max:255'
+            ],
 
-            'tipoDocumento' => ['nullable','in:DNI,NIE,PASAPORTE'],
-            'numeroDocumento' => ['required','string','max:15', new DniValido],
-            'soporteDocumento' => ['nullable','string','max:9'],
+            'codigoMunicipio' => [
+                'nullable',
+                'string',
+                'max:10'
+            ],
+
+            'nombreMunicipio' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+
+            'localidad' => [
+                'nullable',
+                'string',
+                'max:100'
+            ],
+
+            'cp' => [
+                'required',
+                'string',
+                'max:10'
+            ],
+
+            'telefono' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
+
+            'correo' => [
+                'nullable',
+                'email',
+                'max:255'
+            ],
+
+            'tipoDocumento' => [
+                'nullable',
+                'in:DNI,NIE,PASAPORTE'
+            ],
+
+            'numeroDocumento' => [
+                'required',
+                'string',
+                'max:15',
+                new DniValido
+            ],
+
+            'soporteDocumento' => [
+                'nullable',
+                'string',
+                'max:9'
+            ],
 
         ])->validate();
 
         /*
-        |3. CREAR O ACTUALIZAR REGISTRO EN PERSONA PARA EL TITULAR
+        | 3. CREAR O ACTUALIZAR PERSONA
+        | IMPORTANTE:
+        | SE IDENTIFICA POR DOCUMENTO, NO POR EMAIL
         */
         $persona = Persona::updateOrCreate(
+
             [
-                'email' => $validated['correo'],
+                'documento' => $validated['numeroDocumento'],
             ],
+
             [
                 'nombre' => $validated['nombre'],
                 'apellido1' => $validated['apellido1'],
@@ -88,52 +165,81 @@ class ReservaController extends Controller
                 'nombreMunicipio' => $validated['nombreMunicipio'] ?? null,
                 'localidad' => $validated['localidad'] ?? null,
                 'cp' => $validated['cp'],
-                'email' => $validated['correo'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
+                'email' => $validated['correo'] ?? null,
                 'tipoDocumento' => $validated['tipoDocumento'] ?? null,
-                'documento' => $validated['numeroDocumento'],
                 'soporteDocumento' => $validated['soporteDocumento'] ?? null,
             ]
         );
-        
+
         /*
-        |4. CREAR RESERVA ASOCIADA AL TITULAR
+        | 4. OBTENER ESTABLECIMIENTO
         */
         $establecimiento = Establecimiento::first();
 
+        /*
+        | 5. CREAR RESERVA
+        | IMPORTANTE:
+        | idUsuarioCreador = usuario autenticado
+        | idPersonaTitular = persona real titular
+        */
         $reserva = Reserva::create([
+
+            'idUsuarioCreador' => $request->user()
+                ? $request->user()->id
+                : null,
+
             'idPersonaTitular' => $persona->idPersona,
+
             'codigoEstablecimiento' => $establecimiento->codigoEstablecimiento,
+
             'fechaEntrada' => $request->input('fechaEntrada'),
+
             'fechaSalida' => $request->input('fechaSalida'),
+
             'estado' => 'pending',
+
             'createdAt' => now(),
+
             'updatedAt' => now(),
         ]);
 
         /*
-        |5. ASOCIAR HABITACION Y NUMERO DE PERSONAS A LA RESERVA CREADA 
+        | 6. ASOCIAR HABITACION
         */
         ReservaHabitacion::create([
+
             'idReserva' => $reserva->idReserva,
+
             'idHabitacion' => (int) $request->input('habitacion'),
+
             'numPersonas' => $request->input('numPersonas'),
         ]);
-        
+
         /*
-        |6. ENVIAR EMAIL
+        | 7. ENVIAR EMAIL
         */
-        $precio = 150; 
+        $precio = 150;
+
         Mail::to($persona->email)->send(
+
             new ReservaPendientePagoMail(
                 $reserva,
                 $persona,
                 $precio
             )
         );
+
+        /*
+        | 8. RESPUESTA
+        */
         return response()->json([
+
             'success' => true,
-            'date' => $titular,
+
+            'reserva' => $reserva,
+
+            'titular' => $persona,
         ]);
     }
 

@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class, 'idUsuarioCreador');
+    }
 }

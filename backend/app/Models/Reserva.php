@@ -31,7 +31,8 @@ class Reserva extends Model
         'datos_modificacion',
         'estado_pago',
         'createdAt',
-        'updatedAt'
+        'updatedAt',
+        'idUsuarioCreador '
     ];
 
     
@@ -81,7 +82,10 @@ class Reserva extends Model
         return $this->belongsTo(Establecimiento::class, 'codigoEstablecimiento', 'codigoEstablecimiento');
     }
 
-   
+   public function usuarioCreador()
+    {
+        return $this->belongsTo(User::class, 'idUsuarioCreador');
+    }
 
     
 }
