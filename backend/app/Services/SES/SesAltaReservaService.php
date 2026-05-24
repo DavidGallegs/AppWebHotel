@@ -34,12 +34,19 @@ class SesAltaReservaService
             /*
             | 2. CREAR ZIP
             */
-            $zipPath = storage_path('app/temp/ses_' . uniqid() . '.zip');
+            $dir = storage_path('app/temp');
+
+            // ASEGURAR QUE LA CARPETA EXISTE
+            if (!file_exists($dir)) {
+                mkdir($dir, 0775, true);
+            }
+
+            $zipPath = $dir . '/ses_' . uniqid() . '.zip';
 
             $zip = new ZipArchive();
 
             if (!$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
-                throw new \RuntimeException("No se pudo crear ZIP");
+                throw new \RuntimeException("No se pudo crear ZIP en: " . $zipPath);
             }
 
             $zip->addFromString('datosReserva.xml', $requestXml);
