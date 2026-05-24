@@ -8,9 +8,9 @@ import { api } from './api';
 import { ReservationCard } from './ReservationCard';
 import { ModalDetalles } from './ModalDetalles';
 import ParteViajeros from '../formularios/parteViajeros/ParteViajeros';
+import '../../styles/modals.css'
 
 export interface FullReservation extends Reservation {
-  // ... (Tus interfaces se mantienen exactamente iguales aquí arriba)
   habitacion?: string;
   numPersonas?: number;
   solicitud_cancelacion: number;
@@ -79,8 +79,8 @@ const ReservationListContent = () => {
 
       {/* 2. El Modal de Modificación */}
       {reservaEditando && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
-          <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content">
             <h2 style={{ marginBottom: '1.5rem' }}>Modificar Reserva</h2>
             <FormularioModificar 
               reservaOriginal={reservaEditando}
@@ -107,7 +107,7 @@ const ReservationListContent = () => {
       {/* 4. El Modal de Check-in */}
       {reservaCheckin && (
         <div className="modal-overlay" role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
-          <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="modal-content" >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ margin: 0 }}>Check-in Online</h2>
               <button 
@@ -127,14 +127,14 @@ const ReservationListContent = () => {
           </div>
         </div>
       )}
-      
+
     </div>
   );
 };
 
 export const DashboardApp = ({ token }: { token: string }) => (
   <QueryProvider token={token}>
-    <main style={{ padding: '1.5rem', background: '#f9fafb', minHeight: '100vh', borderRadius: '10px', marginBottom: '20px' }}>
+    <main className='main-dashboard'>
       <h1 style={{ fontWeight: 800, marginBottom: '2rem' }}>Panel de Usuario</h1>
       <ReservationListContent />
     </main>
