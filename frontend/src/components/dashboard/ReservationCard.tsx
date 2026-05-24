@@ -116,6 +116,7 @@ export function ReservationCard({
 
       {/* --- BOTONERA --- */}
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6', flexWrap: 'wrap' }}>
+        
         <button className="btn btn-ver" onClick={() => onVerDetalles(res)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #d1d5db', cursor: 'pointer', background: 'white' }}>
           <Eye size={16} aria-hidden="true" /> + Info
         </button>
@@ -125,14 +126,16 @@ export function ReservationCard({
             <button className="btn btn-modificar" onClick={() => onModificar(res)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
               <Edit size={16} aria-hidden="true" /> Modificar
             </button>
+            
             {(res.estado_pago === 'pendiente' || !res.estado_pago) && (
               <button className="btn btn-cancelar" onClick={() => onCancelar(res.id)} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
                 <Trash2 size={16} aria-hidden="true" /> Cancelar
               </button>
             )}
+            
             {res.estado_pago === 'notificado' && !tieneSolicitudCancel && (
-              <button onClick={() => onSolicitarDevolucion(res.id)} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
-                <Euro size={16} style={{display: 'inline', marginBottom: '-3px'}} aria-hidden="true" /> Anular y Pedir Devolución
+              <button className="btn btn-cancelar" onClick={() => onCancelar(res.id)} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
+                <XCircle size={16} style={{display: 'inline', marginBottom: '-3px'}} aria-hidden="true" /> Deshacer y Cancelar
               </button>
             )}
           </>
@@ -140,17 +143,20 @@ export function ReservationCard({
 
         {esAprobada && !tieneSolicitudMod && !tieneSolicitudCancel && res.estado_pago !== 'devolucion_solicitada' && (
           <>
-            {!puedeHacerCheckin ? (
-              <>
-                <button className="btn btn-modificar" onClick={() => onModificar(res)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>Solicitar Cambio</button>
-                <button onClick={() => onSolicitarDevolucion(res.id)} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
-                  <Euro size={16} style={{display: 'inline', marginBottom: '-3px'}} aria-hidden="true" /> Anular y Pedir Devolución
+            <button className="btn btn-modificar" onClick={() => onModificar(res)} style={{ background: '#eff6ff', color: '#1d4ed8', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
+              Solicitar Cambio
+            </button>
+            
+            <button onClick={() => onSolicitarDevolucion(res.id)} style={{ background: '#fff1f2', color: '#be123c', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', marginLeft: 'auto', fontWeight: 500 }}>
+              <Euro size={16} style={{display: 'inline', marginBottom: '-3px'}} aria-hidden="true" /> Solicitar Anulacion
+            </button>
+
+            {puedeHacerCheckin && (
+              <div style={{ width: '100%', marginTop: '0.5rem' }}>
+                <button className="btn-viajeros" style={{ background: '#059669', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, width: '100%' }}>
+                  <Users size={18} aria-hidden="true" /> REALIZAR CHECK-IN ONLINE
                 </button>
-              </>
-            ) : (
-              <button className="btn-viajeros" style={{ background: '#059669', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, width: '100%', marginTop: '0.5rem' }}>
-                <Users size={18} aria-hidden="true" /> REALIZAR CHECK-IN ONLINE
-              </button>
+              </div>
             )}
           </>
         )}

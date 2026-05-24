@@ -22,12 +22,16 @@ export function SeccionFechas({ reservaId }: Props) {
     const fechaSalidaActual = useWatch({ control, name: "fechaSalida" });
 
     // Estado del rango de fechas del calendario. Si ya había fechas en el formulario (por ej. al editar), las carga.
-    const [range, setRange] = useState<DateRange | undefined>(() => {
+   const [range, setRange] = useState<DateRange | undefined>(() => {
         if (fechaEntradaActual && fechaSalidaActual) {
-            return { from: parseISO(fechaEntradaActual), to: parseISO(fechaSalidaActual) };
+            return { 
+                // Añadimos startOfDay para asegurar que sea a las 00:00 y no haya líos de zonas horarias
+                from: startOfDay(parseISO(fechaEntradaActual)), 
+                to: startOfDay(parseISO(fechaSalidaActual)) 
+            };
         }
         return undefined;
-    });
+    })
 
     const [diasBloqueados, setDiasBloqueados] = useState<Date[]>([]);
     const [isLoading, setIsLoading] = useState(false);

@@ -527,6 +527,27 @@ class ReservaController extends Controller
                 | pending + estado_pago pendiente
                 | ======================================
                 */
+
+                if (!empty($titular)) {
+
+                    $persona = $reserva->persona;
+
+                    $persona->nombre            = $titular['nombre'] ?? $persona->nombre;
+                    $persona->apellido1         = $titular['apellido1'] ?? $persona->apellido1;
+                    $persona->apellido2         = $titular['apellido2'] ?? $persona->apellido2;
+                    $persona->fechaNacimiento   = $titular['fechaNacimiento'] ?? $persona->fechaNacimiento;
+                    $persona->tipoDocumento     = $titular['tipoDocumento'] ?? $persona->tipoDocumento;
+                    $persona->documento         = $titular['numeroDocumento'] ?? $persona->documento;
+                    $persona->telefono          = $titular['telefono'] ?? $persona->telefono;
+                    $persona->email             = $titular['correo'] ?? $persona->email;
+                    $persona->direccion         = $titular['direccion'] ?? $persona->direccion;
+                    $persona->cp                = $titular['codigoPostal'] ?? $persona->cp;
+                    $persona->nombreMunicipio   = $titular['nombreMunicipio'] ?? $persona->nombreMunicipio;
+                    $persona->codigoMunicipio   = $titular['codigoMunicipio'] ?? $persona->codigoMunicipio;
+                    $persona->nacionalidad      = $titular['pais'] ?? $persona->nacionalidad;
+
+                    $persona->save();
+                }
                 if (
                     $reserva->estado === 'pending'
                     && $reserva->estado_pago === 'pendiente'
