@@ -149,7 +149,8 @@ class AdminReservaController extends Controller
                 'success' => true,
                 'message' => 'Pago confirmado y reserva aprobada correctamente',
                 'parte' => $parte,
-                'estado' => $estado
+                'estado' => $estado,
+                'resultado_consulta_ses' => $resultadoConsulta ?? null,
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
