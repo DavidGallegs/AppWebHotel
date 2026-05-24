@@ -17,6 +17,8 @@ services:
     ports:
       - "8080:80"
     networks:
+    environment:     
+      - PMA_HOST=base_datos
       - redOne
     depends_on:
       - base_datos
