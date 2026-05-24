@@ -1,7 +1,6 @@
 ---
 export const prerender = false;
 import BasePage from "../layouts/BasePage.astro";
-import ImageBack from "../assets/background_Images/10_reserva.jpg";
 import { getSession } from 'auth-astro/server';
 
 import { DashboardApp } from '../components/dashboard/ReservationList';
@@ -10,6 +9,6 @@ const session = await getSession(Astro.request);
 const token = (session?.user as any)?.token || "";
 ---
 
-<BasePage tituloPage="Hotel Rural Taranes" centrado={true} imageBack={ImageBack.src}>
+<BasePage tituloPage="Hotel Rural Taranes" centrado={true} imageBack="/background_Images/10_reservas.jpg">
   <DashboardApp client:load token={token} />
 </BasePage>
