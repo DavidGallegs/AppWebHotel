@@ -10,15 +10,15 @@ services:
     networks:
       - redOne
 
-  # 2. PhpMyAdmin
+# 2. PhpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
     ports:
       - "8080:80"
-    networks:
-    environment:     
+    environment: 
       - PMA_HOST=base_datos
+    networks:
       - redOne
     depends_on:
       - base_datos
