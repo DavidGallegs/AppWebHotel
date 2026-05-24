@@ -15,6 +15,8 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Ses\SesController;
 
 
+
+
 // Aqui definimos la ruta para crear una reserva
 
 
@@ -57,6 +59,9 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 // Ruta para registro de usuarios
 Route::post('/register', [RegisterController::class, 'registrarUsuario']);
 
+// Ruta para crear reserva 
+Route::post('/reservas', [ReservaController::class, 'crearReserva']);
+
 // Ruta para pre-login (enviar OTP)
 Route::post('/pre-login', [LoginController::class, 'preLogin']);
 
@@ -66,8 +71,8 @@ Route::post('/login', [LoginController::class, 'login']);
 // Ruta protegida para obtener las reservas del usuario autenticado
 Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); 
 
-// Ruta para crear reserva 
-Route::post('/reservas', [ReservaController::class, 'crearReserva']); 
+
+
 
 // Ruta para obtener detalles de una reserva especifica
 Route::get('/reservas/{id}', [ReservaController::class, 'show']); 
@@ -79,6 +84,10 @@ Route::get('/ocupacion', [ReservaController::class, 'ocupacion']);
 
 // Rutas del Usuario (Panel de cliente)
 Route::middleware('auth:sanctum')->group(function () {
+
+    
+
+
     Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'solicitarModificacion']);
     Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']);
     Route::patch('/reservations/{id}/request-cancellation', [ReservaController::class, 'solicitarCancelacion']);
