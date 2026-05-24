@@ -7,32 +7,68 @@ use Illuminate\Http\Request;
 use App\Models\ComunicacionSES;
 use App\Models\Reserva;
 use App\Services\SES\SesAltaReservaService;
+use App\Models\ViajeroParte;
+
 
 
 class SesController extends Controller
 {
     public function logs()
     {
-        $logs = ComunicacionSES::orderBy('fecha_peticion', 'desc')
-            ->get()
-            ->map(function ($log) {
+        $logs = ComunicacionSES::with([
+                'reserva.persona',
+                'reserva.contrato'
+            ])
+            ->orderBy('fecha_peticion', 'desc')
+            ->get();
 
-                return [
-                    'id' => $log->idComunicacionSES,
+        $response = $logs->map(function ($log) {
 
-                    'reserva_id' => $log->idReserva,
+            $reserva = $log->reserva;
 
-                    'accion' => $log->tipo_comunicacion,
+            if (!$reserva) {
+                return null;
+            }
 
-                    'estado' => $log->estado_ses,
+            return [
+                'id' => $log->idComunicacionSES,
 
-                    'mensaje' => $log->descripcion_estado,
+                'reserva_id' => $reserva->idReserva,
 
-                    'fecha' => $log->fecha_peticion
-                ];
-            });
+                'titular_nombre' =>
+                    $reserva->persona->nombre . ' ' .
+                    $reserva->persona->apellido1,
 
-        return response()->json($logs);
+                'estado_ses' => strtoupper($log->estado_ses ?? 'PENDIENTE'),
+
+                'num_lote' => $log->codigo_lote,
+
+                'fecha_envio' => $log->fecha_peticion,
+
+                /*
+                | RELACIONES DE MODIFICACIÓN
+                | (esto depende de tu lógica de negocio)
+                */
+                'sustituida_por' => $reserva->reserva_sustituida_por ?? null,
+
+                'proviene_de' => $reserva->reserva_proviene_de ?? null,
+
+                /*
+                | VIAJEROS DEL CONTRATO
+                */
+                'num_viajeros' => $reserva->contrato
+                    ? ViajeroParte::whereHas('parte', function ($q) use ($reserva) {
+                        $q->where('referenciaContrato', $reserva->contrato->referencia);
+                    })->count()-1 
+                    : 0,
+
+                'mensaje_backend' => $log->descripcion_estado,
+            ];
+        })
+        ->filter() // elimina nulls
+        ->values();
+
+        return response()->json($response);
     }
 
     public function anularSES($id)

@@ -17,4 +17,15 @@ class ViajeroParte extends Model
     ];
 
     public $timestamps = false;
+
+
+    public function parte()
+    {
+        return $this->belongsTo(Parte::class, 'idParte', 'idParte');
+    }
+
+    public function persona()
+    {
+        return $this->belongsTo(Persona::class, 'idPersona', 'idPersona');
+    }
 }
