@@ -106,51 +106,52 @@ class AdminReservaController extends Controller
             */
             $estado = null;
             if ($parte instanceof \App\Models\Parte) {
-                $sesResponse = app(SesAltaReservaService::class)
-                    ->enviarParte($parte);
+                
+                // 1. Llamamos al servicio
+                $sesResponse = app(SesAltaReservaService::class)->enviarParte($parte);
 
+                // 2. CHIVATO: Guardamos la respuesta exacta en los logs de AWS
+                logger()->info('=== RESPUESTA CRÍTICA DEL SES ===', [
+                    'id_parte' => $parte->idParte,
+                    'respuesta_completa' => $sesResponse
+                ]);
+
+                // 3. Si NO está OK, frenamos y devolvemos el error a la pantalla
+                if (!isset($sesResponse['ok']) || !$sesResponse['ok']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Reserva guardada en BD local, pero falló la comunicación con el SES.',
+                        'error_ses' => $sesResponse
+                    ], 500);
+                }
+
+                // 4. Si todo va bien, continúa con tu lógica normal...
                 if ($sesResponse['ok']) {
-
-                    // ESPERA PARA QUE SES PROCESE EL LOTE
                     sleep(5); 
-
-                    $comunicacion = ComunicacionSES::where(
-                        'codigo_lote',
-                        $sesResponse['lote']
-                    )->first();
+                    $comunicacion = ComunicacionSES::where('codigo_lote', $sesResponse['lote'])->first();
 
                     if ($comunicacion) {
-
                         $intentos = 0;
                         $resultadoConsulta = null;
 
-                        //REINTENTAR CONSULTA HASTA 3 VECES SI EL ESTADO SIGUE PENDIENTE 
                         while ($intentos < 5) {
-
-                            $resultadoConsulta = app(SesConsultaLoteService::class)
-                                ->consultarLote($comunicacion);
-
+                            $resultadoConsulta = app(SesConsultaLoteService::class)->consultarLote($comunicacion);
                             if (($resultadoConsulta['codigo_estado'] ?? null) != 5) {
                                 break;
                             }
-
                             sleep(3); 
                             $intentos++;
                         }
-
-                        logger()->info('RESULTADO CONSULTA LOTE', [
-                            'resultado' => $resultadoConsulta
-                        ]);
+                        logger()->info('RESULTADO CONSULTA LOTE', ['resultado' => $resultadoConsulta]);
                     }
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pago confirmado y reserva aprobada correctamente',
+                'message' => 'Pago confirmado, reserva aprobada y SES notificado',
                 'parte' => $parte,
-                'estado' => $estado,
-                'resultado_consulta_ses' => $resultadoConsulta ?? null,
+                'estado' => $estado
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
