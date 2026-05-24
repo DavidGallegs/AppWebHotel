@@ -39,6 +39,8 @@ services:
     build:
       context: ./frontend                  # La carpeta donde vive el código Astro
       dockerfile: ../docker/node.Dockerfile 
+    env_file:                 
+      - ./frontend/.env
     tty: true    
     restart: always                         
     ports:
