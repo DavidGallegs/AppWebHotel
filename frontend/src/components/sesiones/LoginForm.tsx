@@ -44,14 +44,16 @@ export default function LoginForm() {
     }
   };
 
-  const onSubmitPaso2 = async (e: React.FormEvent) => {
+const onSubmitPaso2 = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
     setCargando(true);
 
     const data = getValues(); 
 
-    // Fase 2: Pasamos la pelota a Astro Auth. Esto viaja al servidor de Astro y luego a la red interna de Docker.
+    // OBLIGAMOS a usar la IP/Dominio actual del navegador
+    const destinoSeguro = window.location.origin + '/reserva';
+
     const options = {
       email: data.email,
       password: data.password,
@@ -65,7 +67,8 @@ export default function LoginForm() {
       setServerError("Código de seguridad incorrecto o caducado.");
       setCargando(false);
     } else if (result?.ok) {
-      window.location.href = '/reserva'; 
+      // Redirección blindada
+      window.location.href = destinoSeguro; 
     }
   };
 
