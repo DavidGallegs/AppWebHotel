@@ -18,6 +18,8 @@ use App\Mail\SolicitudModificacionReservaMail;
 use App\Mail\ReservaCanceladaMail;
 use App\Mail\ReservaPendientePagoMail;
 
+use App\Mail\PagoNotificadoAdmin;
+
 use Illuminate\Support\Facades\Log;
 
 
@@ -645,11 +647,7 @@ class ReservaController extends Controller
             $status = 401;
         } else {
             $idPersona = $user->idPersona;
-            $reservas = Reserva::with([
-                    'persona',
-                    'habitaciones'
-                ])
-                ->where('idPersonaTitular', $idPersona)
+            $reservas = Reserva::with(['persona', 'habitaciones'])
                 ->orderBy('fechaEntrada', 'desc')
                 ->get();
 
@@ -707,6 +705,13 @@ class ReservaController extends Controller
             $reserva->estado_pago = 'notificado';
             $reserva->updatedAt = now();
             $reserva->save();
+
+            /*
+            | ENVIAR EMAIL AL ADMIN
+            */
+            Mail::to(config('mail.admin_address'))
+                ->send(new PagoNotificadoAdmin($reserva));
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pago notificado correctamente'

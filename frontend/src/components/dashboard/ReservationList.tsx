@@ -38,7 +38,7 @@ const ReservationListContent = () => {
   const notificarPago = useMutation({
     mutationFn: async (id: string | number) => await api.post(`/reservations/${id}/notificar-pago`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['user-reservations'] });
       alert("¡Gracias! Hemos notificado al administrador.");
     }
   });
@@ -46,7 +46,7 @@ const ReservationListContent = () => {
   const solicitarDevolucion = useMutation({
     mutationFn: async (id: string | number) => await api.post(`/reservations/${id}/solicitar-devolucion`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['user-reservations'] });
       alert("Solicitud de anulación enviada correctamente.");
     }
   });

@@ -9,7 +9,7 @@ export function FormularioRecuperar() {
         e.preventDefault();
         setCargando(true);
         try {
-            const res = await fetch(import.meta.env.PUBLIC_API_URL +"api/forgot-password", {
+            const res = await fetch(import.meta.env.PUBLIC_API_URL +"/api/forgot-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({ email })
