@@ -9,11 +9,6 @@ interface LaravelUser {
   role: string;
 }
 
-/* * ARCHIVO: auth.config.ts
- * Propósito: Define CÓMO AuthAstro valida a los usuarios.
- * LA CLAVE: Como esto se ejecuta en el servidor Node.js de Astro, usamos "http://backend:80" 
- * para comunicarnos directamente por la red interna de Docker con el contenedor de Laravel.
- */
 export default defineConfig({
   trustHost: true,
   useSecureCookies: false,
@@ -29,7 +24,6 @@ export default defineConfig({
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          // Petición interna de contenedor a contenedor (Astro -> Laravel)
           const response = await fetch("http://backend:80/api/login", {
             method: "POST",
             headers: { 
@@ -44,10 +38,8 @@ export default defineConfig({
           });
 
           const data = await response.json();
-          console.log("RESPUESTA DE LARAVEL:", data);
 
           if (response.ok && data.user) {
-            // Guardamos todo en la "galleta" (cookie) encriptada de Astro
             return {
               id: data.user.id.toString(), 
               name: data.user.name,
@@ -56,7 +48,6 @@ export default defineConfig({
               role: data.role,
             } as LaravelUser;
           }
-
           return null; 
         } catch (error) {
           console.error("Error en la conexión con Laravel:", error);
@@ -66,6 +57,17 @@ export default defineConfig({
     })
   ],
   callbacks: {
+    // --- LA NUEVA REGLA QUE ARREGLA EL GPS ---
+    async redirect({ url, baseUrl }) {
+      // Si Auth.js intenta enviarnos a la IP de AWS o a una ruta relativa, lo permitimos siempre
+      if (url.includes('35.180.46.142') || url.startsWith('/')) {
+        return url;
+      }
+      // Si se vuelve loco y quiere llevarnos a localhost, lo forzamos a la IP
+      return 'http://35.180.46.142:4321';
+    },
+    // -----------------------------------------
+    
     async jwt({ token, user }) {
       if (user) token.userData = user;
       return token;
