@@ -26,7 +26,6 @@ export function SeccionViajero({ index, remover }: PropsViajero) {
             <button 
                 type="button" 
                 onClick={remover} 
-                style={{ float: 'right' }} 
                 className="btn-action btn-danger-soft"
                 aria-label={`Eliminar viajero número ${index + 1}`}
             >

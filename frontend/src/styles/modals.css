@@ -1,0 +1,264 @@
+/* Form ReservationList.tsx */
+.modal-overlay {
+    padding-bottom: 10px;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);      /* Fondo oscuro ideal */
+    backdrop-filter: blur(4px);          /* Desenfoque estilo Apple */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;                       /* Por encima del menú de navegación siempre */
+}
+
+.modal-content{
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.reserva-list-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto; /* Opcional: esto centrará el contenedor en pantallas más grandes que 800px */
+}
+
+.btn-viajeros{
+    background-color: #096;
+    color:#fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 35%;
+}
+
+/* Fomulario Checkin */
+.btn-action.btn-danger-soft{
+    padding: 2px;
+    margin-bottom: 10px;
+    float: right;
+    background-color: #fff;
+    border: none;
+}
+
+.btn-action.btn-danger-soft:hover{
+
+    background-color: #ddd;
+
+}
+
+.btn-action.btn-approve{
+
+    margin-left: 10px;
+}
+
+/* RESERVATIONCARD.TSX */
+/* --- CONTENEDOR PRINCIPAL --- */
+
+.main-dashboard {
+  display: grid;
+  gap: 1.5rem; 
+  width: 100%;
+  /* justify-content: center; <-- BÓRRALO */
+}
+
+.reserva-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  
+  width: 75%; 
+  min-height: 250px; 
+  
+  /* Esto es lo único que necesitas para centrar */
+  margin: 1rem auto; 
+  
+  display: flex;
+  flex-direction: column;
+}
+/* --- CABECERA Y TEXTOS --- */
+.reserva-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reserva-card-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.reserva-card-dates {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.reserva-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* --- BARRAS DE ALERTA Y ESTADO --- */
+.alert-warning {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.alert-text-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b45309;
+  font-size: 0.9rem;
+}
+
+.status-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1d4ed8;
+  font-size: 0.85rem;
+}
+
+.status-review {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9a3412;
+  font-size: 0.85rem;
+}
+
+/* --- BOTONERA Y BOTONES --- */
+.reserva-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+}
+
+.btn-notify {
+  background: #b45309;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-ver {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  background: white;
+}
+
+.btn-modificar {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-cancelar {
+  background: #fff1f2;
+  color: #be123c;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-viajeros {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+}
+
+.checkin-wrapper {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* --- CLASES DE UTILIDAD --- */
+.ml-auto {
+  margin-left: auto; /* Empuja los botones a la derecha */
+}
+
+.icon-inline {
+  display: inline;
+  margin-bottom: -3px; /* Alinea los iconos con el texto */
+}
+
+/* Fondo oscuro desenfocado que tapa el menú de navegación */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; 
+}
+
+/* La caja blanca central del formulario */
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}

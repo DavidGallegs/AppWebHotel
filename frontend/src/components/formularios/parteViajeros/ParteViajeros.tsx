@@ -77,8 +77,6 @@ export default function ParteViajeros({ reservaId, isAdmin = false, maxViajeros 
                         {!limiteAlcanzado ? (
                             <button 
                                 type="button" 
-                                className="btn-action"
-                                style={{ background: '#3b82f6', color: 'white' }}
                                 aria-label="Añadir un nuevo viajero al formulario"
                                 onClick={() => append({ 
                                     rol: "VI", nombre: "", apellido1: "", apellido2: "", 
@@ -90,7 +88,7 @@ export default function ParteViajeros({ reservaId, isAdmin = false, maxViajeros 
                                 + Rellenar parte viajeros ({fields.length}/{maxViajeros})
                             </button>
                         ) : (
-                            <div style={{ padding: '1rem', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', textAlign: 'center', marginBottom: '1rem', border: '1px solid #a7f3d0' }}>
+                            <div >
                                 Has alcanzado el límite de <strong>{maxViajeros}</strong> viajeros para esta reserva.
                             </div>
                         )}
@@ -99,10 +97,9 @@ export default function ParteViajeros({ reservaId, isAdmin = false, maxViajeros 
                             <button 
                                 type="submit" 
                                 className="btn-action btn-approve" 
-                                style={{ width: '100%', marginTop: '1rem' }}
                                 aria-label="Enviar datos y finalizar check-in"
                             >
-                                Enviar Parte de Viajeros y Finalizar
+                                Enviar Parte de Viajeros
                             </button>
                         )}
                     </div>
