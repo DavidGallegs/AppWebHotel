@@ -37,18 +37,21 @@ services:
   # 4. FrontEnd (Astro + React)
   frontend:
     build:
-      context: ./frontend                  # La carpeta donde vive el código Astro
-      dockerfile: ../docker/node.Dockerfile 
-    env_file:                 
+      context: ./frontend
+      dockerfile: ../docker/node.Dockerfile
+    env_file:
       - ./frontend/.env
-    tty: true    
-    restart: always                         
+    tty: true
+    restart: always
     ports:
       - "4321:4321"
     environment:
       - ASTRO_TELEMETRY_DISABLED=1
       - HOST=0.0.0.0
       - NODE_ENV=production
+      - AUTH_TRUST_HOST=true
+      - AUTH_URL=http://35.180.46.142:4321
+      - AUTH_SECRET=ktTOgYTLbMQt1VE4m5ozSae2W/myPu8pbBnjqMjyDgxQvO//tGZt3uUbbNM=
     command: node ./dist/server/entry.mjs
     networks:
       - redOne

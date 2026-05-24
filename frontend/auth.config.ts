@@ -15,6 +15,7 @@ interface LaravelUser {
  * para comunicarnos directamente por la red interna de Docker con el contenedor de Laravel.
  */
 export default defineConfig({
+  trustHost: true,
   providers: [
     Credentials({
       name: 'Credentials',
