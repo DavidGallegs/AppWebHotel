@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useReservations, useCancelReservation, useRequestModification } from './useReservations';
+import { useReservations, useCancelReservation, useRequestModification, useUpdateReservation } from './useReservations';
 import type { Reservation } from './reservation';
 import { QueryProvider } from './QueryProvider'; 
 import { FormularioModificar } from './FormularioModificar';
@@ -9,7 +9,6 @@ import { ReservationCard } from './ReservationCard';
 import { ModalDetalles } from './ModalDetalles';
 import ParteViajeros from '../formularios/parteViajeros/ParteViajeros';
 import '../../styles/modals.css'
-
 export interface FullReservation extends Reservation {
   habitacion?: string;
   numPersonas?: number;
@@ -29,6 +28,7 @@ const ReservationListContent = () => {
   const { data: reservations, isLoading, isError } = useReservations();
   const { mutate: cancelarDirecto } = useCancelReservation();
   const { mutate: solicitarMod } = useRequestModification();
+  const { mutate: modificarDirecto } = useUpdateReservation();
 
   const [reservaDetalle, setReservaDetalle] = useState<FullReservation | null>(null);
   const [reservaEditando, setReservaEditando] = useState<FullReservation | null>(null);
@@ -88,7 +88,17 @@ const ReservationListContent = () => {
               onCancelar={() => setReservaEditando(null)}
               onGuardar={(data) => {
                 const { habitacion, ...restoDatos } = data;
-                solicitarMod({ id: reservaEditando.id, data: { ...restoDatos, idHabitacion: habitacion } });
+                const payload = { ...restoDatos, idHabitacion: habitacion };
+                
+                // EL CRUCE DE CAMINOS
+                if (reservaEditando.status === 'pending') {
+                    // Si está pendiente, machacamos la base de datos directamente
+                    modificarDirecto({ id: reservaEditando.id, data: payload });
+                } else {
+                    // Si ya está aprobada, la mandamos al "modo revisión" del admin
+                    solicitarMod({ id: reservaEditando.id, data: payload });
+                }
+                
                 setReservaEditando(null);
               }}
             />

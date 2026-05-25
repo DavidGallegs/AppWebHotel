@@ -85,3 +85,25 @@ export const useRequestCancellation = () => {
     }
   });
 };
+
+/* * HOOK: useUpdateReservation
+ * Propósito: Modifica la reserva DIRECTAMENTE en la base de datos sin pasar por el admin.
+ * Solo permitido cuando la reserva está en estado 'pending'.
+ */
+export const useUpdateReservation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    // Ajusta el método (put o patch) y la ruta según lo tengas en tu api.php de Laravel
+    mutationFn: async ({ id, data }: { id: string | number, data: any }) => {
+      const response = await api.put(`/reservations/${id}`, data); 
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-reservations'] });
+      alert("Reserva actualizada correctamente.");
+    },
+    onError: () => {
+      alert("Hubo un error al intentar modificar la reserva directamente.");
+    }
+  });
+};
