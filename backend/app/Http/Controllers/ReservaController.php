@@ -91,7 +91,7 @@ class ReservaController extends Controller
             'email' => $validated['correo'] ?? null,
             'tipoDocumento' => $validated['tipoDocumento'] ?? null,
             'soporteDocumento' => $validated['soporteDocumento'] ?? null,
-            'numeroDocumento' => $validated['numeroDocumento'],
+            'documento' => $validated['numeroDocumento'],
         ]);
 
         /*
