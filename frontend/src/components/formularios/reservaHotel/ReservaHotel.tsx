@@ -5,11 +5,17 @@ import { SeccionTitular } from "./SeccionTitular";
 import { esquemaReserva, type TReserva } from "./esquemaReserva"; 
 import "../../../styles/reservaHotel.css";
 
+// 1. Añadimos la interfaz para recibir los datos de la sesión
+interface Props {
+    isAdmin?: boolean;
+    userEmail?: string;
+}
+
 /* * COMPONENTE: ReservaHotel
  * Propósito: Es el cerebro del formulario de creación de reservas.
  * Envuelve a los sub-componentes (Fechas y Titular) y maneja el momento en que el usuario hace clic en "Confirmar".
  */
-export default function ReservaHotel() {
+export default function ReservaHotel({ isAdmin = false, userEmail = "" }: Props) { // 2. Recibimos las props
 
     // Inicializamos el formulario y lo conectamos con nuestro esquema de Zod.
     // Le damos valores por defecto para que no haya campos "undefined" de inicio.
@@ -71,7 +77,9 @@ export default function ReservaHotel() {
             <FormProvider {...methods}>
                 <form className="form" onSubmit={methods.handleSubmit(enviar)} noValidate>
                     <SeccionFechas />
-                    <SeccionTitular />
+                    
+                    {/* 3. Pasamos las variables a la sección del titular para que bloquee el correo si hace falta */}
+                    <SeccionTitular isAdmin={isAdmin} userEmail={userEmail} />
                     
                     <div className="acciones-formulario">
                         <button type="submit" aria-label="Confirmar la creación de esta reserva">

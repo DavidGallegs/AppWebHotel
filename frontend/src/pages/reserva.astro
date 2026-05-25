@@ -1,11 +1,15 @@
 ---
 export const prerender = false;
-import BasePage from "../layouts/BasePage.astro"
-
+import BasePage from "../layouts/BasePage.astro";
 import ReservaHotel from "../components/formularios/reservaHotel/ReservaHotel";
+import { getSession } from 'auth-astro/server';
+
+const session = await getSession(Astro.request);
+const correoUsuario = session?.user?.email || "";
+const esAdmin = (session?.user as any)?.role === 'admin'; 
 ---
 
 <BasePage tituloPage="Hotel rural Taranes" imageBack="/background_Images/2_contact.jpg" centrado={true}>
     <div style="height: 100px;"></div>
-    <ReservaHotel client:load/>
+    <ReservaHotel client:load isAdmin={esAdmin} userEmail={correoUsuario} />
 </BasePage>
