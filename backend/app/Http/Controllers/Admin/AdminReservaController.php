@@ -192,7 +192,7 @@ class AdminReservaController extends Controller
                             'nombre' => $datos['titular']['nombre'] ?? null,
                             'apellido1' => $datos['titular']['apellido1'] ?? null,
                             'apellido2' => $datos['titular']['apellido2'] ?? null,
-                            'correo' => $datos['titular']['correo'] ?? null,
+                            'email' => $datos['titular']['correo'] ?? null,
                             'telefono' => $datos['titular']['telefono'] ?? null,
                             'tipoDocumento' => $datos['titular']['tipoDocumento'] ?? null,
                             'pais' => $datos['titular']['pais'] ?? null,
