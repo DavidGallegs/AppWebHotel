@@ -11,13 +11,15 @@ interface Props {
     onGuardar: (data: TReserva) => void;
     onCancelar: () => void;
     isPending: boolean;
+    isAdmin?: boolean;      
+    userEmail?: string;
 }
 
 /* * COMPONENTE: FormularioModificar
  * Propósito: Reutiliza los componentes que ya creamos en la reserva inicial (Fechas y Titular), 
  * pero los rellena (pre-carga) con los datos de una reserva existente para poder editarla.
  */
-export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, isPending }: Props) {
+export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, isPending,isAdmin, userEmail }: Props) {
     
     /* * * Construimos el objeto inicial. 
      * Hacemos una comprobación profunda (con ?.) por si algunos datos del titular 
@@ -74,7 +76,7 @@ export function FormularioModificar({ reservaOriginal, onGuardar, onCancelar, is
                     y nos permita mantener nuestras propias fechas sin que salte el error de "días ocupados" */}
                 <SeccionFechas reservaId={reservaOriginal.id} />
                 
-                <SeccionTitular />
+                <SeccionTitular isAdmin={isAdmin} userEmail={userEmail}/>
                 
                 <div className="acciones-modificar">
                     <button 
