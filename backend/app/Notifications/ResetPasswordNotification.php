@@ -24,7 +24,9 @@ class ResetPasswordNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $url = config('app.frontend_url') . 'resetPassword?token=' . $this->token . '&email=' . $notifiable->getEmailForPasswordReset();
+        // 1. Usamos rtrim para asegurarnos de que no haya dobles barras si el .env ya tiene una.
+        // 2. Añadimos '/reset-password' (con guion, coincidiendo con tu archivo de Astro).
+        $url = rtrim(config('app.frontend_url'), '/') . '/reset-password?token=' . $this->token . '&email=' . $notifiable->getEmailForPasswordReset();
 
         return (new MailMessage)
             ->subject('Restablecimiento de contraseña')
