@@ -688,43 +688,44 @@ class ReservaController extends Controller
 
     public function solicitarDevolucion($id)
     {
-        $response = null;
-        $status = 200;
-
         try {
             $reserva = Reserva::findOrFail($id);
 
-            if ($reserva->estado_pago !== 'pagado') {
-                $response = [
-                    'error' => 'Solo se pueden solicitar devoluciones de reservas pagadas'
-                ];
-                $status = 400;
-            } else {
-                /*
-                | ACTUALIZAR ESTADO DE PAGO A DEVOLUCION_SOLICITADA Y MARCAR SOLICITUD DE CANCELACION PARA QUE 
-                |EL ADMIN PUEDA REVISAR LA SOLICITUD DE DEVOLUCION
-                */
-                $reserva->estado_pago = 'devolucion_solicitada';
-                $reserva->solicitud_cancelacion = 1;
-                $reserva->updatedAt = now();
-                $reserva->save();
-                $response = [
-                    'success' => true,
-                    'message' => 'Solicitud de devolución enviada correctamente'
-                ];
+            // Seguridad: Solo permitimos solicitar anulación si la reserva ya estaba aprobada
+            // (Comprueba si tu columna se llama 'estado' o 'status')
+            if ($reserva->estado !== 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Solo se puede solicitar la anulación de reservas ya confirmadas.'
+                ], 403);
             }
+
+            // Encendemos la alerta para el administrador
+            $reserva->solicitud_cancelacion = 1;
+
+            // Opcional: Si manejas el estado del pago, lo marcamos para que la UI lo detecte
+            if ($reserva->estado_pago === 'pagado') {
+                $reserva->estado_pago = 'devolucion_solicitada';
+            }
+
+            $reserva->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Solicitud de anulación enviada al administrador.'
+            ], 200);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $response = [
-                'error' => 'Reserva no encontrada'
-            ];
-            $status = 404;
+            return response()->json([
+                'success' => false,
+                'error' => 'Reserva no encontrada.'
+            ], 404);
         } catch (\Exception $e) {
-            $response = [
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al procesar la solicitud: ' . $e->getMessage()
+            ], 500);
         }
-        return response()->json($response, $status);
     }
 
     public function requestModification(Request $request, $id)
