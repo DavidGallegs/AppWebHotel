@@ -168,6 +168,7 @@ class AdminReservaController extends Controller
         }
     }
 
+
     public function resolve(Request $request, $id)
     {
         $reserva = Reserva::findOrFail($id);
@@ -177,110 +178,116 @@ class AdminReservaController extends Controller
             'tipo' => 'required|in:mod,cancel',
         ]);
 
-        if ($validated['tipo'] === 'mod') {
+        try {
 
-            if (
-                $validated['accion'] === 'accept' &&
-                !empty($reserva->datos_modificacion)
-            ) {
+            if ($validated['tipo'] === 'mod') {
 
-                $datos = json_decode($reserva->datos_modificacion, true);
-
-                // ===== TITULAR =====
-                if (isset($datos['titular'])) {
-
-                    $persona = Persona::updateOrCreate(
-                        [
-                            'documento' => $datos['titular']['numeroDocumento'] ?? null
-                        ],
-                        [
-                            'nombre' => $datos['titular']['nombre'] ?? null,
-                            'apellido1' => $datos['titular']['apellido1'] ?? null,
-                            'apellido2' => $datos['titular']['apellido2'] ?? null,
-                            'email' => $datos['titular']['correo'] ?? null,
-                            'telefono' => $datos['titular']['telefono'] ?? null,
-                            'tipoDocumento' => $datos['titular']['tipoDocumento'] ?? null,
-                            'nacionalidad' => $datos['titular']['pais'] ?? null,
-                        ]
-                    );
-
-                    // IMPORTANTE: tu PK es idPersona
-                    $reserva->idPersonaTitular = $persona->idPersona;
-                }
-
-                // ===== FECHAS =====
-                if (isset($datos['fechaEntrada'])) {
-                    $reserva->fechaEntrada = $datos['fechaEntrada'];
-                }
-
-                if (isset($datos['fechaSalida'])) {
-                    $reserva->fechaSalida = $datos['fechaSalida'];
-                }
-
-                // ===== HABITACION + PERSONAS =====
                 if (
-                isset($datos['idHabitacion']) &&
-                isset($datos['numPersonas'])
-            ) {
+                    $validated['accion'] === 'accept' &&
+                    !empty($reserva->datos_modificacion)
+                ) {
 
-                $habitacionId = $datos['idHabitacion'];
+                    $datos = json_decode($reserva->datos_modificacion, true);
 
-                /*
-                | Verificar si la relación existe
-                */
-                $existeRelacion = $reserva->habitaciones()
-                    ->where('habitaciones.idHabitacion', $habitacionId)
-                    ->exists();
+                    if (!$datos) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'datos_modificacion inválido o vacío'
+                        ], 400);
+                    }
 
-                if ($existeRelacion) {
+                    // ===== TITULAR =====
+                    if (!empty($datos['titular'])) {
 
-                    /*
-                    | Actualizar SOLO el pivot
-                    */
-                    $reserva->habitaciones()->updateExistingPivot(
-                        $habitacionId,
-                        [
-                            'numPersonas' => $datos['numPersonas']
-                        ]
-                    );
+                        $persona = Persona::updateOrCreate(
+                            [
+                                'documento' => $datos['titular']['numeroDocumento'] ?? null
+                            ],
+                            [
+                                'nombre' => $datos['titular']['nombre'] ?? null,
+                                'apellido1' => $datos['titular']['apellido1'] ?? null,
+                                'apellido2' => $datos['titular']['apellido2'] ?? null,
+                                'email' => $datos['titular']['correo'] ?? null,
+                                'telefono' => $datos['titular']['telefono'] ?? null,
+                                'tipoDocumento' => $datos['titular']['tipoDocumento'] ?? null,
+                                'nacionalidad' => $datos['titular']['pais'] ?? null,
+                            ]
+                        );
 
-                } else {
+                        $reserva->idPersonaTitular = $persona->idPersona;
+                    }
 
-                    /*
-                    | Si no existe relación, adjuntar habitación
-                    */
-                    $reserva->habitaciones()->attach(
-                        $habitacionId,
-                        [
-                            'numPersonas' => $datos['numPersonas']
-                        ]
-                    );
+                    // ===== FECHAS =====
+                    if (!empty($datos['fechaEntrada'])) {
+                        $reserva->fechaEntrada = $datos['fechaEntrada'];
+                    }
+
+                    if (!empty($datos['fechaSalida'])) {
+                        $reserva->fechaSalida = $datos['fechaSalida'];
+                    }
+
+                    // ===== HABITACION + PERSONAS =====
+                    if (
+                        !empty($datos['idHabitacion']) &&
+                        isset($datos['numPersonas'])
+                    ) {
+
+                        $habitacionId = (int) $datos['idHabitacion'];
+                        $numPersonas = (int) $datos['numPersonas'];
+
+                        $existeRelacion = $reserva->habitaciones()
+                            ->where('habitaciones.idHabitacion', $habitacionId)
+                            ->exists();
+
+                        if ($existeRelacion) {
+
+                            $reserva->habitaciones()->updateExistingPivot(
+                                $habitacionId,
+                                [
+                                    'numPersonas' => $numPersonas
+                                ]
+                            );
+
+                        } else {
+
+                            $reserva->habitaciones()->attach(
+                                $habitacionId,
+                                [
+                                    'numPersonas' => $numPersonas
+                                ]
+                            );
+                        }
+                    }
+
+                    // ===== LIMPIEZA =====
+                    $reserva->datos_modificacion = null;
+                    $reserva->solicitud_modificacion = 0;
                 }
-            }
+
+                $reserva->save();
             }
 
-            // Tanto si acepta como rechaza
-            $reserva->datos_modificacion = null;
-            $reserva->solicitud_modificacion = 0;
+            elseif ($validated['tipo'] === 'cancel') {
 
-            $reserva->save();
+                if ($validated['accion'] === 'accept') {
+                    $reserva->estado = 'cancelled';
+                }
+
+                $reserva->solicitud_cancelacion = 0;
+                $reserva->save();
+            }
+
+            return response()->json([
+                'success' => true
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        elseif ($validated['tipo'] === 'cancel') {
-
-            if ($validated['accion'] === 'accept') {
-
-                // IMPORTANTE: la columna es estado, no status
-                $reserva->estado = 'cancelled';
-            }
-
-            $reserva->solicitud_cancelacion = 0;
-
-            $reserva->save();
-        }
-
-        return response()->json([
-            'success' => true
-        ], 200);
     }
 }
