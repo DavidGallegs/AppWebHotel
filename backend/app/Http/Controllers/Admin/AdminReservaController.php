@@ -219,11 +219,11 @@ class AdminReservaController extends Controller
 
                 // ===== HABITACION + PERSONAS =====
                 if (
-                    isset($datos['habitacion']) &&
+                    isset($datos['idHabitacion']) &&
                     isset($datos['numPersonas'])
                 ) {
 
-                    $habitacionId = $datos['habitacion'];
+                    $habitacionId = $datos['idHabitacion'];
 
                     /*
                     | Verificar si la relación existe
