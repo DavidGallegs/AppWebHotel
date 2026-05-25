@@ -572,8 +572,10 @@ class ReservaController extends Controller
             ], 400);
         }
 
-        $reservas = Reserva::with(['persona', 'habitaciones'])
-            ->where('idPersonaTitular', $idPersona)
+        $reservas = Reserva::whereHas('persona', function ($q) use ($user) {
+                $q->where('email', $user->email);
+            })
+            ->with(['persona', 'habitaciones'])
             ->orderBy('fechaEntrada', 'desc')
             ->get();
 
