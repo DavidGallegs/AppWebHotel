@@ -61,7 +61,7 @@ const AdminContent = () => {
                 </div>
                 <div className="admin-card">
                   {/* Reutilizamos el formulario que hicimos para los clientes */}
-                  <ReservaHotel />
+                  <ReservaHotel isAdmin={true}/>
                 </div>
               </div>
             )}
