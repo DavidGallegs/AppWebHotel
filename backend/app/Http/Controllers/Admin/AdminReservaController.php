@@ -187,7 +187,7 @@ class AdminReservaController extends Controller
                 if (isset($datos['titular'])) {
 
                     $persona = Persona::firstOrCreate(
-                        ['numeroDocumento' => $datos['titular']['numeroDocumento'] ?? null],
+                        ['documento' => $datos['titular']['numeroDocumento'] ?? null],
                         [
                             'nombre' => $datos['titular']['nombre'] ?? null,
                             'apellido1' => $datos['titular']['apellido1'] ?? null,
