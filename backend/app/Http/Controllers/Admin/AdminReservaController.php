@@ -179,30 +179,22 @@ class AdminReservaController extends Controller
         ]);
 
         try {
-
+            // ==========================================
+            // 1. SOLICITUDES DE MODIFICACIÓN
+            // ==========================================
             if ($validated['tipo'] === 'mod') {
-
-                if (
-                    $validated['accion'] === 'accept' &&
-                    !empty($reserva->datos_modificacion)
-                ) {
-
+                
+                if ($validated['accion'] === 'accept' && !empty($reserva->datos_modificacion)) {
                     $datos = json_decode($reserva->datos_modificacion, true);
 
                     if (!$datos) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'datos_modificacion inválido o vacío'
-                        ], 400);
+                        return response()->json(['success' => false, 'message' => 'datos_modificacion inválido o vacío'], 400);
                     }
 
                     // ===== TITULAR =====
                     if (!empty($datos['titular'])) {
-
                         $persona = Persona::updateOrCreate(
-                            [
-                                'documento' => $datos['titular']['numeroDocumento'] ?? null
-                            ],
+                            ['documento' => $datos['titular']['numeroDocumento'] ?? null],
                             [
                                 'nombre' => $datos['titular']['nombre'] ?? null,
                                 'apellido1' => $datos['titular']['apellido1'] ?? null,
@@ -213,76 +205,58 @@ class AdminReservaController extends Controller
                                 'nacionalidad' => $datos['titular']['pais'] ?? null,
                             ]
                         );
-
                         $reserva->idPersonaTitular = $persona->idPersona;
                     }
 
                     // ===== FECHAS =====
-                    if (!empty($datos['fechaEntrada'])) {
-                        $reserva->fechaEntrada = $datos['fechaEntrada'];
-                    }
-
-                    if (!empty($datos['fechaSalida'])) {
-                        $reserva->fechaSalida = $datos['fechaSalida'];
-                    }
+                    if (!empty($datos['fechaEntrada'])) $reserva->fechaEntrada = $datos['fechaEntrada'];
+                    if (!empty($datos['fechaSalida'])) $reserva->fechaSalida = $datos['fechaSalida'];
 
                     // ===== HABITACION + PERSONAS =====
-                    if (
-                        !empty($datos['idHabitacion']) &&
-                        isset($datos['numPersonas'])
-                    ) {
-
+                    if (!empty($datos['idHabitacion']) && isset($datos['numPersonas'])) {
                         $habitacionId = (int) $datos['idHabitacion'];
                         $numPersonas = (int) $datos['numPersonas'];
 
-                        $existeRelacion = $reserva->habitaciones()
-                            ->whereKey($habitacionId)
-                            ->exists();
+                        $existeRelacion = $reserva->habitaciones()->where('habitaciones.idHabitacion', $habitacionId)->exists();
 
                         if ($existeRelacion) {
-
-                            $reserva->habitaciones()->updateExistingPivot(
-                                $habitacionId,
-                                [
-                                    'numPersonas' => $numPersonas
-                                ]
-                            );
-
+                            $reserva->habitaciones()->updateExistingPivot($habitacionId, ['numPersonas' => $numPersonas]);
                         } else {
-
-                            $reserva->habitaciones()->attach(
-                                $habitacionId,
-                                [
-                                    'numPersonas' => $numPersonas
-                                ]
-                            );
+                            $reserva->habitaciones()->attach($habitacionId, ['numPersonas' => $numPersonas]);
                         }
                     }
-
-                    // ===== LIMPIEZA =====
-                    $reserva->datos_modificacion = null;
-                    $reserva->solicitud_modificacion = 0;
                 }
 
+                // Tanto si aceptamos como rechazamos la MODIFICACIÓN, limpiamos la alerta
+                $reserva->datos_modificacion = null;
+                $reserva->solicitud_modificacion = 0;
                 $reserva->save();
             }
 
+            // ==========================================
+            // 2. SOLICITUDES DE ANULACIÓN
+            // ==========================================
             elseif ($validated['tipo'] === 'cancel') {
-
+                
                 if ($validated['accion'] === 'accept') {
-                    $reserva->estado = 'cancelled';
+                    // Si aceptamos la anulación, cambiamos el estado
+                    $reserva->estado = 'cancelled'; 
                 }
 
+                // Tanto si aceptamos como rechazamos la ANULACIÓN, apagamos la alerta roja
                 $reserva->solicitud_cancelacion = 0;
+                
+                // Opcional: Si el pago estaba en "devolucion_solicitada", lo volvemos a "pagado" si rechazamos
+                if ($validated['accion'] === 'reject' && $reserva->estado_pago === 'devolucion_solicitada') {
+                    $reserva->estado_pago = 'pagado';
+                }
+
                 $reserva->save();
             }
 
-            return response()->json([
-                'success' => true
-            ], 200);
+            return response()->json(['success' => true], 200);
 
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),

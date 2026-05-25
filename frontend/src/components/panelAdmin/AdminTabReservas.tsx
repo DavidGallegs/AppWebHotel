@@ -67,13 +67,22 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                     {/* Alerta de Cancelación */}
                     {res.solicitud_cancelacion === 1 && (
                       <div className="alert-box alert-cancel" role="alert">
-                        <div className="alert-title"> SOLICITUD ANULACIÓN</div>
-                        <button 
-                            onClick={() => manejarResolucion(res.id, 'accept', 'cancel')} 
-                            className="btn-small accept-cancel"
-                        >
-                            Aceptar Anulación
-                        </button>
+                        <div className="alert-title">⚠️ SOLICITUD ANULACIÓN</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                            <button 
+                                onClick={() => manejarResolucion(res.id, 'reject', 'cancel')} 
+                                className="btn-small"
+                                style={{ background: '#ef4444', color: 'white', border: 'none' }}
+                            >
+                                Rechazar
+                            </button>
+                            <button 
+                                onClick={() => manejarResolucion(res.id, 'accept', 'cancel')} 
+                                className="btn-small accept-cancel"
+                            >
+                                Aceptar
+                            </button>
+                        </div>
                       </div>
                     )}
 

@@ -9,120 +9,64 @@ use App\Http\Controllers\Admin\BloqueoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Admin\CheckInController;
 use App\Http\Controllers\Admin\AdminReservaController;
- 
 use App\Http\Controllers\Auth\PasswordResetController;
-
 use App\Http\Controllers\Ses\SesController;
 
-
-
-
-// Aqui definimos la ruta para crear una reserva
-
-
 /*******************************Admin************************* */
-// Ruta para obtener todas las reservas (solo para admin)
 Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-
     // Ruta para obtener todas las reservas (solo para admin)
     Route::get('/reservations', [ReservationAdminController::class, 'indexAdmin']);
 
     // Ruta para dar de alta a los viajeros en el parte de viajeros (solo para admin)
     Route::post('/reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
-
-    // Ruta para realizar check-in de walk-in (solo para admin)
-    //Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
 });
 
+// ⚠️ Nota: Sería recomendable que estas rutas de Admin también estuvieran 
+// dentro del grupo 'auth:sanctum' de arriba por seguridad.
 Route::post('/admin/walk-in', [CheckInController::class, 'walkIn']);
-
-
-// Ruta para rechazar una reserva (solo para admin)
 Route::delete('/admin/reservations/{id}', [ReservationAdminController::class, 'rejectReservation']);
-
-// Ruta para crear bloqueos de fechas (solo para admin)
 Route::post('/admin/bloqueos', [BloqueoController::class, 'store']);
-
-
-
-// Ruta para confirmar pago de una reserva (solo para admin)
 Route::post('/admin/reservations/{id}/confirmar-pago', [AdminReservaController::class, 'confirmarPago']);
+
+// ---> ¡AQUÍ ESTÁ LA NUEVA RUTA DEL ADMIN (RESOLVER SOLICITUDES)! <---
+Route::post('/admin/reservations/{id}/resolve', [AdminReservaController::class, 'resolve']);
 
 
 /****************************Viajeros***************************** */
 
-// Ruta para recuperar contraseña
+// Rutas Públicas (No requieren estar logueado)
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
-
-
-// Ruta para registro de usuarios
 Route::post('/register', [RegisterController::class, 'registrarUsuario']);
-
-// Ruta para crear reserva 
 Route::post('/reservas', [ReservaController::class, 'crearReserva']);
-
-// Ruta para pre-login (enviar OTP)
 Route::post('/pre-login', [LoginController::class, 'preLogin']);
-
-// Ruta para login de usuarios
 Route::post('/login', [LoginController::class, 'login']);
-
-// Ruta protegida para obtener las reservas del usuario autenticado
-Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); 
-
-Route::put('/reservations/{id}', [ReservaController::class, 'update']);
-
-
-// Ruta para obtener detalles de una reserva especifica
 Route::get('/reservas/{id}', [ReservaController::class, 'show']); 
-
-
-// Ruta para obtener la ocupacion de un establecimiento en un rango de fechas
 Route::get('/ocupacion', [ReservaController::class, 'ocupacion']);
 
-// Ruta para crear parte de viajeros
-Route::post('reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
 
-
-
-
-
-// Rutas del Usuario (Panel de cliente)
+// Rutas Protegidas del Usuario (Panel de cliente)
 Route::middleware('auth:sanctum')->group(function () {
-
+    Route::get('/reservations', [ReservaController::class, 'index']); 
     
-
-
-    Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'solicitarModificacion']);
-    Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']);
+    // Ruta para Modificación Directa (Estado: Pendiente)
+    Route::put('/reservations/{id}', [ReservaController::class, 'update']);
+    
+    // ---> RUTAS DE SOLICITUDES AL ADMIN (Estado: Aprobada) <---
+    Route::patch('/reservations/{id}/request-modification', [ReservaController::class, 'requestModification']);
+    Route::post('/reservations/{id}/solicitar-devolucion', [ReservaController::class, 'solicitarDevolucion']);
+    
+    // Otras rutas del usuario
+    Route::patch('/reservations/{id}/cancel', [ReservaController::class, 'cancelarReserva']); // ¿O cancelarDirectamente? Usa la que tengas definida
     Route::patch('/reservations/{id}/request-cancellation', [ReservaController::class, 'solicitarCancelacion']);
-    
-    // Endpoint genérico para disparar correos
     Route::post('/notificaciones/enviar', [NotificacionController::class, 'enviarNotificacion']);
-
     Route::post('/reservations/{id}/notificar-pago',[ReservaController::class, 'notificarPago']);
-
-
-    Route::post('/reservations/{id}/solicitar-devolucion',[ReservaController::class, 'solicitarDevolucion']);
+    Route::post('reservations/{id}/checkin', [CrearParteViajeros::class, 'parteViajeros']);
 });
-
-Route::patch('/reservations/{id}/request-modification', 
-    [ReservaController::class, 'requestModification']
-);
-
-Route::post('/admin/reservations/{id}/resolve', 
-    [AdminReservaController::class, 'resolve']
-);
-
 
 
 /****************************************COMUNICACION SES******************************************* */
-
-
-
 Route::get('/admin/ses/data', [SesController::class, 'logs']);
 Route::post('/admin/ses/anular/{id}', [SesController::class, 'anularSES']);
-
 
 ?>
