@@ -186,12 +186,14 @@ class AdminReservaController extends Controller
 
                 $datos = json_decode($reserva->datos_modificacion, true);
 
-                // ===== TITULAR =====
-                if (isset($datos['titular'])) {
+                // ======================
+                // TITULAR
+                // ======================
+                if (!empty($datos['titular']['numeroDocumento'])) {
 
                     $persona = Persona::updateOrCreate(
                         [
-                            'documento' => $datos['titular']['numeroDocumento'] ?? null
+                            'documento' => $datos['titular']['numeroDocumento']
                         ],
                         [
                             'nombre' => $datos['titular']['nombre'] ?? null,
@@ -204,62 +206,34 @@ class AdminReservaController extends Controller
                         ]
                     );
 
-                    // IMPORTANTE: tu PK es idPersona
                     $reserva->idPersonaTitular = $persona->idPersona;
                 }
 
-                // ===== FECHAS =====
-                if (isset($datos['fechaEntrada'])) {
+                // ======================
+                // FECHAS
+                // ======================
+                if (!empty($datos['fechaEntrada'])) {
                     $reserva->fechaEntrada = $datos['fechaEntrada'];
                 }
 
-                if (isset($datos['fechaSalida'])) {
+                if (!empty($datos['fechaSalida'])) {
                     $reserva->fechaSalida = $datos['fechaSalida'];
                 }
 
-                // ===== HABITACION + PERSONAS =====
-                if (
-                    isset($datos['idHabitacion']) &&
-                    isset($datos['numPersonas'])
-                ) {
+                // ======================
+                // HABITACIÓN + PERSONAS (PIVOT)
+                // ======================
+                if (!empty($datos['idHabitacion']) && !empty($datos['numPersonas'])) {
 
-                    $habitacionId = $datos['idHabitacion'];
-
-                    /*
-                    | Verificar si la relación existe
-                    */
-                    $existeRelacion = $reserva->habitaciones()
-                        ->where('habitaciones.idHabitacion', $habitacionId)
-                        ->exists();
-
-                    if ($existeRelacion) {
-
-                        /*
-                        | Actualizar SOLO el pivot
-                        */
-                        $reserva->habitaciones()->updateExistingPivot(
-                            $habitacionId,
-                            [
-                                'numPersonas' => $datos['numPersonas']
-                            ]
-                        );
-
-                    } else {
-
-                        /*
-                        | Si no existe relación, adjuntar habitación
-                        */
-                        $reserva->habitaciones()->attach(
-                            $habitacionId,
-                            [
-                                'numPersonas' => $datos['numPersonas']
-                            ]
-                        );
-                    }
+                    $reserva->habitaciones()->syncWithoutDetaching([
+                        $datos['idHabitacion'] => [
+                            'numPersonas' => $datos['numPersonas']
+                        ]
+                    ]);
                 }
             }
 
-            // Tanto si acepta como rechaza
+            // limpiar SIEMPRE
             $reserva->datos_modificacion = null;
             $reserva->solicitud_modificacion = 0;
 
@@ -269,13 +243,10 @@ class AdminReservaController extends Controller
         elseif ($validated['tipo'] === 'cancel') {
 
             if ($validated['accion'] === 'accept') {
-
-                // IMPORTANTE: la columna es estado, no status
                 $reserva->estado = 'cancelled';
             }
 
             $reserva->solicitud_cancelacion = 0;
-
             $reserva->save();
         }
 
