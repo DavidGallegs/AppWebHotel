@@ -74,30 +74,25 @@ class ReservaController extends Controller
         ])->validate();
 
         /*
-        | 3. CREAR O ACTUALIZAR PERSONA (FIX IMPORTANTE)
-        | CLAVE ÚNICA: EMAIL
+        | 3. CREAR PERSONA (SIN SOBRESCRIBIR OTRAS)
         */
-        $persona = Persona::updateOrCreate(
-            [
-                'email' => $validated['correo'], //  CLAVE FIJA PARA EVITAR DUPLICADOS
-            ],
-            [
-                'nombre' => $validated['nombre'],
-                'apellido1' => $validated['apellido1'],
-                'apellido2' => $validated['apellido2'] ?? null,
-                'fechaNacimiento' => $validated['fechaNacimiento'],
-                'nacionalidad' => $validated['pais'] ?? null,
-                'direccion' => $validated['direccion'],
-                'codigoMunicipio' => $validated['codigoMunicipio'] ?? null,
-                'nombreMunicipio' => $validated['nombreMunicipio'] ?? null,
-                'localidad' => $validated['localidad'] ?? null,
-                'cp' => $validated['cp'],
-                'telefono' => $validated['telefono'] ?? null,
-                'email' => $validated['correo'] ?? null,
-                'tipoDocumento' => $validated['tipoDocumento'] ?? null,
-                'soporteDocumento' => $validated['soporteDocumento'] ?? null,
-            ]
-        );
+        $persona = Persona::create([
+            'nombre' => $validated['nombre'],
+            'apellido1' => $validated['apellido1'],
+            'apellido2' => $validated['apellido2'] ?? null,
+            'fechaNacimiento' => $validated['fechaNacimiento'],
+            'nacionalidad' => $validated['pais'] ?? null,
+            'direccion' => $validated['direccion'],
+            'codigoMunicipio' => $validated['codigoMunicipio'] ?? null,
+            'nombreMunicipio' => $validated['nombreMunicipio'] ?? null,
+            'localidad' => $validated['localidad'] ?? null,
+            'cp' => $validated['cp'],
+            'telefono' => $validated['telefono'] ?? null,
+            'email' => $validated['correo'] ?? null,
+            'tipoDocumento' => $validated['tipoDocumento'] ?? null,
+            'soporteDocumento' => $validated['soporteDocumento'] ?? null,
+            'numeroDocumento' => $validated['numeroDocumento'],
+        ]);
 
         /*
         | 4. ESTABLECIMIENTO
@@ -149,7 +144,6 @@ class ReservaController extends Controller
             'titular' => $persona,
         ]);
     }
-
 
     /*
     |FUNCION PARA OBTENER DETALLES DE UNA RESERVA ESPECIFICA, INCLUYENDO DATOS DEL CONTRATO SI EXISTE
