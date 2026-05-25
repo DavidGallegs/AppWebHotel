@@ -700,4 +700,25 @@ class ReservaController extends Controller
         }
         return response()->json($response, $status);
     }
+
+    public function requestModification(Request $request, $id)
+    {
+        $reserva = Reserva::findOrFail($id);
+
+        $validated = $request->validate([
+            'datos' => 'required|array',
+        ]);
+
+        $reserva->datos_modificacion = json_encode($validated['datos']);
+
+        // opcional pero recomendable si tienes columna
+        $reserva->solicitud_modificacion = 1;
+
+        $reserva->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitud de modificación enviada correctamente'
+        ], 200);
+    }
 }

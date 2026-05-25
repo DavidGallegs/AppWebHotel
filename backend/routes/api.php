@@ -107,6 +107,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservations/{id}/solicitar-devolucion',[ReservaController::class, 'solicitarDevolucion']);
 });
 
+Route::patch('/reservations/{id}/request-modification', 
+    [ReservaController::class, 'requestModification']
+);
+
+Route::post('/admin/reservations/{id}/resolve', 
+    [AdminReservaController::class, 'resolve']
+);
+
 
 
 /****************************************COMUNICACION SES******************************************* */

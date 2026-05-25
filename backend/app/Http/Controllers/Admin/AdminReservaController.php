@@ -167,4 +167,78 @@ class AdminReservaController extends Controller
             ], 500);
         }
     }
+
+    public function resolve(Request $request, $id)
+    {
+        $reserva = Reserva::findOrFail($id);
+
+        $validated = $request->validate([
+            'accion' => 'required|in:accept,reject',
+            'tipo' => 'required|in:mod,cancel',
+        ]);
+
+        if ($validated['tipo'] === 'mod') {
+
+            if ($validated['accion'] === 'accept' && $reserva->datos_modificacion) {
+
+                $datos = json_decode($reserva->datos_modificacion, true);
+
+                // ===== TITULAR =====
+                if (isset($datos['titular'])) {
+
+                    $persona = Persona::firstOrCreate(
+                        ['numeroDocumento' => $datos['titular']['numeroDocumento'] ?? null],
+                        [
+                            'nombre' => $datos['titular']['nombre'] ?? null,
+                            'apellido1' => $datos['titular']['apellido1'] ?? null,
+                            'apellido2' => $datos['titular']['apellido2'] ?? null,
+                            'correo' => $datos['titular']['correo'] ?? null,
+                            'telefono' => $datos['titular']['telefono'] ?? null,
+                            'tipoDocumento' => $datos['titular']['tipoDocumento'] ?? null,
+                            'pais' => $datos['titular']['pais'] ?? null,
+                        ]
+                    );
+
+                    $reserva->idPersonaTitular = $persona->id;
+                }
+
+                // ===== CAMPOS RESERVA =====
+                if (isset($datos['habitacion'])) {
+                    $reserva->habitacion = $datos['habitacion'];
+                }
+
+                if (isset($datos['numPersonas'])) {
+                    $reserva->numPersonas = $datos['numPersonas'];
+                }
+
+                if (isset($datos['fechaEntrada'])) {
+                    $reserva->fechaEntrada = $datos['fechaEntrada'];
+                }
+
+                if (isset($datos['fechaSalida'])) {
+                    $reserva->fechaSalida = $datos['fechaSalida'];
+                }
+            }
+
+            // En ambos casos (accept/reject)
+            $reserva->datos_modificacion = null;
+            $reserva->solicitud_modificacion = 0;
+
+            $reserva->save();
+        }
+
+        elseif ($validated['tipo'] === 'cancel') {
+
+            if ($validated['accion'] === 'accept') {
+                $reserva->status = 'cancelled';
+            }
+
+            $reserva->solicitud_cancelacion = 0;
+            $reserva->save();
+        }
+
+        return response()->json([
+            'success' => true
+        ], 200);
+    }
 }
