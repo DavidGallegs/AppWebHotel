@@ -236,7 +236,7 @@ class AdminReservaController extends Controller
                         $numPersonas = (int) $datos['numPersonas'];
 
                         $existeRelacion = $reserva->habitaciones()
-                            ->where('habitaciones.idHabitacion', $habitacionId)
+                            ->whereKey($habitacionId)
                             ->exists();
 
                         if ($existeRelacion) {
