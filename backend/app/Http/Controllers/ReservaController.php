@@ -327,11 +327,12 @@ class ReservaController extends Controller
         }
 
         // =========================
-        // HABITACIÓN + PERSONAS (PIVOT)
+        // HABITACIÓN + PERSONAS (PIVOT SOLICIONADO)
         // =========================
-        if (!empty($data['idHabitacion']) && !empty($data['numPersonas'])) {
+        if (!empty($data['idHabitacion']) && isset($data['numPersonas'])) {
 
-            $reserva->habitaciones()->syncWithoutDetaching([
+            // Cambiado syncWithoutDetaching por sync para que elimine la habitación vieja
+            $reserva->habitaciones()->sync([
                 $data['idHabitacion'] => [
                     'numPersonas' => $data['numPersonas']
                 ]
