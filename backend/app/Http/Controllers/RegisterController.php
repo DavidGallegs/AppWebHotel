@@ -15,8 +15,8 @@ class RegisterController extends Controller
 {
     public function registrarUsuario(Request $request)
     {
-
         try {
+
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'apellido1' => 'required|string|max:255',
@@ -25,21 +25,27 @@ class RegisterController extends Controller
             ]);
 
             DB::beginTransaction();
+
             $nombre = Str::ucfirst(Str::lower($validated['name']));
             $apellido1 = Str::ucfirst(Str::lower($validated['apellido1']));
             $email = Str::lower($validated['email']);
 
             /*
-            |1. CREAR REGISTRO EN PERSONA
+            | 1. CREAR O ACTUALIZAR PERSONA (SIN DUPLICADOS)
             */
-            $persona = Persona::create([
-                'nombre' => $nombre,
-                'apellido1' => $apellido1,
-                'email' => $email,
-            ]);
+            $persona = Persona::updateOrCreate(
+                [
+                    'email' => $email
+                ],
+                [
+                    'nombre' => $nombre,
+                    'apellido1' => $apellido1,
+                    'email' => $email,
+                ]
+            );
 
             /*
-            |2. CREAR REGISTRO EN USER ASOCIADO A LA PERSONA
+            | 2. CREAR USUARIO ASOCIADO A LA PERSONA
             */
             User::create([
                 'idPersona' => $persona->idPersona,
@@ -53,14 +59,19 @@ class RegisterController extends Controller
                 'message' => 'Usuario registrado correctamente'
             ], 201);
 
-        }catch (ValidationException $e) {
+        } catch (ValidationException $e) {
+
             return response()->json([
                 'errors' => $e->errors()
             ], 422);
-        }catch (\Exception $e) {
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
             return response()->json([
                 'error' => 'Error en el registro',
-                'detalle_real' => $e->getMessage() 
+                'detalle_real' => $e->getMessage()
             ], 400);
         }
     }
