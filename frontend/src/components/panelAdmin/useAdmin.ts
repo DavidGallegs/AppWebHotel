@@ -62,7 +62,15 @@ export const useAdmin = (habitacionId?: string) => {
     mutationFn: async ({ id, accion, tipo }: { id: string | number, accion: 'accept' | 'reject', tipo: 'mod' | 'cancel' }) => {
       await api.post(`/admin/reservations/${id}/resolve`, { accion, tipo });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reservations'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-reservations'] });
+    },
+    // ¡NUEVO COMPORTAMIENTO DE SEGURIDAD!
+    onError: (error: any) => {
+      console.error("Error al resolver la solicitud:", error);
+      const mensajeServidor = error.response?.data?.message || "Error desconocido en el servidor.";
+      alert(`No se pudo procesar la acción: ${mensajeServidor}`);
+    }
   });
 
   const cancelarReservaAdmin = useMutation({

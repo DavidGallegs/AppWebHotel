@@ -191,7 +191,7 @@ class AdminReservaController extends Controller
                         return response()->json(['success' => false, 'message' => 'datos_modificacion inválido o vacío'], 400);
                     }
 
-                    // ===== TITULAR =====
+                    // ===== ACTUALIZAR TITULAR =====
                     if (!empty($datos['titular'])) {
                         $persona = Persona::updateOrCreate(
                             ['documento' => $datos['titular']['numeroDocumento'] ?? null],
@@ -208,28 +208,24 @@ class AdminReservaController extends Controller
                         $reserva->idPersonaTitular = $persona->idPersona;
                     }
 
-                    // ===== FECHAS =====
+                    // ===== ACTUALIZAR FECHAS =====
                     if (!empty($datos['fechaEntrada'])) $reserva->fechaEntrada = $datos['fechaEntrada'];
                     if (!empty($datos['fechaSalida'])) $reserva->fechaSalida = $datos['fechaSalida'];
 
-                    // ===== HABITACION + PERSONAS =====
+                    // ===== ACTUALIZAR HABITACIÓN (SOLUCIONADO CON SYNC) =====
                     if (!empty($datos['idHabitacion']) && isset($datos['numPersonas'])) {
                         $habitacionId = (int) $datos['idHabitacion'];
                         $numPersonas = (int) $datos['numPersonas'];
 
-                        $existeRelacion = $reserva->habitaciones()->where('habitaciones.idHabitacion', $habitacionId)->exists();
-
-                        if ($existeRelacion) {
-                            $reserva->habitaciones()->updateExistingPivot($habitacionId, ['numPersonas' => $numPersonas]);
-                        } else {
-                            $reserva->habitaciones()->attach($habitacionId, ['numPersonas' => $numPersonas]);
-                        }
+                        // sync() elimina la habitación vieja y mete la nueva con sus huéspedes en el pivote
+                        $reserva->habitaciones()->sync([
+                            $habitacionId => ['numPersonas' => $numPersonas]
+                        ]);
                     }
                 }
 
-                // Tanto si aceptamos como rechazamos la MODIFICACIÓN, limpiamos la alerta
+                // ===== LIMPIEZA (Corregido: Eliminada columna fantasma) =====
                 $reserva->datos_modificacion = null;
-                $reserva->solicitud_modificacion = 0;
                 $reserva->save();
             }
 
@@ -237,16 +233,12 @@ class AdminReservaController extends Controller
             // 2. SOLICITUDES DE ANULACIÓN
             // ==========================================
             elseif ($validated['tipo'] === 'cancel') {
-                
                 if ($validated['accion'] === 'accept') {
-                    // Si aceptamos la anulación, cambiamos el estado
                     $reserva->estado = 'cancelled'; 
                 }
 
-                // Tanto si aceptamos como rechazamos la ANULACIÓN, apagamos la alerta roja
                 $reserva->solicitud_cancelacion = 0;
-                
-                // Opcional: Si el pago estaba en "devolucion_solicitada", lo volvemos a "pagado" si rechazamos
+
                 if ($validated['accion'] === 'reject' && $reserva->estado_pago === 'devolucion_solicitada') {
                     $reserva->estado_pago = 'pagado';
                 }
