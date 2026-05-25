@@ -8,6 +8,7 @@ use App\Models\Persona; // Importamos el modelo Persona para definir la relacion
 use App\Models\Contrato; 
 use App\Models\Habitacion;
 use App\Models\ReservaHabitacion;
+use App\Models\Establecimiento;
 
 
 class Reserva extends Model
@@ -32,7 +33,7 @@ class Reserva extends Model
         'estado_pago',
         'createdAt',
         'updatedAt',
-        'idUsuarioCreador '
+        'idUsuarioCreador'
     ];
 
     
