@@ -45,13 +45,20 @@ class ReservationAdminController extends Controller
                 return [
                     'id' => $reserva->idReserva,
                     'status' => $reserva->estado,
+
                     'fechaEntrada' => $reserva->fechaEntrada,
                     'fechaSalida' => $reserva->fechaSalida,
 
                     'habitacion' => $reserva->habitaciones->pluck('idHabitacion')->first(),
 
                     'numPersonas' => $reserva->habitaciones->first()?->pivot->numPersonas,
+
                     'estado_pago' => $reserva->estado_pago,
+
+                    // ===== AÑADIR ESTO =====
+                    'solicitud_modificacion' => $reserva->solicitud_modificacion,
+                    'datos_modificacion' => $reserva->datos_modificacion,
+                    'solicitud_cancelacion' => $reserva->solicitud_cancelacion,
 
                     'titular' => [
                         'nombre' => $reserva->persona->nombre,
