@@ -179,7 +179,10 @@ class AdminReservaController extends Controller
 
         if ($validated['tipo'] === 'mod') {
 
-            if ($validated['accion'] === 'accept' && $reserva->datos_modificacion) {
+            if (
+                $validated['accion'] === 'accept' &&
+                !empty($reserva->datos_modificacion)
+            ) {
 
                 $datos = json_decode($reserva->datos_modificacion, true);
 
@@ -187,7 +190,9 @@ class AdminReservaController extends Controller
                 if (isset($datos['titular'])) {
 
                     $persona = Persona::firstOrCreate(
-                        ['documento' => $datos['titular']['numeroDocumento'] ?? null],
+                        [
+                            'documento' => $datos['titular']['numeroDocumento'] ?? null
+                        ],
                         [
                             'nombre' => $datos['titular']['nombre'] ?? null,
                             'apellido1' => $datos['titular']['apellido1'] ?? null,
@@ -195,22 +200,15 @@ class AdminReservaController extends Controller
                             'email' => $datos['titular']['correo'] ?? null,
                             'telefono' => $datos['titular']['telefono'] ?? null,
                             'tipoDocumento' => $datos['titular']['tipoDocumento'] ?? null,
-                            'pais' => $datos['titular']['pais'] ?? null,
+                            'nacionalidad' => $datos['titular']['pais'] ?? null,
                         ]
                     );
 
-                    $reserva->idPersonaTitular = $persona->id;
+                    // IMPORTANTE: tu PK es idPersona
+                    $reserva->idPersonaTitular = $persona->idPersona;
                 }
 
-                // ===== CAMPOS RESERVA =====
-                if (isset($datos['habitacion'])) {
-                    $reserva->habitacion = $datos['habitacion'];
-                }
-
-                if (isset($datos['numPersonas'])) {
-                    $reserva->numPersonas = $datos['numPersonas'];
-                }
-
+                // ===== FECHAS =====
                 if (isset($datos['fechaEntrada'])) {
                     $reserva->fechaEntrada = $datos['fechaEntrada'];
                 }
@@ -218,9 +216,22 @@ class AdminReservaController extends Controller
                 if (isset($datos['fechaSalida'])) {
                     $reserva->fechaSalida = $datos['fechaSalida'];
                 }
+
+                // ===== HABITACION + PERSONAS =====
+                if (
+                    isset($datos['habitacion']) &&
+                    isset($datos['numPersonas'])
+                ) {
+
+                    $reserva->habitaciones()->sync([
+                        $datos['habitacion'] => [
+                            'numPersonas' => $datos['numPersonas']
+                        ]
+                    ]);
+                }
             }
 
-            // En ambos casos (accept/reject)
+            // Tanto si acepta como rechaza
             $reserva->datos_modificacion = null;
             $reserva->solicitud_modificacion = 0;
 
@@ -230,10 +241,13 @@ class AdminReservaController extends Controller
         elseif ($validated['tipo'] === 'cancel') {
 
             if ($validated['accion'] === 'accept') {
-                $reserva->status = 'cancelled';
+
+                // IMPORTANTE: la columna es estado, no status
+                $reserva->estado = 'cancelled';
             }
 
             $reserva->solicitud_cancelacion = 0;
+
             $reserva->save();
         }
 
