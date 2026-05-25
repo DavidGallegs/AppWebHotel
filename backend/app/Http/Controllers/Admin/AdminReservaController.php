@@ -223,11 +223,39 @@ class AdminReservaController extends Controller
                     isset($datos['numPersonas'])
                 ) {
 
-                    $reserva->habitaciones()->sync([
-                        $datos['habitacion'] => [
-                            'numPersonas' => $datos['numPersonas']
-                        ]
-                    ]);
+                    $habitacionId = $datos['habitacion'];
+
+                    /*
+                    | Verificar si la relación existe
+                    */
+                    $existeRelacion = $reserva->habitaciones()
+                        ->where('habitaciones.idHabitacion', $habitacionId)
+                        ->exists();
+
+                    if ($existeRelacion) {
+
+                        /*
+                        | Actualizar SOLO el pivot
+                        */
+                        $reserva->habitaciones()->updateExistingPivot(
+                            $habitacionId,
+                            [
+                                'numPersonas' => $datos['numPersonas']
+                            ]
+                        );
+
+                    } else {
+
+                        /*
+                        | Si no existe relación, adjuntar habitación
+                        */
+                        $reserva->habitaciones()->attach(
+                            $habitacionId,
+                            [
+                                'numPersonas' => $datos['numPersonas']
+                            ]
+                        );
+                    }
                 }
             }
 
