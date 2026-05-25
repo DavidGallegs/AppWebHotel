@@ -71,7 +71,7 @@ Route::post('/login', [LoginController::class, 'login']);
 // Ruta protegida para obtener las reservas del usuario autenticado
 Route::middleware('auth:sanctum')->get('/reservations', [ReservaController::class, 'index']); 
 
-
+Route::put('/reservations/{id}', [ReservaController::class, 'update']);
 
 
 // Ruta para obtener detalles de una reserva especifica

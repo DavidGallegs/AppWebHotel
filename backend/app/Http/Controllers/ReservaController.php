@@ -280,44 +280,70 @@ class ReservaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $status = 200;
-        $response = [];
-        $reserva = Reserva::with('persona')->find($id);
+        $reserva = Reserva::findOrFail($id);
 
-        if (!$reserva) {
-            $status = 404;
-            $response = [
-                'error' => 'Reserva no encontrada'
-            ];
-        } else {
-            /*
-            | ACTUALIZAR DATOS DE LA RESERVA 
-            */
-            $reserva->fechaEntrada = $request->fechaEntrada;
-            $reserva->fechaSalida = $request->fechaSalida;
-
-            if ($request->has('idHabitacion')) {
-                $reserva->idHabitacion = $request->idHabitacion;
-            }
-            $reserva->save();
-            /*
-            | ACTUALIZAR DATOS DEL TITULAR SI SE ENVIAN EN LA SOLICITUD
-            */
-            if ($request->has('titular') && $reserva->persona) {
-                $reserva->persona->update([
-                    'nombre' => $request->titular['nombre'] ?? $reserva->persona->nombre,
-                    'apellidos' => $request->titular['apellidos'] ?? $reserva->persona->apellidos,
-                    'dni' => $request->titular['dni'] ?? $reserva->persona->dni,
-                    'telefono' => $request->titular['telefono'] ?? $reserva->persona->telefono,
-                    'email' => $request->titular['email'] ?? $reserva->persona->email,
-                ]);
-            }
-
-            $response = [
-                "message" => "Reserva actualizada con éxito"
-            ];
+        // =========================
+        // SEGURIDAD
+        // =========================
+        if ($reserva->estado !== 'pending') {
+            return response()->json([
+                'error' => 'No puedes modificar directamente una reserva ya procesada'
+            ], 403);
         }
-        return response()->json($response, $status);
+
+        $data = $request->all();
+
+        // =========================
+        // TITULAR
+        // =========================
+        if (!empty($data['titular'])) {
+
+            $t = $data['titular'];
+
+            $reserva->persona->update([
+                'nombre' => $t['nombre'] ?? null,
+                'apellido1' => $t['apellido1'] ?? null,
+                'apellido2' => $t['apellido2'] ?? null,
+                'email' => $t['correo'] ?? null,
+                'telefono' => $t['telefono'] ?? null,
+                'direccion' => $t['direccion'] ?? null,
+                'cp' => $t['codigoPostal'] ?? null,
+                'nacionalidad' => $t['pais'] ?? null,
+                'codigoMunicipio' => ($t['pais'] === 'ESP')
+                    ? ($t['codigoMunicipio'] ?? null)
+                    : null,
+            ]);
+        }
+
+        // =========================
+        // FECHAS
+        // =========================
+        if (!empty($data['fechaEntrada'])) {
+            $reserva->fechaEntrada = $data['fechaEntrada'];
+        }
+
+        if (!empty($data['fechaSalida'])) {
+            $reserva->fechaSalida = $data['fechaSalida'];
+        }
+
+        // =========================
+        // HABITACIÓN + PERSONAS (PIVOT)
+        // =========================
+        if (!empty($data['idHabitacion']) && !empty($data['numPersonas'])) {
+
+            $reserva->habitaciones()->syncWithoutDetaching([
+                $data['idHabitacion'] => [
+                    'numPersonas' => $data['numPersonas']
+                ]
+            ]);
+        }
+
+        $reserva->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reserva modificada correctamente'
+        ], 200);
     }
     
     /*
