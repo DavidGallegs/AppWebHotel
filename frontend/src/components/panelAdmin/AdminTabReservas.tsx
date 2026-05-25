@@ -79,14 +79,13 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
 
                     {/* NUEVO: Alerta de Modificación */}
                     {res.datos_modificacion && (
-                      <div className="alert-box alert-warning" role="alert" style={{ background: '#fef3c7', border: '1px solid #f59e0b', color: '#b45309' }}>
+                      <div className="alert-box alert-warning" role="alert" >
                         <div className="alert-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <AlertCircle size={14} /> CAMBIOS PENDIENTES
                         </div>
                         <button 
                             onClick={() => setReservaRevisarMod(res)} 
-                            className="btn-small"
-                            style={{ background: '#f59e0b', color: 'white', marginTop: '0.5rem' }}
+                            className="btn-small-mod"
                         >
                             Revisar Cambios
                         </button>
