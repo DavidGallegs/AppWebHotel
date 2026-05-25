@@ -189,7 +189,7 @@ class AdminReservaController extends Controller
                 // ===== TITULAR =====
                 if (isset($datos['titular'])) {
 
-                    $persona = Persona::firstOrCreate(
+                    $persona = Persona::updateOrCreate(
                         [
                             'documento' => $datos['titular']['numeroDocumento'] ?? null
                         ],
