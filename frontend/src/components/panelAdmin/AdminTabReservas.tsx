@@ -12,7 +12,7 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
   const { reservas, mutations } = useAdmin();
   const [reservaDetalle, setReservaDetalle] = useState<FullReservation | null>(null);
   
-  // NUEVO ESTADO: Para controlar el modal de revisión de modificaciones
+  // ESTADO: Para controlar el modal de revisión de modificaciones
   const [reservaRevisarMod, setReservaRevisarMod] = useState<FullReservation | null>(null);
 
   const formatearFecha = (f: string) => { try { return format(new Date(f), "dd/MM/yyyy"); } catch { return f; } };
@@ -26,7 +26,7 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
   const manejarResolucion = (id: string | number, accion: 'accept' | 'reject', tipo: 'mod' | 'cancel') => {
       mutations.resolverSolicitud.mutate(
           { id, accion, tipo },
-          { onSuccess: () => setReservaRevisarMod(null) } // Cerramos el modal al terminar
+          { onSuccess: () => setReservaRevisarMod(null) } 
       );
   };
 
@@ -64,10 +64,12 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                        <span className="admin-alert-waiting" style={{ color: '#10b981' }} role="status">💰 Pago Notificado</span>
                     )}
 
-                    {/* Alerta de Cancelación */}
-                    {res.solicitud_cancelacion === 1 && (
+                    {/* Alerta de Cancelación (Solucionado con Number para evitar fallos de tipos) */}
+                    {Number(res.solicitud_cancelacion) === 1 && (
                       <div className="alert-box alert-cancel" role="alert">
-                        <div className="alert-title">⚠️ SOLICITUD ANULACIÓN</div>
+                        <div className="alert-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <AlertCircle size={14} /> SOLICITUD ANULACIÓN
+                        </div>
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                             <button 
                                 onClick={() => manejarResolucion(res.id, 'reject', 'cancel')} 
@@ -86,7 +88,7 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                       </div>
                     )}
 
-                    {/* NUEVO: Alerta de Modificación */}
+                    {/* Alerta de Modificación */}
                     {res.datos_modificacion && (
                       <div className="alert-box alert-warning" role="alert" >
                         <div className="alert-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -95,6 +97,7 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                         <button 
                             onClick={() => setReservaRevisarMod(res)} 
                             className="btn-small-mod"
+                            style={{ background: '#f59e0b', color: 'white', marginTop: '0.5rem', border: 'none' }}
                         >
                             Revisar Cambios
                         </button>
@@ -114,7 +117,8 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
                        </button>
                     )}
 
-                    {res.status === 'approved' && !res.datos_modificacion && !res.solicitud_cancelacion && (
+                    {/* Solo permite check-in si está aprobada y no hay alertas pendientes */}
+                    {res.status === 'approved' && !res.datos_modificacion && Number(res.solicitud_cancelacion) !== 1 && (
                        <button onClick={() => onCheckinSelect(res)} className="btn-action btn-checkin">Check-in</button>
                     )}
 
@@ -129,15 +133,32 @@ const AdminTabReservas = ({ onCheckinSelect }: { onCheckinSelect: (r: FullReserv
         </table>
       </div>
 
-      {/* --- MODAL 1: INFO GENERAL (El que ya tenías) --- */}
+      {/* --- MODAL 1: INFO GENERAL --- */}
       {reservaDetalle && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
-            {/* ... Aquí dentro va el contenido de tu modal original de detalles que ya funcionaba bien ... */}
             <div className="modal-card">
               <button onClick={() => setReservaDetalle(null)} className="modal-close-btn"><X size={24}/></button>
               <h2 className="modal-header">Detalles Reserva #{reservaDetalle.id}</h2>
-              <p>Nombre: {reservaDetalle.titular?.nombre}</p>
-              {/* Resto de detalles */}
+              
+              <div className="modal-grid">
+                <section>
+                  <h4 className="modal-section-title admin-text-accent">Huésped Titular</h4>
+                  <p><strong>Nombre:</strong> {reservaDetalle.titular?.nombre} {reservaDetalle.titular?.apellido1}</p>
+                  <p><strong>Teléfono:</strong> {reservaDetalle.titular?.telefono || '-'}</p>
+                  <p><strong>Email:</strong> {reservaDetalle.titular?.correo || '-'}</p>
+                </section>
+  
+                <section className="modal-info-box">
+                  <h4 className="modal-section-title">Estancia</h4>
+                  <div className="grid-2-col">
+                    <p><strong>Hab:</strong> {reservaDetalle.habitacion || '1'}</p>
+                    <p><strong>Pax:</strong> {reservaDetalle.numPersonas}</p>
+                    <p><strong>Entrada:</strong> {formatearFecha(reservaDetalle.fechaEntrada)}</p>
+                    <p><strong>Salida:</strong> {formatearFecha(reservaDetalle.fechaSalida)}</p>
+                  </div>
+                </section>
+              </div>
+              
               <button onClick={() => setReservaDetalle(null)} className="modal-footer-btn">Cerrar</button>
             </div>
         </div>
