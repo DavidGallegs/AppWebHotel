@@ -225,8 +225,8 @@ class AdminReservaController extends Controller
                 // ======================
                 if (!empty($datos['idHabitacion']) && !empty($datos['numPersonas'])) {
 
-                    $reserva->habitaciones()->sync([
-                        (int) $datos['idHabitacion'] => [
+                    $reserva->habitaciones()->syncWithoutDetaching([
+                        $datos['idHabitacion'] => [
                             'numPersonas' => $datos['numPersonas']
                         ]
                     ]);
