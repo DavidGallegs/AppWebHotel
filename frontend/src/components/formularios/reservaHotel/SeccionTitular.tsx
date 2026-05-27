@@ -22,7 +22,7 @@ export function SeccionTitular({ isAdmin = false, userEmail = "" }: Props) {
             <legend>Datos del Titular y Reserva</legend>
 
             <div className="input-group">
-                <label htmlFor="num-personas">Número total de personas en la reserva:</label>
+                
                 <select id="num-personas" {...register("numPersonas", { valueAsNumber: true })}>
                     <option value="1">1 Persona</option>
                     <option value="2">2 Personas</option>
