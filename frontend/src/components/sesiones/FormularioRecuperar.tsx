@@ -31,6 +31,7 @@ export function FormularioRecuperar() {
             <button type="submit" className="auth-button" disabled={cargando} aria-busy={cargando}>
                 {cargando ? "Enviando..." : "Enviar enlace de recuperación"}
             </button>
+            
             <a href="/login" className="auth-back-link">Volver al inicio de sesión</a>
         </form>
     );
