@@ -197,7 +197,7 @@
 
 /* Botón de acción principal */
 .auth-button {
-    background: #cc530e;
+    background: #592406;
     color: #ffffff;
     padding: 0.9rem;
     border: none;
@@ -239,7 +239,7 @@
     display: block;
     text-align: center;
     margin-top: 1.5rem;
-    color: #94a3b8;
+    color: #111;
     text-decoration: none;
     font-size: 0.9rem;
 }
