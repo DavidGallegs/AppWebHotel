@@ -41,4 +41,4 @@ La aplicación cuenta con las siguientes características operativas para gestio
 
 ---
 
-Enlace a la web desplegada en EC AWS →
+Enlace a la web desplegada en EC AWS → http://35.180.46.142:4321/
